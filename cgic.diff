@@ -1,0 +1,102 @@
+*** cgic.c	2004-11-15 08:57:59.000000000 -0800
+--- ../wfr33/cgic.c	2011-11-24 14:14:52.000000000 -0800
+***************
+*** 29,34 ****
+--- 29,36 ----
+  #include <time.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
++ #include <signal.h>
++ #include <sys/shm.h>
+  
+  #ifdef WIN32
+  #include <io.h>
+*************** char *cgiAccept;
+*** 67,72 ****
+--- 69,79 ----
+  char *cgiUserAgent;
+  char *cgiReferrer;
+  
++ off_t *shm;
++ int shm_key;
++ int shmid;
++ 
++ 
+  FILE *cgiIn;
+  FILE *cgiOut;
+  
+*************** static void cgiFreeResources();
+*** 119,124 ****
+--- 126,137 ----
+  static int cgiStrEqNc(char *s1, char *s2);
+  static int cgiStrBeginsNc(char *s1, char *s2);
+  
++ /* Dirty little hack to get file upload progress - Part 4: SHM Cleanup */
++ void shmcleanup(void) {
++     if(shmid>0) 
++         shmctl(shmid, IPC_RMID, NULL);
++ }
++ 
+  int main(int argc, char *argv[]) {
+  	int result;
+  	char *cgiContentLengthString;
+*************** static cgiParseResultType cgiParsePostMu
+*** 435,440 ****
+--- 448,454 ----
+  	cgiParseResultType result;
+  	cgiFormEntry *n = 0, *l = 0;
+  	int got;
++ 	int sig;
+  	FILE *outf = 0;
+  	char *out = 0;
+  	char tfileName[1024];
+*************** static cgiParseResultType cgiParsePostMu
+*** 521,531 ****
+--- 535,559 ----
+  				return cgiParseIO;
+  			}	
+  			outf = fopen(tfileName, "w+b");
++ 			/* Dirty little hack to get file upload progress - Part 1: Initialize */
++ 			if (cgiFormInteger("upload_id", &shm_key, 0) == cgiFormSuccess && shm_key) {
++                 if ((shmid = shmget(shm_key, sizeof(int), IPC_CREAT | 0666)) > 0) {
++                     for(sig=1; sig<=31; sig++)
++                         signal(sig, (void*)shmcleanup);
++                     if ((shm = shmat(shmid, NULL, 0)) > 0) 
++                         *shm=0;
++                 }
++             }
+  		} else {
+  			outf = 0;
+  			tfileName[0] = '\0';
+  		}	
+  		result = afterNextBoundary(mpp, outf, &out, &bodyLength, 0);
++ 		/* Dirty little hack to get file upload progress - Part 2: Clean up */
++         if(shm>0)
++             shmdt(shm);
++         if(shmid>0) 
++             shmctl(shmid, IPC_RMID, NULL);
+  		if (result != cgiParseSuccess) {
+  			/* Lack of a boundary here is an error. */
+  			if (outf) {
+*************** cgiParseResultType afterNextBoundary(mpS
+*** 689,694 ****
+--- 717,723 ----
+  	cgiParseResultType result;
+  	int boffset;
+  	int got;
++ 	off_t tot=0;
+  	char d[2];	
+  	/* This is large enough, because the buffer into which the
+  		original boundary string is fetched is shorter by more
+*************** cgiParseResultType afterNextBoundary(mpS
+*** 711,716 ****
+--- 740,748 ----
+  	workingBoundaryLength = strlen(workingBoundary);
+  	while (1) {
+  		got = mpRead(mpp, d, 1);
++         /* Dirty little hack to get file upload progress - Part 3: Set value */
++         if(outf && shm>0) 
++             *shm=tot+=got;
+  		if (got != 1) {
+  			/* 2.01: cgiParseIO, not cgiFormIO */
+  			result = cgiParseIO;
