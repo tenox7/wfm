@@ -28,7 +28,7 @@ to copy the compiled wfm binary (with any name) to your cgi execution
 directory. Include a config file of the same name as the binary file plus
 .cfg extension. Example:
 
-/u/foo/web/cgi-bin
+/home/user/web/cgi-bin
   wfm
   wfm.cfg
 
@@ -52,7 +52,7 @@ Below is a simple, self explanatory configuration file example:
 tagline=Web File Manager
 
 # home directory
-directory=/home/tenox/wfm10
+directory=/home/user/wfmdata
 
 # recursively summarize directory sizes - only enable if you have
 # fast disk (SSD) or a small directory tree structure
@@ -94,7 +94,3 @@ Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.
 Copyright (c) 2002 by Aladdin Enterprises
 Copyright (c) 1999-2009 by Paul Johnston
 Copyright (c) 2010 by Yusuke Kamiyamane
-
-License
-=======
-BSD
