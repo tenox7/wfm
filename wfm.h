@@ -1,5 +1,5 @@
 #define VERSION "1.0.1"
-#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2016 by Antoni Sawicki -->\n"
+#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2015 by Antoni Sawicki -->\n"
 
 #define CSS_STYLE         \
             "  <STYLE TYPE=\"text/css\"><!-- \n" \
@@ -19,8 +19,8 @@
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" \
         "   \"http://www.w3.org/TR/html4/loose.dtd\">\n" \
         "<HTML>\n" \
-		copyright \
-		"<HEAD>\n" \
+        copyright \
+        "<HEAD>\n" \
         "  <META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n" \
         CSS_STYLE
 
@@ -107,10 +107,10 @@ enum { FALSE, TRUE };
 enum { PERM_NO, PERM_RO, PERM_RW };
 
 typedef struct asdir_ {
-	char name[NAME_MAX];
+    char name[NAME_MAX];
     mode_t type;
-	off_t size;
-	time_t atime, mtime, rtime;
+    off_t size;
+    time_t atime, mtime, rtime;
 } ASDIR;
 
 int namesort(const void *, const void *);
