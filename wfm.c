@@ -7,9 +7,9 @@
 void html_title(char *msg) {
     fprintf(cgiOut, 
         HTML_HEADER
-        "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%swfmicon.gif\">\n"
+        "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "<TITLE>%s : %s</TITLE>\n",
-        ICONSURL, TAGLINE, msg); // (strlen(virt_dirname)>0) ? ' ' : '/', TAGLINE, virt_dirname
+        ICONSURL, FAVICON, TAGLINE, msg); // (strlen(virt_dirname)>0) ? ' ' : '/', TAGLINE, virt_dirname
 }
 
 
@@ -363,6 +363,7 @@ int cgiMain(void) {
     char cfgname[128];
     char cfgline[256];
     char c_tagline[]="tagline=";
+    char c_favicon[]="favicon=";
     char c_homeurl[]="browser-url=";
     char c_homedir[]="directory=";
     char c_editdef[]="txt-default-edit=true";
@@ -397,6 +398,7 @@ int cgiMain(void) {
     memset(HOMEDIR, 0, sizeof(HOMEDIR));
     memset(HOMEURL, 0, sizeof(HOMEURL));    
     memset(TAGLINE, 0, sizeof(TAGLINE));
+    memset(FAVICON, 0, sizeof(FAVICON));
 
     cgiFormStringNoNewlines("token", token, sizeof(token));
     snprintf(cfgname, sizeof(cfgname), "%s.cfg", basename(cgiScriptName));
@@ -409,9 +411,10 @@ int cgiMain(void) {
         else if(strncmp(cfgline, c_homedir, strlen(c_homedir))==0)              strncpy(HOMEDIR, cfgline+strlen(c_homedir), sizeof(HOMEDIR));
         else if(strncmp(cfgline, c_homeurl, strlen(c_homeurl))==0)              strncpy(HOMEURL, cfgline+strlen(c_homeurl), sizeof(HOMEURL));
         else if(strncmp(cfgline, c_tagline, strlen(c_tagline))==0)              strncpy(TAGLINE, cfgline+strlen(c_tagline), sizeof(TAGLINE));
+        else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              strncpy(FAVICON, cfgline+strlen(c_favicon), sizeof(FAVICON));
         else if(strncmp(cfgline, c_editdef, strlen(c_editdef))==0)              edit_by_default=1;
         else if(strncmp(cfgline, c_editany, strlen(c_editany))==0)              edit_any_file=1;
-        else if(strncmp(cfgline, c_du, strlen(c_du))==0)              recursive_du=1;
+        else if(strncmp(cfgline, c_du, strlen(c_du))==0)                        recursive_du=1;
         else if(strncmp(cfgline, c_access, strlen(c_access))==0)                access_check(cfgline);
     }
     fclose(cfgfile);
@@ -420,6 +423,7 @@ int cgiMain(void) {
     if(strlen(HOMEDIR)>2) HOMEDIR[strlen(HOMEDIR)-1]='\0';
     if(strlen(HOMEURL)>2) HOMEURL[strlen(HOMEURL)-1]='\0';
     if(strlen(TAGLINE)>2) TAGLINE[strlen(TAGLINE)-1]='\0';
+    if(strlen(FAVICON)>2) FAVICON[strlen(FAVICON)-1]='\0';
     
     // do checks
     if(strlen(HOMEDIR) < 4 || *HOMEDIR!='/')
@@ -427,6 +431,9 @@ int cgiMain(void) {
 
     if(!strlen(TAGLINE))
         strcpy(TAGLINE, "Web File Manager");
+
+    if(!strlen(FAVICON))
+        strcpy(FAVICON, "wfmicon.gif");
 
     checkdirectory();
 

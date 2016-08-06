@@ -87,6 +87,7 @@ char ICONSURL[1024];
 char HOMEDIR[1024];
 char HOMEURL[1024];
 char TAGLINE[1024];
+char FAVICON[1024];
 
 char token[256];
 char loggedinuser[64];

@@ -77,20 +77,13 @@ void dirlist(void) {
     //
     // Get and Print Directory Entries
     //
-    if(strcmp(sortby, "name")==0)
-        nentr=asscandir(phys_dirname, &direntry, namesort);
-    else if(strcmp(sortby, "rname")==0)
-        nentr=asscandir(phys_dirname, &direntry, rnamesort);
-    else if(strcmp(sortby, "size")==0)
-        nentr=asscandir(phys_dirname, &direntry, sizesort);
-    else if(strcmp(sortby, "rsize")==0)
-        nentr=asscandir(phys_dirname, &direntry, rsizesort);
-    else if(strcmp(sortby, "date")==0)
-        nentr=asscandir(phys_dirname, &direntry, timesort);
-    else if(strcmp(sortby, "rdate")==0)
-        nentr=asscandir(phys_dirname, &direntry, rtimesort);
-    else
-        nentr=asscandir(phys_dirname, &direntry, namesort);
+         if(strcmp(sortby, "name")==0)        nentr=asscandir(phys_dirname, &direntry, namesort);
+    else if(strcmp(sortby, "rname")==0)       nentr=asscandir(phys_dirname, &direntry, rnamesort);
+    else if(strcmp(sortby, "size")==0)        nentr=asscandir(phys_dirname, &direntry, sizesort);
+    else if(strcmp(sortby, "rsize")==0)       nentr=asscandir(phys_dirname, &direntry, rsizesort);
+    else if(strcmp(sortby, "date")==0)        nentr=asscandir(phys_dirname, &direntry, timesort);
+    else if(strcmp(sortby, "rdate")==0)       nentr=asscandir(phys_dirname, &direntry, rtimesort);
+    else                                      nentr=asscandir(phys_dirname, &direntry, namesort);
 
     dir_icoinita();
 
@@ -163,11 +156,11 @@ void dirlist(void) {
         "//-->\n"
         "</STYLE>\n" 
         "<META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n"
-        "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%swfmicon.gif\">\n"
+        "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
         "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" onsubmit=\"start()\">\n",
-    copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname, cgiScriptName, "1234",  ICONSURL, cgiScriptName);
+    copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname, cgiScriptName, "1234",  ICONSURL, FAVICON, cgiScriptName);
 
 
 
@@ -180,11 +173,11 @@ void dirlist(void) {
             "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"
                 "<TR>\n"
                 "<TD WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"
-                "&nbsp;<IMG SRC=\"%swfmicon.gif\" ALIGN=\"MIDDLE\" ALT=\"WFM\">\n"
+                "&nbsp;<IMG SRC=\"%s%s\" ALIGN=\"MIDDLE\" ALT=\"WFM\">\n"
                 "%s : %c%s \n"
                 "<TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"
                 ,
-            ICONSURL, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname 
+            ICONSURL, FAVICON, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname 
     );
 
 
