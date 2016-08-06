@@ -58,6 +58,10 @@ directory=/home/user/wfmdata
 # fast disk (SSD) or a small directory tree structure
 #recursive-du=true
 
+# favicon / application icon, must be one of the embedded/compiled icon files
+# by default wfmicon.gif
+#favicon=home.gif
+
 # When clicking on txt file - edit instead of download by default
 #txt-default-edit=true
 
