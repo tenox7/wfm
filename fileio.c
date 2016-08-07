@@ -438,11 +438,11 @@ void re_dir_ui(char *vdir, int level) {
 // Scandir replacement function
 //
 int namesort(const void *d1, const void *d2) {
-	return(strcmp( ((ASDIR*)d1)->name, ((ASDIR*)d2)->name));
+	return(strcasecmp(((ASDIR*)d1)->name, ((ASDIR*)d2)->name));
 }
 
 int rnamesort(const void *d1, const void *d2) {
-	return(strcmp( ((ASDIR*)d2)->name, ((ASDIR*)d1)->name));
+	return(strcasecmp(((ASDIR*)d2)->name, ((ASDIR*)d1)->name));
 }
 
 int sizesort(const void *d1, const void *d2) {
