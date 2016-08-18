@@ -36,25 +36,25 @@ int icon(void) {
 // Called by early action=upstat
 //
 void upload_status(void) {
-    int shm_key=0;
-    int shm_id=0;
-    char *shm_addr='\0';
+    int shm_key=-1;
+    int shm_id=-1;
+    char *shm_addr=NULL;
 
     if(cgiFormInteger("upload_id", &shm_key, 0) == cgiFormSuccess && shm_key) {
             shm_id = shmget(shm_key, SHM_SIZE, 0666);
-            if(shm_id > 0) 
+            if(shm_id >= 0) 
                 shm_addr = shmat(shm_id, NULL, 0);
     }
  
     fprintf(cgiOut, "Cache-Control: no-cache\r\n");
     cgiHeaderContentType("text/plain");
 
-    if(shm_id && shm_addr && *shm_addr) 
+    if(shm_addr) 
         fprintf(cgiOut, "%s\r\n", shm_addr);
     else
-        fprintf(cgiOut, "-------\r\n");
+        fprintf(cgiOut, "-----\r\n");
 
-    if (shm_id && shm_addr)
+    if (shm_addr)
         shmdt(shm_addr);
 
     exit(0);        

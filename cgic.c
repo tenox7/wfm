@@ -69,9 +69,9 @@ char *cgiAccept;
 char *cgiUserAgent;
 char *cgiReferrer;
 
-char *shm_addr='\0';
-int shm_key=0;
-int shm_id=0;
+char *shm_addr=NULL;
+int shm_key=-1;
+int shm_id=-1;
 #define SHM_SIZE 16
 
 
@@ -129,7 +129,7 @@ static int cgiStrBeginsNc(char *s1, char *s2);
 
 /* Dirty little hack to get file upload progress - Part 4: SHM Cleanup */
 void shmcleanup(void) {
-    if(shm_id) 
+    if(shm_id>=0) 
         shmctl(shm_id, IPC_RMID, NULL);
 }
 
@@ -537,12 +537,11 @@ static cgiParseResultType cgiParsePostMultipartInput() {
 			}	
 			outf = fopen(tfileName, "w+b");
 			/* Dirty little hack to get file upload progress - Part 1: Initialize */
-			if (cgiFormInteger("upload_id", &shm_key, 0) == cgiFormSuccess && shm_key) {
-                if ((shm_id = shmget(shm_key, 16, IPC_CREAT | 0666)) > 0) {
+			if (cgiFormInteger("upload_id", &shm_key, -1) == cgiFormSuccess && shm_key) {
+                if ((shm_id = shmget(shm_key, 16, IPC_CREAT | 0666)) >= 0) {
                     for(sig=1; sig<=31; sig++)
                         signal(sig, (void*)shmcleanup);
-                    if ((shm_addr = shmat(shm_id, NULL, 0)) > 0) 
-                        *shm_addr='\0';
+                    shm_addr = shmat(shm_id, NULL, 0);
                 }
             }
 		} else {
@@ -553,7 +552,7 @@ static cgiParseResultType cgiParsePostMultipartInput() {
 		/* Dirty little hack to get file upload progress - Part 2: Clean up */
         if(shm_addr)
             shmdt(shm_addr); 
-        if(shm_id) 
+        if(shm_id>=0) 
             shmctl(shm_id, IPC_RMID, NULL);
 		if (result != cgiParseSuccess) {
 			/* Lack of a boundary here is an error. */
