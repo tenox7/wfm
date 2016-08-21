@@ -442,8 +442,10 @@ int cgiMain(void) {
     checkdirectory();
 
     // JavaScript check
-    if(strncmp(cgiUserAgent, "Mozilla/5.0", 11)==0)
+    if(strncmp(cgiUserAgent, "Mozilla/4", 9)==0)
         js=1;
+    else if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)
+        js=2;
     else
         js=0;
 

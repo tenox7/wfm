@@ -113,8 +113,9 @@ void dirlist(void) {
         "    else {\n"
         "        cbGroup.checked = checkAllState.checked;\n"
         "    }\n"
-        "}\n"
-        "\n"
+        "}\n");
+
+    if(js>=2) fprintf(cgiOut,
         "function xmlhttpPost(strURL) {\n"
         "    var xmlHttpReq = false;\n"
         "    var self = this;\n"
@@ -140,11 +141,13 @@ void dirlist(void) {
         "\n"
         "function start() {\n"
         "   setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%s\");', 250);\n"
-        "}\n"
-        "\n"
-        "//-->\n"
-        "</SCRIPT>\n",
+        "}\n",
         cgiScriptName, "1234");
+
+    if(js) fprintf(cgiOut,
+        "//-->\n"
+        "</SCRIPT>\n");
+
 
     fprintf(cgiOut,
         "<STYLE TYPE=\"text/css\">\n"
@@ -167,7 +170,7 @@ void dirlist(void) {
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
         "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" %s>\n",
-      ICONSURL, FAVICON, cgiScriptName, (js) ? "onsubmit=\"start()\"" : "");
+      ICONSURL, FAVICON, cgiScriptName, (js>=2) ? "onsubmit=\"start()\"" : "");
 
 
 
