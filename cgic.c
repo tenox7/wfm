@@ -69,7 +69,7 @@ char *cgiAccept;
 char *cgiUserAgent;
 char *cgiReferrer;
 
-char *shm_addr=NULL;
+char *shm_val=NULL;
 int shm_key=-1;
 int shm_id=-1;
 #define SHM_SIZE 16
@@ -541,7 +541,7 @@ static cgiParseResultType cgiParsePostMultipartInput() {
                 if ((shm_id = shmget(shm_key, 16, IPC_CREAT | 0666)) >= 0) {
                     for(sig=1; sig<=31; sig++)
                         signal(sig, (void*)shmcleanup);
-                    shm_addr = shmat(shm_id, NULL, 0);
+                    shm_val = shmat(shm_id, NULL, 0);
                 }
             }
         } else {
@@ -550,8 +550,8 @@ static cgiParseResultType cgiParsePostMultipartInput() {
         }   
         result = afterNextBoundary(mpp, outf, &out, &bodyLength, 0);
         /* Dirty little hack to get file upload progress - Part 2: Clean up */
-        if(shm_addr)
-            shmdt(shm_addr); 
+        if(shm_val)
+            shmdt(shm_val); 
         if(shm_id>=0) 
             shmctl(shm_id, IPC_RMID, NULL);
         if (result != cgiParseSuccess) {
@@ -741,8 +741,8 @@ cgiParseResultType afterNextBoundary(mpStreamPtr mpp, FILE *outf, char **outP,
     while (1) {
         got = mpRead(mpp, d, 1);
         /* Dirty little hack to get file upload progress - Part 3: Set value */
-        if(outf && shm_addr) 
-            snprintf(shm_addr, SHM_SIZE, "%.1f M", (float)(tot+=got)/1024/1024); 
+        if(outf && shm_val) 
+            snprintf(shm_val, SHM_SIZE, "%.1f M", (float)(tot+=got)/1024/1024); 
         if (got != 1) {
             /* 2.01: cgiParseIO, not cgiFormIO */
             result = cgiParseIO;
