@@ -72,7 +72,7 @@ void receivefile(void) {
     if(buff==NULL)
         error("Unable to allocate memory.");
 
-    // TODO: check for freeze - return value?
+    // TODO: holly crap this needs to be in a loop with a fixed buffer size similar to sendfile()
     if(cgiFormFileRead(input, buff, size, &got) != cgiFormSuccess)
         error("Reading file.");
         
@@ -93,7 +93,7 @@ void receivefile(void) {
     fclose(output);
     free(buff);
     
-    redirect("?highlight=%s&directory=%s&token=%s", virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
 
 }
 
@@ -106,14 +106,14 @@ void mkfile(void) {
 
     checkfilename(NULL);
 
-    output=fopen(phys_filename, "a");
+    output=fopen(phys_filename, "a"); //TODO: should probably give error if file already exists...
 
     if(!output) 
         error("Unable to create file.<BR>%s", strerror(errno));
 
     fclose(output);
     
-    redirect("?highlight=%s&directory=%s&token=%s", virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
 
 }
 
@@ -128,7 +128,7 @@ void newdir(void) {
     if(mkdir(phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
     
-    redirect("?highlight=%s&directory=%s&token=%s", virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
 
 }
 
@@ -154,9 +154,10 @@ void edit_save(void) {
 
     // the size should be updated by onclick from content.value.lenght just before submission
     // it's used to verify that received data length is consistent with editor contents
-    cgiFormInteger("size", &size, 0);
+    //cgiFormInteger("size", &size, 0);
+    cgiFormStringSpaceNeeded("content", &size);
 
-    if(size>100*1024*1024)
+    if(size>5*1024*1024)
         error("Input size too large.");
 
     buff=(char *) malloc(size); 
@@ -167,8 +168,8 @@ void edit_save(void) {
         
     cgiFormString("content", buff, size);
 
-    if(strlen(buff)+1 != size) // +1 because size was also given +1 via front end
-        error("Received wrong size. <BR>ContentLen=%d DataLen=%d. <BR> The file was not changed.", size, strlen(buff));
+    //if(strlen(buff) != size) // +1 because size was also given +1 via front end
+    //    error("Received wrong size. <BR>ContentLen=%d DataLen=%d. <BR> The file was not changed.", size, strlen(buff));
 
     // rename to .bak if requested
     cgiFormStringNoNewlines("backup", backup, sizeof(backup));
@@ -219,7 +220,7 @@ void edit_save(void) {
 
     free(buff);
 
-    redirect("?highlight=%s&directory=%s&token=%s", virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
 
 }
 
@@ -305,7 +306,7 @@ void delete(void) {
         }
     }           
 
-    redirect("?directory=%s&token=%s", virt_dirname, token);
+    redirect("%s?directory=%s&token=%s", cgiScriptName, virt_dirname, token);
 
 }
 
@@ -351,7 +352,7 @@ void move(void) {
         }
     }           
 
-    redirect("?highlight=%s&directory=%s&token=%s", virt_destination, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_destination, virt_dirname, token);
 }
 
 
@@ -424,7 +425,7 @@ void re_dir_ui(char *vdir, int level) {
             for (n=0; n<(level-1); n++)
                 fprintf(cgiOut, "&nbsp;&nbsp;&nbsp;");
 
-            fprintf(cgiOut, "&lfloor;&nbsp;%s</OPTION>\n", direntry[e]->d_name);
+            fprintf(cgiOut, "%s&nbsp;%s</OPTION>\n", (js) ? "&lfloor;" : "-", direntry[e]->d_name);
 
             // recurse
             re_dir_ui(child,level+1);

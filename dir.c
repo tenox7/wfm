@@ -97,49 +97,56 @@ void dirlist(void) {
         "\n%s" 
         "<HTML>"
         "<HEAD>\n"
-        "<TITLE>%s : %c%s</TITLE>\n"
+        "<TITLE>%s : %c%s</TITLE>\n",
+        copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname);
+
+
+    if(js) fprintf(cgiOut,
         "<SCRIPT LANGUAGE=\"JavaScript\" TYPE=\"text/javascript\">\n"
-        "<!--\n"
-        "    function checkUncheckAll(checkAllState, cbGroup) {\n"
-        "        if(cbGroup.length > 0) {\n"
-        "            for (i = 0; i < cbGroup.length; i++) {\n"
-        "                cbGroup[i].checked = checkAllState.checked;\n"
-        "            }\n"
-        "        }\n"
-        "        else {\n"
-        "            cbGroup.checked = checkAllState.checked;\n"
+        "<!-- \n"
+        "function checkUncheckAll(checkAllState, cbGroup) {\n"
+        "    if(cbGroup.length > 0) {\n"
+        "        for (i = 0; i < cbGroup.length; i++) {\n"
+        "            cbGroup[i].checked = checkAllState.checked;\n"
         "        }\n"
         "    }\n"
+        "    else {\n"
+        "        cbGroup.checked = checkAllState.checked;\n"
+        "    }\n"
+        "}\n"
         "\n"
-        "   function xmlhttpPost(strURL) {\n"
-        "       var xmlHttpReq = false;\n"
-        "       var self = this;\n"
-        "       var method = \"GET\";\n"
-        "\n"
-        "      if (window.XMLHttpRequest) {\n"
-        "         self.xmlHttpReq = new XMLHttpRequest();\n"
-        "      }\n"
-        "      else if (window.ActiveXObject) {\n"
-        "         self.xmlHttpReq = new ActiveXObject(\"Microsoft.XMLHTTP\");\n"
+        "function xmlhttpPost(strURL) {\n"
+        "    var xmlHttpReq = false;\n"
+        "    var self = this;\n"
+        "    var method = \"GET\";\n"
+        "    \n"
+        "   if (window.XMLHttpRequest) {\n"
+        "      self.xmlHttpReq = new XMLHttpRequest();\n"
         "   }\n"
-        "   if (self.xmlHttpReq != null) {\n"
-        "         self.xmlHttpReq.open(method, strURL, true);\n"
-        "         self.xmlHttpReq.onreadystatechange = function () {\n"
-        "            if (self.xmlHttpReq.readyState == 4) {\n"
-        "               var result = document.getElementById(\"Upload_Status\");\n"
-        "               result.value = self.xmlHttpReq.responseText;\n"
-        "            }\n"
+        "   else if (window.ActiveXObject) {\n"
+        "      self.xmlHttpReq = new ActiveXObject(\"Microsoft.XMLHTTP\");\n"
+        "}\n"
+        "if (self.xmlHttpReq != null) {\n"
+        "      self.xmlHttpReq.open(method, strURL, true);\n"
+        "      self.xmlHttpReq.onreadystatechange = function () {\n"
+        "         if (self.xmlHttpReq.readyState == 4) {\n"
+        "            var result = document.getElementById(\"Upload_Status\");\n"
+        "            result.value = self.xmlHttpReq.responseText;\n"
         "         }\n"
-        "           self.xmlHttpReq.send(null);\n"
         "      }\n"
+        "        self.xmlHttpReq.send(null);\n"
         "   }\n"
+        "}\n"
         "\n"
-        "   function start() {\n"
-        "      setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%s\");', \"100\");\n"
-        "   }\n"
+        "function start() {\n"
+        "   setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%s\");', 250);\n"
+        "}\n"
         "\n"
         "//-->\n"
-        "</SCRIPT>\n"
+        "</SCRIPT>\n",
+        cgiScriptName, "1234");
+
+    fprintf(cgiOut,
         "<STYLE TYPE=\"text/css\">\n"
         "<!--\n"
         "A:link {text-decoration: none; color:#0000CE; } \n"
@@ -159,8 +166,8 @@ void dirlist(void) {
         "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
-        "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" onsubmit=\"start()\">\n",
-    copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname, cgiScriptName, "1234",  ICONSURL, FAVICON, cgiScriptName);
+        "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" %s>\n",
+      ICONSURL, FAVICON, cgiScriptName, (js) ? "onsubmit=\"start()\"" : "");
 
 
 
@@ -172,10 +179,10 @@ void dirlist(void) {
             "<!-- TITLE --> \n"
             "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"
                 "<TR>\n"
-                "<TD WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"
+                "<TD NOWRAP  WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"
                 "&nbsp;<IMG SRC=\"%s%s\" ALIGN=\"MIDDLE\" ALT=\"WFM\">\n"
                 "%s : %c%s \n"
-                "<TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"
                 ,
             ICONSURL, FAVICON, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname 
     );
@@ -184,7 +191,7 @@ void dirlist(void) {
     // lock / unlock
     if(!access_as_user && users_defined)
         fprintf(cgiOut, 
-            "<A HREF=\"%s?action=login&amp;directory=%s\">"\
+            "<A HREF=\"%s?action=login&amp;directory=%s\">"
             "&nbsp;<IMG SRC=\"%s%s.gif\" ALIGN=\"MIDDLE\" BORDER=\"0\" ALT=\"Access\"></A>&nbsp;%s\n",  
             cgiScriptName, virt_dirname, ICONSURL, access_string[access_level], access_string[access_level]);
     else
@@ -195,9 +202,9 @@ void dirlist(void) {
 
     // about / version
     fprintf(cgiOut, 
-            "</TD><TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
-            "&nbsp;<IMG SRC=\"%snet.gif\" ALIGN=\"MIDDLE\" ALT=\"Client IP\">&nbsp;%s&nbsp;</TD>"
-            "<TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
+            //"</TD><TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
+            "&nbsp;<IMG SRC=\"%snet.gif\" ALIGN=\"MIDDLE\" ALT=\"Client IP\">&nbsp;%s&nbsp;"//</TD>"
+            //"<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
             "<A HREF=\"%s?action=about&amp;directory=%s&amp;token=%s\"><IMG BORDER=\"0\" SRC=\"%sver.gif\" ALIGN=\"MIDDLE\" ALT=\"Version\"></A>&nbsp;v%s&nbsp;"
             "</TD>\n"\
             "</TR>\n"\
@@ -215,7 +222,7 @@ void dirlist(void) {
             "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"\
                 "<TR>\n"\
                 "<!-- DIR-UP -->\n"\
-                "<TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                  "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">\n"\
                     "<IMG SRC=\"%sdir_up.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Dir Up\">&nbsp;Up\n"\
                  "</A>\n"\
@@ -224,7 +231,7 @@ void dirlist(void) {
 
     fprintf(cgiOut,                 
                 "<!-- HOME -->\n"\
-                "<TD BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                  "<A HREF=\"%s?sortby=%s&amp;directory=/&amp;token=%s\">\n"\
                     "<IMG SRC=\"%shome.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Home\">&nbsp;Home\n"\
                  "</A>\n"\
@@ -233,7 +240,7 @@ void dirlist(void) {
 
     fprintf(cgiOut,                 
                 "<!-- RELOAD -->\n"\
-                "<TD  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                      "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">\n"\
                          "<IMG SRC=\"%sreload.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"Reload\">&nbsp;Refresh\n"\
                      "</A>\n"\
@@ -242,23 +249,23 @@ void dirlist(void) {
 
     fprintf(cgiOut,                 
                 "<!-- MULTI DELETE -->\n"\
-                "<TD  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                      "<INPUT TYPE=\"IMAGE\" SRC=\"%sdelete.gif\" STYLE=\"border: none; padding: 0px; vertical-align:middle;\" ALT=\"Delete\" ALIGN=\"MIDDLE\" NAME=\"multi_delete_prompt\" VALUE=\"Delete\">\n"
-                     "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_delete_prompt\" VALUE=\"Delete\" onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\">\n"
+                     "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_delete_prompt\" VALUE=\"Delete\" %s>\n"
                 "</TD>\n",
-                ICONSURL);
+                ICONSURL, (js) ? "onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\"" : "");
 
     fprintf(cgiOut,                 
                 "<!-- MULTI MOVE -->\n"\
-                "<TD  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                      "<INPUT TYPE=\"IMAGE\" SRC=\"%smove.gif\" STYLE=\"border: none; padding: 0px; vertical-align:middle; \" ALT=\"Move\" ALIGN=\"MIDDLE\" NAME=\"multi_move_prompt\" VALUE=\"Move\">\n"
-                     "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_move_prompt\" VALUE=\"Move\" onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\">\n"
+                     "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_move_prompt\" VALUE=\"Move\" %s>\n"
                 "</TD>\n",
-                ICONSURL);
+                ICONSURL, (js) ? "onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\"" : "");
 
     fprintf(cgiOut,                                 
                 "<!-- NEWDIR -->\n"\
-                "<TD  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                      "<A HREF=\"%s?action=mkdir_prompt&amp;directory=%s&amp;token=%s\" >\n"\
                             "<IMG SRC=\"%smkdir.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New Folder\">&nbsp;New Folder\n"\
                      "</A>\n"\
@@ -268,7 +275,7 @@ void dirlist(void) {
 
     fprintf(cgiOut,                                 
                 "<!-- NEWFILE -->\n"\
-                "<TD  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
                      "<A HREF=\"%s?action=mkfile_prompt&amp;directory=%s&amp;token=%s\" >\n"\
                             "<IMG SRC=\"%smkfile.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New File\">&nbsp;New File\n"\
                      "</A>\n"\
@@ -279,7 +286,7 @@ void dirlist(void) {
                 
     fprintf(cgiOut,                 
                 "<!-- UPLOAD -->\n"\
-                "<TD BGCOLOR=\"#F1F1F1\"  VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\"  VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"directory\" VALUE=\"%s\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"upload_id\" VALUE=\"%s\">\n"
@@ -326,34 +333,38 @@ void dirlist(void) {
 
     // SORTBY ROW + dir files display
     fprintf(cgiOut, 
-            "<!-- MAIN FILE TABLE --> \n"\
-            "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=0 CELLSPACING=0 BORDER=0 >\n"\
-            "<!-- SORTBY LINE -->\n"\
-            "<TR BGCOLOR=\"#FFFFFF\" >\n"\
-                "<TD ALIGN=\"left\" WIDTH=\"50%%\" BGCOLOR=\"#A0A0A0\">\n"\
-                "<FONT COLOR=\"#FFFFFF\">\n"\
-                "<INPUT TYPE=\"CHECKBOX\" NAME=\"CHECKALL\"  STYLE=\"padding: 0px; border: none;\" ONCLICK=\"checkUncheckAll(this, multiselect_filename);\">\n"
-                "%s\n"\
-                "</FONT>\n"\
-                "</TD>\n"\
-                "<TD ALIGN=\"right\" BGCOLOR=\"#A0A0A0\">\n"\
-                "<FONT COLOR=\"#FFFFFF\">\n"\
-                    "%s\n"\
-                "</FONT>\n"\
-                "</TD>\n"\
-                "<TD ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n"\
-                "<FONT COLOR=\"#FFFFFF\">\n"\
-                    "%s\n"\
-                "</FONT>\n"\
-                "</TD>\n"\
-                "<TD ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n"\
-                    "&nbsp;"\
-                "</TD>"\
-                "<TD ALIGN=\"left\"  BGCOLOR=\"#A0A0A0\">\n"\
-                "<FONT COLOR=\"#FFFFFF\">\n"\
-                    "&nbsp;\n"\
-                "</FONT>\n"\
-                "</TD>\n"\
+            "<!-- MAIN FILE TABLE --> \n"
+            "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=0 CELLSPACING=0 BORDER=0>\n"
+            "<!-- SORTBY LINE -->\n"
+            "<TR BGCOLOR=\"#FFFFFF\" >\n"
+                "<TD NOWRAP  ALIGN=\"left\" WIDTH=\"50%%\" BGCOLOR=\"#A0A0A0\">\n"
+                "<FONT COLOR=\"#FFFFFF\">\n");
+
+    if(js) fprintf(cgiOut,               
+                "<INPUT TYPE=\"CHECKBOX\" NAME=\"CHECKALL\"  STYLE=\"padding: 0px; border: none;\" ONCLICK=\"checkUncheckAll(this, multiselect_filename);\">\n");
+
+    fprintf(cgiOut,
+                "%s\n"
+                "</FONT>\n"
+                "</TD>\n"
+                "<TD NOWRAP  ALIGN=\"right\" BGCOLOR=\"#A0A0A0\">\n"
+                "<FONT COLOR=\"#FFFFFF\">\n"
+                    "%s\n"
+                "</FONT>\n"
+                "</TD>\n"
+                "<TD NOWRAP  ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n"
+                "<FONT COLOR=\"#FFFFFF\">\n"
+                    "%s\n"
+                "</FONT>\n"
+                "</TD>\n"
+                "<TD NOWRAP  ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n"
+                    "&nbsp;"
+                "</TD>"
+                "<TD NOWRAP  ALIGN=\"left\"  BGCOLOR=\"#A0A0A0\">\n"
+                "<FONT COLOR=\"#FFFFFF\">\n"
+                    "&nbsp;\n"
+                "</FONT>\n"
+                "</TD>\n"
             "</TR>\n"
             "<!-- End of Header -->\n\n",
             namepfx, sizepfx, datepfx);
@@ -401,18 +412,23 @@ void dirlist(void) {
 
         // directory name / date
         fprintf(cgiOut, 
-            "<!-- Directory Entry -->\n"\
-            "<TR BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n"\
-            "<TD ALIGN=\"LEFT\">\n"
+            "<!-- Directory Entry -->\n");
+
+        if(js) fprintf(cgiOut,
+            "<TR BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+        linecolor, HL_COLOR, linecolor);
+
+        fprintf(cgiOut,
+            "<TD NOWRAP  ALIGN=\"LEFT\">\n"
             "<INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">", 
-        linecolor, HL_COLOR, linecolor, name);
+             name);
                     
         fprintf(cgiOut, 
             "<A HREF=\"%s?sortby=%s&amp;directory=%s/%s&amp;token=%s\">%s %s</A></TD> \n"\
-            "<TD ALIGN=\"RIGHT\">%s</TD>\n"\
-            "<TD ALIGN=\"RIGHT\"><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n"\
-            "<TD>&nbsp;</TD>"\
-            "<TD ALIGN=\"LEFT\">",
+            "<TD NOWRAP  ALIGN=\"RIGHT\">%s</TD>\n"\
+            "<TD NOWRAP  ALIGN=\"RIGHT\"><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n"\
+            "<TD NOWRAP >&nbsp;</TD>"\
+            "<TD NOWRAP  ALIGN=\"LEFT\">",
         cgiScriptName, sortby, (strcmp(virt_dirname, "/")==0) ? "" : virt_dirname, name,  token, icon, name,  
         buprintf(size, TRUE), rtime, mtime, atime, stime, mtime);
 
@@ -489,24 +505,28 @@ void dirlist(void) {
 
         // filename 
         fprintf(cgiOut, 
-            "<!-- File Entry -->\n"
-            "<TR  BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n"
-            "<TD ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
+            "<!-- File Entry -->\n");
+
+        if(js) fprintf(cgiOut,
+            "<TR  BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+        linecolor, HL_COLOR, linecolor);
+
+        fprintf(cgiOut,
+            "<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
             "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
-        linecolor, HL_COLOR, linecolor, name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", 
-        virt_dirname, name, token, name, icon, name);
+        name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", virt_dirname, name, token, name, icon, name);
 
 
         // size / date
         fprintf(cgiOut, 
             "\n"
-            "<TD ALIGN=\"RIGHT\" >%s</TD>\n"
-            "<TD ALIGN=\"RIGHT\" ><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n",
+            "<TD NOWRAP  ALIGN=\"RIGHT\" >%s</TD>\n"
+            "<TD NOWRAP  ALIGN=\"RIGHT\" ><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n",
         buprintf(size, TRUE), rtime, mtime, atime, stime, mtime);
 
 
         // file tools
-        fprintf(cgiOut, "\n<TD>&nbsp;</TD><TD ALIGN=\"LEFT\">\n");
+        fprintf(cgiOut, "\n<TD NOWRAP >&nbsp;</TD><TD NOWRAP  ALIGN=\"LEFT\">\n");
 
 
         // rename
@@ -586,11 +606,11 @@ void dirlist(void) {
     fprintf(cgiOut, 
         "<!-- FOOTER -->\n"
         "<TR>\n"
-            "<TD BGCOLOR=\"#%s\">&nbsp;</TD>\n"
-            "<TD BGCOLOR=\"#%s\" ALIGN=\"right\" STYLE=\"border-top:1px solid grey\">total %s </TD>\n"
-            "<TD BGCOLOR=\"#%s\" ALIGN=\"right\" STYLE=\"color:#D0D0D0;\">%.1f ms</TD>\n"
-            "<TD BGCOLOR=\"#%s\">&nbsp;</TD>\n"
-            "<TD BGCOLOR=\"#%s\">&nbsp;</TD>\n"
+            "<TD NOWRAP  BGCOLOR=\"#%s\">&nbsp;</TD>\n"
+            "<TD NOWRAP  BGCOLOR=\"#%s\" ALIGN=\"right\" STYLE=\"border-top:1px solid grey\">total %s </TD>\n"
+            "<TD NOWRAP  BGCOLOR=\"#%s\" ALIGN=\"right\" STYLE=\"color:#D0D0D0;\">%.1f ms</TD>\n"
+            "<TD NOWRAP  BGCOLOR=\"#%s\">&nbsp;</TD>\n"
+            "<TD NOWRAP  BGCOLOR=\"#%s\">&nbsp;</TD>\n"
         "</TR>\n"
         "</TABLE>\n</FORM>\n</BODY>\n<!-- Page generated in %f seconds -->\n</HTML>\n\n",
         NORMAL_COLOR, NORMAL_COLOR, buprintf(totalsize, TRUE), NORMAL_COLOR, (t2-t1)*1000, NORMAL_COLOR, NORMAL_COLOR, t2-t1

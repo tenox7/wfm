@@ -70,7 +70,7 @@ void multiprompt_ui(char *m_action) {
 
     // move needs a destination...
     if(strcmp(m_action, "move")==0) {
-        fprintf(cgiOut, "<P>Destination: <SELECT NAME=\"destination\"><OPTION VALUE=\"/\">/ - Root Directory</OPTION>\n");
+        fprintf(cgiOut, "<P>Source: %s<P>Destination: <SELECT NAME=\"destination\"><OPTION VALUE=\"/\">/ - Root Directory</OPTION>\n", virt_dirname);
         re_dir_ui("/", 1);
         fprintf(cgiOut, "</SELECT>\n<INPUT TYPE=\"HIDDEN\" NAME=\"absdst\" VALUE=\"1\">\n<P>\n");
     }
@@ -83,12 +83,12 @@ void multiprompt_ui(char *m_action) {
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"OK\">\n"
-        "    <INPUT TYPE=\"BUTTON\" VALUE=\" Cancel \" onClick=\"self.location='?directory=%s&amp;token=%s'; return true;\">\n"
+        "    <INPUT TYPE=\"SUBMIT\" VALUE=\" Cancel \" NAME=\"noop\">\n"
         "    </CENTER><BR>\n"
         "   </TD></TR>\n"
         "</TABLE></FORM>\n\n"
         "</TD></TR></TABLE>\n"
-        "</BODY>\n</HTML>\n", m_action, virt_dirname, token, virt_dirname, token);
+        "</BODY>\n</HTML>\n", m_action, virt_dirname, token);
 
     cgiStringArrayFree(responses);
 
@@ -114,13 +114,14 @@ void singleprompt_ui(char *m_action) {
     fprintf(cgiOut, 
         "</HEAD>\n"
         "<!-- Single Prompt -->\n"
-        "<BODY ONLOAD=\"document.wfm.inp1.focus();\" BGCOLOR=\"#FFFFFF\">\n"
+        "<BODY %s BGCOLOR=\"#FFFFFF\">\n"
         "<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS=\"twh\"><TR><TD VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
         "<FORM NAME=\"wfm\" ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n\n"
         "<TABLE WIDTH=\"400\" BGCOLOR=\"#F0F0F0\" BORDER=0 CELLSPACING=0 CELLPADDING=1 CLASS=\"tbr\">\n"
         "  <TR><TD COLSPAN=2 BGCOLOR=\"#004080\"><FONT COLOR=\"#FFFFFF\">&nbsp; %s</FONT></TD></TR>\n"
         "  <TR><TD WIDTH=30>&nbsp;</TD><TD>\n"
-        "    &nbsp;<BR>\n", cgiScriptName, M_action);
+        "    &nbsp;<BR>\n",
+        (js) ? "ONLOAD=\"document.wfm.inp1.focus();\"" : "", cgiScriptName, M_action);
 
 
     if(strcmp(m_action, "move")==0)
@@ -149,12 +150,12 @@ void singleprompt_ui(char *m_action) {
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"OK\">\n"
-        "    <INPUT TYPE=\"BUTTON\" VALUE=\" Cancel \" onClick=\"self.location='?directory=%s&amp;token=%s'; return true;\">\n"
+        "    <INPUT TYPE=\"SUBMIT\" VALUE=\" Cancel \" NAME=\"noop\">\n"
         "    </CENTER><BR>\n"
         "   </TD></TR>\n"
         "</TABLE></FORM>\n\n"
         "</TD></TR></TABLE>\n"
-        "</BODY>\n</HTML>\n", m_action, virt_dirname, token, virt_dirname, token);
+        "</BODY>\n</HTML>\n", m_action, virt_dirname, token);
 
 }
 
@@ -198,12 +199,15 @@ void error(char *msg, ...) {
                 "</TD>\n"
             "</TR>\n"
             "<TR><TD COLSPAN=3 ALIGN=\"CENTER\" BGCOLOR=\"#EEEEEE\">\n"
-                "<INPUT TYPE=\"BUTTON\" VALUE=\" OK \" onClick=\"self.location='?directory=%s&amp;token=%s'; return true;\">\n"
-            "</TD></TR>\n"
+            "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n"
+            "<INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"noop\">\n"
+            "<INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
+            "<INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
+            "</FORM>\n</TD></TR>\n"
             "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
             "</TABLE>\n"
             "</TD></TR></TABLE>\n</BODY></HTML>\n",        
-                buff, virt_dirname, token);
+        buff, cgiScriptName, virt_dirname, token);
     }
     else {
         cgiHeaderContentType("text/plain");
@@ -251,6 +255,8 @@ void about(void) {
             "WFM: %s (build %s / %s)<BR>\n"
             "GCC: %s<BR>\n"
             "Server: %s<BR>\n"
+            "User Agent: %s<BR>\n"
+            "JavaScript Supported: %s<BR>\n"
             "<img src=\"http://www.w3.org/Icons/valid-html401\" alt=\"Valid HTML 4.01 Transitional\">\n"
             "&nbsp;<P>\n"
             "&nbsp;<P>\n"
@@ -260,12 +266,15 @@ void about(void) {
             "</TD>\n"
         "</TR>\n"
         "<TR><TD COLSPAN=3 ALIGN=\"CENTER\" BGCOLOR=\"#EEEEEE\">\n"
-            "<INPUT TYPE=\"BUTTON\" VALUE=\" OK \" onClick=\"self.location='?directory=%s&amp;token=%s'; return true;\">\n"
-        "</TD></TR>\n"
+        "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n"
+        "<INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"noop\">\n"
+        "<INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
+        "<INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
+        "</FORM>\n</TD></TR>\n"
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
-        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware,  virt_dirname, token);
+        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, (js) ? "Yes" : "No", cgiScriptName, virt_dirname, token);
 
 }
 
@@ -276,18 +285,22 @@ void about(void) {
 void login_ui(void) {
     cgiHeaderContentType("text/html");
     html_title("Login");
-    fprintf(cgiOut, 
+
+    if(js) fputs( 
         "<SCRIPT LANGUAGE=\"JavaScript\" TYPE=\"text/javascript\">\n<!--\n"
         "var hexcase=0;function hex_md5(a){return rstr2hex(rstr_md5(str2rstr_utf8(a)))}function hex_hmac_md5(a,b){return rstr2hex(rstr_hmac_md5(str2rstr_utf8(a),str2rstr_utf8(b)))}function md5_vm_test(){return hex_md5(\"abc\").toLowerCase()==\"900150983cd24fb0d6963f7d28e17f72\"}function rstr_md5(a){return binl2rstr(binl_md5(rstr2binl(a),a.length*8))}function rstr_hmac_md5(c,f){var e=rstr2binl(c);if(e.length>16){e=binl_md5(e,c.length*8)}var a=Array(16),d=Array(16);for(var b=0;b<16;b++){a[b]=e[b]^909522486;d[b]=e[b]^1549556828}var g=binl_md5(a.concat(rstr2binl(f)),512+f.length*8);return binl2rstr(binl_md5(d.concat(g),512+128))}function rstr2hex(c){try{hexcase}catch(g){hexcase=0}var f=hexcase?\"0123456789ABCDEF\":\"0123456789abcdef\";var b=\"\";var a;for(var d=0;d<c.length;d++){a=c.charCodeAt(d);b+=f.charAt((a>>>4)&15)+f.charAt(a&15)}return b}function str2rstr_utf8(c){var b=\"\";var d=-1;var a,e;while(++d<c.length){a=c.charCodeAt(d);e=d+1<c.length?c.charCodeAt(d+1):0;if(55296<=a&&a<=56319&&56320<=e&&e<=57343){a=65536+((a&1023)<<10)+(e&1023);d++}if(a<=127){b+=String.fromCharCode(a)}else{if(a<=2047){b+=String.fromCharCode(192|((a>>>6)&31),128|(a&63))}else{if(a<=65535){b+=String.fromCharCode(224|((a>>>12)&15),128|((a>>>6)&63),128|(a&63))}else{if(a<=2097151){b+=String.fromCharCode(240|((a>>>18)&7),128|((a>>>12)&63),128|((a>>>6)&63),128|(a&63))}}}}}return b}function rstr2binl(b){var a=Array(b.length>>2);for(var c=0;c<a.length;c++){a[c]=0}for(var c=0;c<b.length*8;c+=8){a[c>>5]|=(b.charCodeAt(c/8)&255)<<(c%%32)}return a}function binl2rstr(b){var a=\"\";for(var c=0;c<b.length*32;c+=8){a+=String.fromCharCode((b[c>>5]>>>(c%%32))&255)}return a}function binl_md5(p,k){p[k>>5]|=128<<((k)%%32);p[(((k+64)>>>9)<<4)+14]=k;var o=1732584193;var n=-271733879;var m=-1732584194;var l=271733878;for(var g=0;g<p.length;g+=16){var j=o;var h=n;var f=m;var e=l;o=md5_ff(o,n,m,l,p[g+0],7,-680876936);l=md5_ff(l,o,n,m,p[g+1],12,-389564586);m=md5_ff(m,l,o,n,p[g+2],17,606105819);n=md5_ff(n,m,l,o,p[g+3],22,-1044525330);o=md5_ff(o,n,m,l,p[g+4],7,-176418897);l=md5_ff(l,o,n,m,p[g+5],12,1200080426);m=md5_ff(m,l,o,n,p[g+6],17,-1473231341);n=md5_ff(n,m,l,o,p[g+7],22,-45705983);o=md5_ff(o,n,m,l,p[g+8],7,1770035416);l=md5_ff(l,o,n,m,p[g+9],12,-1958414417);m=md5_ff(m,l,o,n,p[g+10],17,-42063);n=md5_ff(n,m,l,o,p[g+11],22,-1990404162);o=md5_ff(o,n,m,l,p[g+12],7,1804603682);l=md5_ff(l,o,n,m,p[g+13],12,-40341101);m=md5_ff(m,l,o,n,p[g+14],17,-1502002290);n=md5_ff(n,m,l,o,p[g+15],22,1236535329);o=md5_gg(o,n,m,l,p[g+1],5,-165796510);l=md5_gg(l,o,n,m,p[g+6],9,-1069501632);m=md5_gg(m,l,o,n,p[g+11],14,643717713);n=md5_gg(n,m,l,o,p[g+0],20,-373897302);o=md5_gg(o,n,m,l,p[g+5],5,-701558691);l=md5_gg(l,o,n,m,p[g+10],9,38016083);m=md5_gg(m,l,o,n,p[g+15],14,-660478335);n=md5_gg(n,m,l,o,p[g+4],20,-405537848);o=md5_gg(o,n,m,l,p[g+9],5,568446438);l=md5_gg(l,o,n,m,p[g+14],9,-1019803690);m=md5_gg(m,l,o,n,p[g+3],14,-187363961);n=md5_gg(n,m,l,o,p[g+8],20,1163531501);o=md5_gg(o,n,m,l,p[g+13],5,-1444681467);l=md5_gg(l,o,n,m,p[g+2],9,-51403784);m=md5_gg(m,l,o,n,p[g+7],14,1735328473);n=md5_gg(n,m,l,o,p[g+12],20,-1926607734);o=md5_hh(o,n,m,l,p[g+5],4,-378558);l=md5_hh(l,o,n,m,p[g+8],11,-2022574463);m=md5_hh(m,l,o,n,p[g+11],16,1839030562);n=md5_hh(n,m,l,o,p[g+14],23,-35309556);o=md5_hh(o,n,m,l,p[g+1],4,-1530992060);l=md5_hh(l,o,n,m,p[g+4],11,1272893353);m=md5_hh(m,l,o,n,p[g+7],16,-155497632);n=md5_hh(n,m,l,o,p[g+10],23,-1094730640);o=md5_hh(o,n,m,l,p[g+13],4,681279174);l=md5_hh(l,o,n,m,p[g+0],11,-358537222);m=md5_hh(m,l,o,n,p[g+3],16,-722521979);n=md5_hh(n,m,l,o,p[g+6],23,76029189);o=md5_hh(o,n,m,l,p[g+9],4,-640364487);l=md5_hh(l,o,n,m,p[g+12],11,-421815835);m=md5_hh(m,l,o,n,p[g+15],16,530742520);n=md5_hh(n,m,l,o,p[g+2],23,-995338651);o=md5_ii(o,n,m,l,p[g+0],6,-198630844);l=md5_ii(l,o,n,m,p[g+7],10,1126891415);m=md5_ii(m,l,o,n,p[g+14],15,-1416354905);n=md5_ii(n,m,l,o,p[g+5],21,-57434055);o=md5_ii(o,n,m,l,p[g+12],6,1700485571);l=md5_ii(l,o,n,m,p[g+3],10,-1894986606);m=md5_ii(m,l,o,n,p[g+10],15,-1051523);n=md5_ii(n,m,l,o,p[g+1],21,-2054922799);o=md5_ii(o,n,m,l,p[g+8],6,1873313359);l=md5_ii(l,o,n,m,p[g+15],10,-30611744);m=md5_ii(m,l,o,n,p[g+6],15,-1560198380);n=md5_ii(n,m,l,o,p[g+13],21,1309151649);o=md5_ii(o,n,m,l,p[g+4],6,-145523070);l=md5_ii(l,o,n,m,p[g+11],10,-1120210379);m=md5_ii(m,l,o,n,p[g+2],15,718787259);n=md5_ii(n,m,l,o,p[g+9],21,-343485551);o=safe_add(o,j);n=safe_add(n,h);m=safe_add(m,f);l=safe_add(l,e)}return Array(o,n,m,l)}function md5_cmn(h,e,d,c,g,f){return safe_add(bit_rol(safe_add(safe_add(e,h),safe_add(c,f)),g),d)}function md5_ff(g,f,k,j,e,i,h){return md5_cmn((f&k)|((~f)&j),g,f,e,i,h)}function md5_gg(g,f,k,j,e,i,h){return md5_cmn((f&j)|(k&(~j)),g,f,e,i,h)}function md5_hh(g,f,k,j,e,i,h){return md5_cmn(f^k^j,g,f,e,i,h)}function md5_ii(g,f,k,j,e,i,h){return md5_cmn(k^(f|(~j)),g,f,e,i,h)}function safe_add(a,d){var c=(a&65535)+(d&65535);var b=(a>>16)+(d>>16)+(c>>16);return(b<<16)|(c&65535)}function bit_rol(a,b){return(a<<b)|(a>>>(32-b))};"
-        "\n//-->\n</SCRIPT>\n");
+        "\n//-->\n</SCRIPT>\n", cgiOut);
 
-    fprintf(cgiOut, 
-        "</HEAD>\n"
-        "<BODY ONLOAD=\"document.wfm.username.focus(); document.wfm.Login.value='MD5 Login';\" BGCOLOR=\"#FFFFFF\">\n"
+    fputs("</HEAD>\n", cgiOut);
+
+    if(js) 
+        fputs("<BODY ONLOAD=\"document.wfm.username.focus(); document.wfm.Login.value='MD5 Login';\" BGCOLOR=\"#FFFFFF\">\n", cgiOut);
+    else 
+        fputs("<BODY BGCOLOR=\"#FFFFFF\">\n", cgiOut);
+
+    fprintf(cgiOut,
         "<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS=\"twh\"><TR><TD VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
-        "<FORM NAME=\"wfm\" ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n\n", cgiScriptName);
-
-    fprintf(cgiOut, 
+        "<FORM NAME=\"wfm\" ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n"
         "<TABLE WIDTH=\"400\" BGCOLOR=\"#F0F0F0\" BORDER=0 CELLSPACING=0 CELLPADDING=1 CLASS=\"tbr\">\n"
         "  <TR><TD COLSPAN=2 BGCOLOR=\"#004080\"><FONT COLOR=\"#FFFFFF\">&nbsp; Authentication Required</FONT></TD></TR>\n"
         "  <TR><TD WIDTH=30>&nbsp;</TD><TD>\n"
@@ -301,13 +314,20 @@ void login_ui(void) {
         "    <P><CENTER>\n"
         "    <INPUT TYPE=\"HIDDEN\" VALUE=\"login\" NAME=\"action\">\n"
         "    <INPUT TYPE=\"HIDDEN\" VALUE=\"%s\" NAME=\"directory\">\n"
-        "    <INPUT TYPE=\"SUBMIT\" VALUE=\" %s Login \" NAME=\"Login\" "
-              "onClick=\"self.location='?directory=%s&amp;login=client&amp;token=' + hex_md5('%s:' + document.wfm.username.value + ':' + document.wfm.password.value); return false;\" >\n"
+        "    <INPUT TYPE=\"SUBMIT\" VALUE=\" %s Login \" NAME=\"Login\" ",
+        cgiScriptName, virt_dirname, (getenv("HTTPS")) ? "SSL" : "UNSECURE");
+
+    if(js) fprintf(cgiOut,
+        "onClick=\"self.location='%s?directory=%s&amp;login=client&amp;token=' + hex_md5('%s:' + document.wfm.username.value + ':' + document.wfm.password.value); return false;\"",
+        cgiScriptName, virt_dirname, cgiRemoteAddr);
+
+    fputs(
+        ">\n"
         "    </CENTER><BR>\n"
         "   </TD></TR>\n"
         "</TABLE></FORM>\n\n"
         "</TD></TR></TABLE>\n"
-        "</BODY>\n</HTML>\n", virt_dirname, (getenv("HTTPS")) ? "SSL" : "UNSECURE",  virt_dirname, cgiRemoteAddr);
+        "</BODY>\n</HTML>\n", cgiOut);
 
 }
 
@@ -347,6 +367,9 @@ void edit_ui(void) {
     size=ftell(input);
     fseek(input, 0, SEEK_SET);
 
+    if(size>=5*1024*1024)
+        error("The file is too large for online editing.<BR>");
+
     buff=(char *) malloc(size+1);
     if(buff==NULL)
         error("Unable to allocate memory.");
@@ -359,7 +382,7 @@ void edit_ui(void) {
     cgiHeaderContentType("text/html");
     html_title("Editor");
 
-    fprintf(cgiOut, 
+    if (js) fprintf(cgiOut, 
     "<SCRIPT LANGUAGE=\"JavaScript\" TYPE=\"text/javascript\">\n"
         "<!--\n"
         "function chwrap() {               \n"
@@ -385,28 +408,35 @@ void edit_ui(void) {
         "    } \n"
         "}     \n"
         "//-->\n"
-    "</SCRIPT>\n"
+    "</SCRIPT>\n");
+
+    fprintf(cgiOut,
     "<STYLE TYPE=\"text/css\"><!-- \n"
         "html, body, table, textarea, form { box-sizing: border-box; width:100%%; height:100%%; margin:0px; padding:0px; } \n"
     "--></STYLE>\n"
     "</HEAD>\n"
     "<BODY>\n"
-    "<FORM NAME=\"EDITOR\" ACTION=\"?action=edit_save\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" STYLE=\"height:100%%;\">\n"
+    "<FORM NAME=\"EDITOR\" ACTION=\"%s?action=edit_save\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" STYLE=\"height:100%%;\">\n"
         "<TABLE BGCOLOR=\"#EEEEEE\" BORDER=0 CELLSPACING=0 CELLPADDING=5 STYLE=\"height:100%%;\">\n"
          "<TR STYLE=\"height:1%%;\">\n"
             "<TD ALIGN=\"LEFT\" VALIGN=\"MIDDLE\" BGCOLOR=\"#CCCCCC\">\n"
             "<IMG SRC=\"%sedit.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"EDIT\">\n"
             "File Editor: %s\n"
             "</TD>\n"
-            "<TD  BGCOLOR=\"#CCCCCC\" ALIGN=\"RIGHT\">"
+            "<TD  BGCOLOR=\"#CCCCCC\" ALIGN=\"RIGHT\">",
+            cgiScriptName, ICONSURL, virt_filename);
+
+    if(js) fprintf(cgiOut, 
                 "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n"
-                "<INPUT TYPE=\"button\" ID=\"wrapbtn\" onClick=\"chwrap()\" VALUE=\"Wrap\" STYLE=\"border:none; background-color:#404040; color:#FFFFFF;\">\n"
+                "<INPUT TYPE=\"button\" ID=\"wrapbtn\" onClick=\"chwrap()\" VALUE=\"Wrap\" STYLE=\"border:none; background-color:#404040; color:#FFFFFF;\">\n",
+                 bkcolor);
+
+    fprintf(cgiOut,
             "</TD>\n"
          "</TR>\n"
          "<TR STYLE=\"height:99%%;\">\n"
             "<TD COLSPAN=2 ALIGN=\"CENTER\" VALIGN=\"MIDDLE\" STYLE=\"height:100%%;\">\n"
-                 "<TEXTAREA COLS=\"80\" ROWS=\"24\" NAME=\"content\" STYLE=\"resize:none;\">",
-     ICONSURL, virt_filename, bkcolor);
+                 "<TEXTAREA COLS=\"120\" ROWS=\"24\" NAME=\"content\" STYLE=\"resize:none;\">");
 
 
     cgiHtmlEscapeData(buff, size);
@@ -416,19 +446,19 @@ void edit_ui(void) {
          "</TR>\n"
          "<TR>\n"
             "<TD COLSPAN=2 ALIGN=\"RIGHT\" VALIGN=\"MIDDLE\">\n"
-            "<INPUT TYPE=\"SUBMIT\" VALUE=\"Save\" onClick=\"document.EDITOR.size.value=document.EDITOR.content.value.length+1; return true;\">&nbsp;\n"
-            "<INPUT TYPE=\"BUTTON\" VALUE=\"Cancel\" onClick=\"self.location='?directory=%s&amp;token=%s'; return true;\">\n"
+            "<INPUT TYPE=\"SUBMIT\" VALUE=\"Save\" >\n"//onClick=\"document.EDITOR.size.value=document.EDITOR.content.value.length+1; return true;\">&nbsp;\n"
+            "<INPUT TYPE=\"SUBMIT\" VALUE=\"Cancel\" NAME=\"noop\">\n"
             "</TD>\n"
          "</TR>\n"
         "</TABLE>\n"
     "<INPUT TYPE=\"hidden\" NAME=\"action\" VALUE=\"edit_save\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"filename\" VALUE=\"%s\">\n"
-    "<INPUT TYPE=\"hidden\" NAME=\"size\" VALUE=\"%d\">\n"
+//    "<INPUT TYPE=\"hidden\" NAME=\"size\" VALUE=\"%d\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"directory\" VALUE=\"%s\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"backup\" VALUE=\"%s\">\n"
     "</FORM></BODY></HTML>\n",
-    virt_dirname, token, virt_filename, size, virt_dirname, token, backup);
+    virt_filename,  virt_dirname, token, backup);
 
     free(buff);
 

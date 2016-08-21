@@ -100,6 +100,8 @@ int edit_by_default;
 int edit_any_file;
 int recursive_du;
 
+int js;
+
 double t1, t2;
 struct timeval mt;
 

@@ -38,24 +38,29 @@ int icon(void) {
 void upload_status(void) {
     int shm_key=-1;
     int shm_id=-1;
-    char *shm_addr=NULL;
+    char *shm_val=NULL;
+    time_t t;
+    char *spin[]={"|", "/", "--", "\\"};
 
     if(cgiFormInteger("upload_id", &shm_key, 0) == cgiFormSuccess && shm_key) {
             shm_id = shmget(shm_key, SHM_SIZE, 0666);
             if(shm_id >= 0) 
-                shm_addr = shmat(shm_id, NULL, 0);
+                shm_val = shmat(shm_id, NULL, 0);
     }
  
     fprintf(cgiOut, "Cache-Control: no-cache\r\n");
     cgiHeaderContentType("text/plain");
 
-    if(shm_addr) 
-        fprintf(cgiOut, "%s\r\n", shm_addr);
-    else
-        fprintf(cgiOut, "-----\r\n");
+    if(shm_val) {
+        fprintf(cgiOut, "=%s=\r\n", shm_val);
+    }
+    else {
+        time(&t);
+        fprintf(cgiOut, "=%s=\r\n", spin[(int)t % 4]);
+    }
 
-    if (shm_addr)
-        shmdt(shm_addr);
+    if (shm_val)
+        shmdt(shm_val);
 
     exit(0);        
 }
@@ -98,7 +103,7 @@ void login(void) {
     
     if(strlen(username)) {
         snprintf(token_inp, sizeof(token_inp), "%s:%s:%s", cgiRemoteAddr, username, password);
-        redirect("?directory=%s&login=server&token=%s", virt_dirname, mktoken(token_inp));  // generate MD5 as if it was the client
+        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname, mktoken(token_inp));  // generate MD5 as if it was the client
     }
     else
         login_ui(); // display actual login page, which normally generates token in JavaScript
@@ -160,7 +165,7 @@ void access_check(char *access_string) {
 
 //
 // Check filename
-// Should be used by every function that uses filename
+// Should be called by every function that uses filename
 //
 void checkfilename(char *inp_filename) {
     char temp_dirname[PHYS_FILENAME_SIZE];
@@ -371,7 +376,7 @@ int cgiMain(void) {
     char c_du[]="recursive-du=true";
     char c_access[]="access";
 
-    // early action - simple actions before cfg is read or access check performed
+    // early action - simple actions before cfg is read or access check performed (no security!)
     cgiFormStringNoNewlines("ea", ea, sizeof(ea));
     if(strcmp(ea, "icon")==0) icon();
     if(strcmp(ea, "upstat")==0) upload_status();
@@ -387,7 +392,7 @@ int cgiMain(void) {
     snprintf(ICONSURL, sizeof(ICONSURL), "%s?ea=icon&amp;name=", cgiScriptName);
     
 
-    // read config file and authenticate
+    // config file defaults
     access_level=PERM_NO; // no access by default
     access_as_user=0;
     users_defined=0;
@@ -400,6 +405,7 @@ int cgiMain(void) {
     memset(TAGLINE, 0, sizeof(TAGLINE));
     memset(FAVICON, 0, sizeof(FAVICON));
 
+    // process config file
     cgiFormStringNoNewlines("token", token, sizeof(token));
     snprintf(cfgname, sizeof(cfgname), "%s.cfg", basename(cgiScriptName));
     cfgfile=fopen(cfgname, "r");
@@ -437,29 +443,38 @@ int cgiMain(void) {
 
     checkdirectory();
 
+    // JavaScript check
+    if(strncmp(cgiUserAgent, "Mozilla/5.0", 11)==0)
+        js=1;
+    else
+        js=0;
+
     // main routine - regular actions
     cgiFormStringNoNewlines("action", action, sizeof(action));
-    if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess      && access_level >= PERM_RO)         multiprompt_ui("delete");
-    else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("move");
-    else if(cgiFormSubmitClicked("upload")==cgiFormSuccess              && access_level >= PERM_RW)         receivefile();
-    else if(strcmp(action, "sendfile")==0                               && access_level >= PERM_RO)         sendfile();
-    else if(strcmp(action, "delete")==0                                 && access_level >= PERM_RW)         delete();
-    else if(strcmp(action, "delete_prompt")==0                          && access_level >= PERM_RW)         multiprompt_ui("delete");
-    else if(strcmp(action, "move_prompt")==0                            && access_level >= PERM_RW)         multiprompt_ui("move");
-    else if(strcmp(action, "rename_prompt")==0                          && access_level >= PERM_RW)         singleprompt_ui("move");
-    else if(strcmp(action, "move")==0                                   && access_level >= PERM_RW)         move();
-    else if(strcmp(action, "edit")==0                                   && access_level >= PERM_RO)         edit_ui();
-    else if(strcmp(action, "edit_save")==0                              && access_level >= PERM_RW)         edit_save();
-    else if(strcmp(action, "mkfile")==0                                 && access_level >= PERM_RW)         mkfile();
-    else if(strcmp(action, "mkfile_prompt")==0                          && access_level >= PERM_RW)         singleprompt_ui("mkfile");
-    else if(strcmp(action, "mkdir")==0                                  && access_level >= PERM_RW)         newdir();
-    else if(strcmp(action, "mkdir_prompt")==0                           && access_level >= PERM_RW)         singleprompt_ui("mkdir");
-    else if(strcmp(action, "about")==0                                  && access_level >= PERM_RO)         about();
-    else if(strcmp(action, "login")==0      )                                                               login();
-    else if(                                                               access_level >= PERM_RO)         dirlist();
+    if(cgiFormSubmitClicked("noop")==cgiFormSuccess                       && access_level >= PERM_RO)         dirlist();
+    else if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("delete");
+    else if(cgiFormSubmitClicked("multi_delete_prompt.x")==cgiFormSuccess && access_level >= PERM_RO)         multiprompt_ui("delete");
+    else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess     && access_level >= PERM_RO)         multiprompt_ui("move");
+    else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess     && access_level >= PERM_RO)         multiprompt_ui("move");
+    else if(cgiFormSubmitClicked("upload")==cgiFormSuccess                && access_level >= PERM_RW)         receivefile();
+    else if(strcmp(action, "sendfile")==0                                 && access_level >= PERM_RO)         sendfile();
+    else if(strcmp(action, "delete")==0                                   && access_level >= PERM_RW)         delete();
+    else if(strcmp(action, "delete_prompt")==0                            && access_level >= PERM_RW)         multiprompt_ui("delete");
+    else if(strcmp(action, "move_prompt")==0                              && access_level >= PERM_RW)         multiprompt_ui("move");
+    else if(strcmp(action, "rename_prompt")==0                            && access_level >= PERM_RW)         singleprompt_ui("move");
+    else if(strcmp(action, "move")==0                                     && access_level >= PERM_RW)         move();
+    else if(strcmp(action, "edit")==0                                     && access_level >= PERM_RO)         edit_ui();
+    else if(strcmp(action, "edit_save")==0                                && access_level >= PERM_RW)         edit_save();
+    else if(strcmp(action, "mkfile")==0                                   && access_level >= PERM_RW)         mkfile();
+    else if(strcmp(action, "mkfile_prompt")==0                            && access_level >= PERM_RW)         singleprompt_ui("mkfile");
+    else if(strcmp(action, "mkdir")==0                                    && access_level >= PERM_RW)         newdir();
+    else if(strcmp(action, "mkdir_prompt")==0                             && access_level >= PERM_RW)         singleprompt_ui("mkdir");
+    else if(strcmp(action, "about")==0                                    && access_level >= PERM_RO)         about();
+    else if(strcmp(action, "login")==0      )                                                                 login();
+    else if(                                                                 access_level >= PERM_RO)         dirlist();
     else 
         if(users_defined) // if users present but supplied credentials didn't match, or credentials not specified
-            redirect("?action=login");
+            redirect("%s?action=login", cgiScriptName);
         else
             error("Access Denied.");
 
