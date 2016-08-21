@@ -149,16 +149,12 @@ void edit_save(void) {
 	regmatch_t pmatch;
     struct stat tmpstat;
 
-
     checkfilename(NULL);
 
-    // the size should be updated by onclick from content.value.lenght just before submission
-    // it's used to verify that received data length is consistent with editor contents
-    //cgiFormInteger("size", &size, 0);
     cgiFormStringSpaceNeeded("content", &size);
 
-    if(size>5*1024*1024)
-        error("Input size too large.");
+    if(size>=5*1024*1024)
+        error("The file is too large for online editing.<BR>");
 
     buff=(char *) malloc(size); 
     if(buff==NULL)
@@ -167,9 +163,6 @@ void edit_save(void) {
     memset(buff, 0, size);
         
     cgiFormString("content", buff, size);
-
-    //if(strlen(buff) != size) // +1 because size was also given +1 via front end
-    //    error("Received wrong size. <BR>ContentLen=%d DataLen=%d. <BR> The file was not changed.", size, strlen(buff));
 
     // rename to .bak if requested
     cgiFormStringNoNewlines("backup", backup, sizeof(backup));
@@ -193,7 +186,10 @@ void edit_save(void) {
 
     if(!tmpfd)
         error("Unable to create temporary file %s.<BR>%s", basename(tempname), strerror(errno));
-    
+
+    if(chmod(tempname, 00644)!=0)
+        error("Unable to set file permissions.<BR>%s", strerror(errno));
+
     tempf=fdopen(tmpfd, "w");
     
     if(!tempf)
@@ -210,18 +206,13 @@ void edit_save(void) {
     if(tmpstat.st_size != strlen(buff))
         error("Temprary file has a wrong length. Giving up.<BR>%s size=%d, buff len=%d", virt_filename, tmpstat.st_size);
 
-    if(chmod(tempname, 00644)!=0)
-        error("Unable to set file permissions.<BR>%s", strerror(errno));
-
     // finally rename to desination file
     if(rename(tempname, phys_filename)!=0)
         error("Unable to rename temp file.<BR>%s - %s<BR>%s<BR>", basename(tempname), virt_filename, strerror(errno));
 
-
     free(buff);
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
-
 }
 
 //
@@ -307,7 +298,6 @@ void delete(void) {
     }           
 
     redirect("%s?directory=%s&token=%s", cgiScriptName, virt_dirname, token);
-
 }
 
 //
