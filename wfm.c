@@ -50,14 +50,12 @@ void upload_status(void) {
  
     fprintf(cgiOut, "Cache-Control: no-cache\r\n");
     cgiHeaderContentType("text/plain");
+    time(&t);
 
-    if(shm_val) {
-        fprintf(cgiOut, "=%s=\r\n", shm_val);
-    }
-    else {
-        time(&t);
-        fprintf(cgiOut, "=%s=\r\n", spin[(int)t % 4]);
-    }
+    if(shm_val)
+        fprintf(cgiOut, "[ %s %s ]\r\n", spin[(int)t % 4], shm_val);
+    else 
+        fprintf(cgiOut, "[ %s ]\r\n", spin[(int)t % 4]);
 
     if (shm_val)
         shmdt(shm_val);
