@@ -64,7 +64,7 @@ void dirlist(void) {
     char *stime;
     char sortby[64];
     char *name, *icon, *linecolor;
-	int nentr=0, e;
+	int nentr=0, e=0, n=1;
     int editable;
     time_t now;
 
@@ -404,13 +404,22 @@ void dirlist(void) {
         else if(now-direntry[e].mtime < 365*24*3600) stime=M_YR;
         else                                         stime=M_OLD;
 
+
         if(strcmp(highlight, name)==0)  {
             icon=NEWIMG;
             linecolor=tHIGH_COLOR;
         }
         else {
             icon=DIRIMG;
-            linecolor=tNORMAL_COLOR;
+            if(js) {
+                linecolor=tNORMAL_COLOR;
+            }
+            else {
+                if(n % 2)
+                    linecolor=tNORMAL_COLOR;
+                else
+                    linecolor=tALTER_COLOR;
+            }
         }
 
 
@@ -422,11 +431,11 @@ void dirlist(void) {
             "<TR BGCOLOR=\"#%s\" ", linecolor);
         
         if(js) 
-            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"",
             HL_COLOR, linecolor);
 
         fprintf(cgiOut,
-            "><TD NOWRAP  ALIGN=\"LEFT\">\n"
+            ">\n<TD NOWRAP  ALIGN=\"LEFT\">\n"
             "<INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">", 
              name);
                     
@@ -463,6 +472,7 @@ void dirlist(void) {
         cgiScriptName, virt_dirname, name, token, name, ICONSURL);
                   
         totalsize+=size;
+        n++;
     }
 
                             
@@ -507,7 +517,15 @@ void dirlist(void) {
             linecolor=tHIGH_COLOR;
         }
         else {
-             linecolor=tNORMAL_COLOR;
+            if(js) {
+                linecolor=tNORMAL_COLOR;
+            }
+            else {
+                if(n % 2)
+                    linecolor=tNORMAL_COLOR;
+                else
+                    linecolor=tALTER_COLOR;
+            }
         }
 
         // filename 
@@ -518,11 +536,11 @@ void dirlist(void) {
             "<TR BGCOLOR=\"#%s\" ", linecolor);
         
         if(js) 
-            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"\n",
             HL_COLOR, linecolor);
 
         fprintf(cgiOut,
-            "><TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
+            ">\n<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
             "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
         name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", virt_dirname, name, token, name, icon, name);
 
@@ -605,7 +623,7 @@ void dirlist(void) {
        }
 
        totalsize+=size;
-
+       n++;
     }
 
     tstop();
