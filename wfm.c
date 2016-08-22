@@ -442,14 +442,12 @@ int cgiMain(void) {
     checkdirectory();
 
     // JavaScript check
-    if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)
-        js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0)
-        js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4", 9)==0)
-        js=1;
-    else
-        js=0;
+         if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)                               js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0)        js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 7", 31)==0)        js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 8", 31)==0)        js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4", 9)==0)                               js=1;
+    else                                                                            js=0;
 
     // main routine - regular actions
     cgiFormStringNoNewlines("action", action, sizeof(action));
@@ -457,7 +455,7 @@ int cgiMain(void) {
     else if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("delete");
     else if(cgiFormSubmitClicked("multi_delete_prompt.x")==cgiFormSuccess && access_level >= PERM_RO)         multiprompt_ui("delete");
     else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess     && access_level >= PERM_RO)         multiprompt_ui("move");
-    else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess     && access_level >= PERM_RO)         multiprompt_ui("move");
+    else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("move");
     else if(cgiFormSubmitClicked("upload")==cgiFormSuccess                && access_level >= PERM_RW)         receivefile();
     else if(strcmp(action, "sendfile")==0                                 && access_level >= PERM_RO)         sendfile();
     else if(strcmp(action, "delete")==0                                   && access_level >= PERM_RW)         delete();
