@@ -16,6 +16,7 @@ char M_YR[]="<FONT COLOR=\"#909090\">(Last Year)";
 char M_OLD[]="<FONT COLOR=\"#C0C0C0\">(Old)";
 
 char tNORMAL_COLOR[]="FFFFFF";
+char tALTER_COLOR[]="F0F0F0"; // for alternating lines
 char tHIGH_COLOR[]="33CC33";
 char tHL_COLOR[]="FFD700";
 
@@ -417,12 +418,15 @@ void dirlist(void) {
         fprintf(cgiOut, 
             "<!-- Directory Entry -->\n");
 
-        if(js) fprintf(cgiOut,
-            "<TR BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
-        linecolor, HL_COLOR, linecolor);
+        fprintf(cgiOut,
+            "<TR BGCOLOR=\"#%s\" ", linecolor);
+        
+        if(js) 
+            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+            HL_COLOR, linecolor);
 
         fprintf(cgiOut,
-            "<TD NOWRAP  ALIGN=\"LEFT\">\n"
+            "><TD NOWRAP  ALIGN=\"LEFT\">\n"
             "<INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">", 
              name);
                     
@@ -510,12 +514,15 @@ void dirlist(void) {
         fprintf(cgiOut, 
             "<!-- File Entry -->\n");
 
-        if(js) fprintf(cgiOut,
-            "<TR  BGCOLOR=\"#%s\" onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
-        linecolor, HL_COLOR, linecolor);
+        fprintf(cgiOut,
+            "<TR BGCOLOR=\"#%s\" ", linecolor);
+        
+        if(js) 
+            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\">\n",
+            HL_COLOR, linecolor);
 
         fprintf(cgiOut,
-            "<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
+            "><TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
             "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
         name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", virt_dirname, name, token, name, icon, name);
 
