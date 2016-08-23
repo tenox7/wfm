@@ -52,8 +52,8 @@
 #include "cgic.h"
 #include "wfmiconres.h"
 
-#define VALIDCHRS "an -_."
-#define VALIDCHRS_DST "an -_./"
+#define VALIDCHRS "anu-_."
+#define VALIDCHRS_DST "anu-_./"
 
 
 #define P1024_1 1024.0f
