@@ -407,15 +407,15 @@ void edit_ui(void) {
     "--></STYLE>\n"
     "</HEAD>\n"
     "<BODY>\n"
-    "<FORM NAME=\"EDITOR\" ACTION=\"%s?action=edit_save\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" STYLE=\"height:100%%;\">\n"
-        "<TABLE BGCOLOR=\"#EEEEEE\" BORDER=0 CELLSPACING=0 CELLPADDING=5 STYLE=\"height:100%%;\">\n"
+    "<FORM NAME=\"EDITOR\" ACTION=\"%s?action=edit_save\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" >\n"
+        "<TABLE BGCOLOR=\"#EEEEEE\" BORDER=0 CELLSPACING=0 CELLPADDING=5 STYLE=\"height:%s%%;\">\n"
          "<TR STYLE=\"height:1%%;\">\n"
             "<TD ALIGN=\"LEFT\" VALIGN=\"MIDDLE\" BGCOLOR=\"#CCCCCC\">\n"
             "<IMG SRC=\"%sedit.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"EDIT\">\n"
             "File Editor: %s\n"
             "</TD>\n"
             "<TD  BGCOLOR=\"#CCCCCC\" ALIGN=\"RIGHT\">",
-            cgiScriptName, ICONSURL, virt_filename);
+            cgiScriptName, (strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0) ? "80" : "100", ICONSURL, virt_filename);
 
     if(js) fprintf(cgiOut, 
                 "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n"
