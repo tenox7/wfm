@@ -52,8 +52,8 @@
 #include "cgic.h"
 #include "wfmiconres.h"
 
-#define VALIDCHRS "anu-_."
-#define VALIDCHRS_DST "anu-_./"
+#define VALIDCHRS "an -_."
+#define VALIDCHRS_DST "an -_./"
 
 
 #define P1024_1 1024.0f
@@ -62,11 +62,6 @@
 #define P1024_4 1099511627776.0f
 
 #define SHM_SIZE 16
-
-#define NORMAL_COLOR "FFFFFF"
-#define HIGH_COLOR "33CC33"
-#define HL_COLOR "FFD700"
-
 
 #define VIRT_DIRNAME_SIZE NAME_MAX
 #define PHYS_DIRNAME_SIZE 1024

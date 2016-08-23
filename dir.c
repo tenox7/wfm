@@ -432,7 +432,7 @@ void dirlist(void) {
         
         if(js) 
             fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"",
-            HL_COLOR, linecolor);
+            tHL_COLOR, linecolor);
 
         fprintf(cgiOut,
             ">\n<TD NOWRAP  ALIGN=\"LEFT\">\n"
@@ -537,7 +537,7 @@ void dirlist(void) {
         
         if(js) 
             fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"\n",
-            HL_COLOR, linecolor);
+            tHL_COLOR, linecolor);
 
         fprintf(cgiOut,
             ">\n<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
