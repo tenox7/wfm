@@ -641,7 +641,7 @@ void dirlist(void) {
             "<TD NOWRAP  BGCOLOR=\"#%s\">&nbsp;</TD>\n"
         "</TR>\n"
         "</TABLE>\n</FORM>\n</BODY>\n<!-- Page generated in %f seconds -->\n</HTML>\n\n",
-        NORMAL_COLOR, NORMAL_COLOR, buprintf(totalsize, TRUE), NORMAL_COLOR, (t2-t1)*1000, NORMAL_COLOR, NORMAL_COLOR, t2-t1
+        tNORMAL_COLOR, tNORMAL_COLOR, buprintf(totalsize, TRUE), tNORMAL_COLOR, (t2-t1)*1000, tNORMAL_COLOR, tNORMAL_COLOR, t2-t1
     );
     
 }
