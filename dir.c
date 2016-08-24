@@ -46,7 +46,7 @@ void dir_icoinita(void) {
         regcomp(&reg_med, "\\.(mp3|mp4|vaw|mov|avi|ivr|mkv)$",                      REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_pdf, "\\.(pdf|ps|eps|ai)$",                                    REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_txt, "\\.(txt|asc|nfo|me|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|py)$", REG_EXTENDED | REG_ICASE)!=0 ||
-        regcomp(&reg_exe, "\\.(exe|cmd|vbs|bat|com|pif)$",                          REG_EXTENDED | REG_ICASE)!=0 
+        regcomp(&reg_exe, "\\.(exe|com|pif)$",                                      REG_EXTENDED | REG_ICASE)!=0 
     ) error("Unable to compile regex.");
 
 }
@@ -164,7 +164,7 @@ void dirlist(void) {
         "font-family: Tahoma, Arial, Geneva, sans-serif; font-size:11px; }\n"
         ".hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }\n"
         ".hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }\n"
-        "//-->\n"
+        "-->\n"
         "</STYLE>\n" 
         "<META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n"
         "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
@@ -223,73 +223,73 @@ void dirlist(void) {
     //
     fprintf(cgiOut, 
             "<!-- TOOLBAR -->\n"\
-            "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"\
-                "<TR>\n"\
-                "<!-- DIR-UP -->\n"\
-                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
-                 "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">\n"\
-                    "<IMG SRC=\"%sdir_up.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Dir Up\">&nbsp;Up\n"\
-                 "</A>\n"\
+            "<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"
+                "<TR>\n"
+                "<!-- DIR-UP -->\n"
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                 "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">"
+                    "<IMG SRC=\"%sdir_up.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Dir Up\">&nbsp;Up"
+                 "</A>\n"
                 "</TD>\n",
                 cgiScriptName, sortby, virt_parent, token, ICONSURL);
 
     fprintf(cgiOut,                 
-                "<!-- HOME -->\n"\
-                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
-                 "<A HREF=\"%s?sortby=%s&amp;directory=/&amp;token=%s\">\n"\
-                    "<IMG SRC=\"%shome.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Home\">&nbsp;Home\n"\
-                 "</A>\n"\
+                "<!-- HOME -->\n"
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                 "<A HREF=\"%s?sortby=%s&amp;directory=/&amp;token=%s\">"
+                    "<IMG SRC=\"%shome.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Home\">&nbsp;Home"
+                 "</A>\n"
                 "</TD>\n",
                 cgiScriptName, sortby, token, ICONSURL);
 
     fprintf(cgiOut,                 
-                "<!-- RELOAD -->\n"\
-                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
-                     "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">\n"\
-                         "<IMG SRC=\"%sreload.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"Reload\">&nbsp;Refresh\n"\
-                     "</A>\n"\
+                "<!-- RELOAD -->\n"
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                     "<A HREF=\"%s?sortby=%s&amp;directory=%s&amp;token=%s\">"
+                         "<IMG SRC=\"%sreload.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"Reload\">&nbsp;Refresh"
+                     "</A>\n"
                 "</TD>\n",
                 cgiScriptName, sortby, virt_dirname, token, ICONSURL);
 
     fprintf(cgiOut,                 
                 "<!-- MULTI DELETE -->\n"\
-                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
                      "<INPUT TYPE=\"IMAGE\" SRC=\"%sdelete.gif\" STYLE=\"border: none; padding: 0px; vertical-align:middle;\" ALT=\"Delete\" ALIGN=\"MIDDLE\" NAME=\"multi_delete_prompt\" VALUE=\"Delete\">\n"
                      "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_delete_prompt\" VALUE=\"Delete\" %s>\n"
                 "</TD>\n",
                 ICONSURL, (js) ? "onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\"" : "");
 
     fprintf(cgiOut,                 
-                "<!-- MULTI MOVE -->\n"\
-                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
+                "<!-- MULTI MOVE -->\n"
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
                      "<INPUT TYPE=\"IMAGE\" SRC=\"%smove.gif\" STYLE=\"border: none; padding: 0px; vertical-align:middle; \" ALT=\"Move\" ALIGN=\"MIDDLE\" NAME=\"multi_move_prompt\" VALUE=\"Move\">\n"
                      "<INPUT TYPE=\"SUBMIT\" CLASS=\"hovout\" NAME=\"multi_move_prompt\" VALUE=\"Move\" %s>\n"
                 "</TD>\n",
                 ICONSURL, (js) ? "onMouseOver=\"this.className='hovin';\" onMouseOut=\"this.className='hovout';\"" : "");
 
     fprintf(cgiOut,                                 
-                "<!-- NEWDIR -->\n"\
-                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
-                     "<A HREF=\"%s?action=mkdir_prompt&amp;directory=%s&amp;token=%s\" >\n"\
-                            "<IMG SRC=\"%smkdir.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New Folder\">&nbsp;New Folder\n"\
-                     "</A>\n"\
+                "<!-- NEWDIR -->\n"
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                     "<A HREF=\"%s?action=mkdir_prompt&amp;directory=%s&amp;token=%s\" >\n"
+                            "<IMG SRC=\"%smkdir.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New Folder\">&nbsp;New Folder\n"
+                     "</A>\n"
                 "</TD>\n",
                 cgiScriptName, virt_dirname, token, ICONSURL);
                 
 
     fprintf(cgiOut,                                 
                 "<!-- NEWFILE -->\n"\
-                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"\
-                     "<A HREF=\"%s?action=mkfile_prompt&amp;directory=%s&amp;token=%s\" >\n"\
-                            "<IMG SRC=\"%smkfile.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New File\">&nbsp;New File\n"\
-                     "</A>\n"\
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                     "<A HREF=\"%s?action=mkfile_prompt&amp;directory=%s&amp;token=%s\">"
+                            "<IMG SRC=\"%smkfile.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New File\">&nbsp;New File"
+                     "</A>\n"
                 "</TD>\n",
                 cgiScriptName, virt_dirname, token, ICONSURL);
 
 
                 
     fprintf(cgiOut,                 
-                "<!-- UPLOAD -->\n"\
+                "<!-- UPLOAD -->\n"
                 "<TD NOWRAP  BGCOLOR=\"#F1F1F1\"  VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"directory\" VALUE=\"%s\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
@@ -536,7 +536,7 @@ void dirlist(void) {
             "<TR BGCOLOR=\"#%s\" ", linecolor);
         
         if(js) 
-            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"\n",
+            fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"",
             tHL_COLOR, linecolor);
 
         fprintf(cgiOut,
