@@ -26,7 +26,7 @@ WFM is now released as open source.
 
 
 ## Installation
-WFM binary is self contained including all icons/images. You only need
+WFM binary is self-contained including all icons/images. You only need
 to copy the compiled wfm binary (with any name) to your cgi execution
 directory, usually cgi-bin. Include a config file of the same name as the
 binary file plus .cfg extension. Example:
@@ -45,10 +45,10 @@ is made by copying or linking WFM binary with a different name. In a more
 advanced configuration different instances can suexec to different users.
 
 In basic form each instance reads it's configuration file of 
-instance name + .cfg extenstion from the current working directory.
+instance name + .cfg extension from the current working directory.
 For instance if you decide to use "ftpadmin" as name of the executable
 (or link) it will read file named "ftpadmin.cfg" for the configuration.
-Below is a simple, self explanatory configuration file example:
+Below is a simple, self-explanatory configuration file example:
 
     # tagline or application name
     tagline=Snake Oil File Exchange
@@ -89,8 +89,7 @@ If you use mixed ro/rw access for instance ip=ro:* and user=rw:admin
 then in order to authenticate click on the lock sign on right side of
 the top status bar.
 
-Copyrights
-==========
+## Copyrights and Credits
 Copyright (c) 1994-2016 by Antoni Sawicki
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.
 Copyright (c) 2002 by Aladdin Enterprises
