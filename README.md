@@ -7,7 +7,8 @@ allows editing small text files directly in the browser using textarea.
 Unlike Dropbox, box.net and others, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
 Mosaic 3.0. It outputs W3C certified HTML 4.01. JavaScript is optional and
-only used for non-essential luxuries on modern web browsers.
+only used for non-essential luxuries on modern web browsers. Modern browsers
+are tested using [BrowserStack](http://www.browserstack.com/).
 
 This program is written using portable C code and compiles natively
 for many flavors of Unix. It runs as a CGI application on most httpd servers
