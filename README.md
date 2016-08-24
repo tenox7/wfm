@@ -31,9 +31,9 @@ to copy the compiled wfm binary (with any name) to your cgi execution
 directory, usually cgi-bin. Include a config file of the same name as the
 binary file plus .cfg extension. Example:
 
-/home/user/web/cgi-bin
-  wfm
-  wfm.cfg
+    /home/user/web/cgi-bin
+      wfm
+      wfm.cfg
 
 Edit the .cfg file according to your needs.
 
@@ -91,13 +91,23 @@ the top status bar.
 
 ## Copyrights and Credits
 Copyright (c) 1994-2016 by Antoni Sawicki
+
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.
+
 Copyright (c) 2002 by Aladdin Enterprises
+
 Copyright (c) 1999-2009 by Paul Johnston
+
 Copyright (c) 2010 by Yusuke Kamiyamane
-WFM implemented by Antoni Sawicki
+
+WFM implemented by [Antoni Sawicki](http://www.tenox.net/)
+
 [CGIC Library](https://www.boutell.com/cgic/) by Thomas Boutell
+
 Server Side RFC 1321 implementation by L. Peter Deutsch
+
 Client Side RFC 1321 implementation by Paul Johnston
-Icons by Yusuke Kamiyamane
+
+Icons by [Yusuke Kamiyamane](http://p.yusukekamiyamane.com/)
+
 Web browser testing by [BrowserStack](http://www.browserstack.com/)
