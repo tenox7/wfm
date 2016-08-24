@@ -58,11 +58,11 @@ void dir_icoinita(void) {
 void dirlist(void) {
     ASDIR *direntry;
     off_t size, totalsize=0;
-    char highlight[VIRT_FILENAME_SIZE];
+    char highlight[VIRT_FILENAME_SIZE]={0};
     char namepfx[1024], sizepfx[1024], datepfx[1024];
     char rtime[64], mtime[64], atime[64];
     char *stime;
-    char sortby[64];
+    char sortby[64]={0};
     char *name, *icon, *linecolor;
 	int nentr=0, e=0, n=1;
     int editable;

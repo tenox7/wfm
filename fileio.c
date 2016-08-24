@@ -7,9 +7,9 @@
 // Called by cgiMain action=sendfile
 //
 void sendfile(void) {
-    char buff[1024];
+    char buff[1024]={0};
     FILE *in;
-    int rd, tot, size, pos, blk;
+    int rd=0, tot=0, size=0, pos=0, blk=0;
 
     checkfilename(NULL);
 
@@ -36,8 +36,8 @@ void sendfile(void) {
     rd=fread(buff, blk, 1, in);
         
     if(rd) {
-        tot=tot+rd*blk;
-//      printf("rw=%u size=%u total=%u remaining=%u\n", rd*blk, size, tot, size-pos-(rd*blk));
+        tot+=rd*blk;
+      //fprintf(cgiOut, "rw=%u size=%u total=%u remaining=%u\n", rd*blk, size, tot, size-pos-(rd*blk));
         fwrite(buff, blk, 1, cgiOut);
         goto reread;
     }
@@ -59,39 +59,28 @@ void sendfile(void) {
 void receivefile(void) {
     cgiFilePtr input;
     FILE *output;
-    char *buff;
-    int size=0, got=0;
+    char buff[1024]={0};
+    int got=0; //,size=0;
 
-    if(cgiFormFileSize("filename", &size) != cgiFormSuccess)
-        error("No file size specified.");
+    checkfilename(NULL);
+
+    //if(cgiFormFileSize("filename", &size) != cgiFormSuccess)
+    //    error("No file size specified.");
 
     if(cgiFormFileOpen("filename", &input) != cgiFormSuccess) 
         error("Unable to access uploaded file.");
-
-    buff=(char *) malloc(size+1);
-    if(buff==NULL)
-        error("Unable to allocate memory.");
-
-    // TODO: holly crap this needs to be in a loop with a fixed buffer size similar to sendfile()
-    if(cgiFormFileRead(input, buff, size, &got) != cgiFormSuccess)
-        error("Reading file.");
-        
-    cgiFormFileClose(input);
-
-    if(got != size) 
-        error("Wrong file size. Size=%d Received=%d.", size, got);
-
-    checkfilename(NULL);
 
     output=fopen(phys_filename, "wb");
     if(!output) 
         error("Unable to open file %s for writing.<BR>%s", virt_filename, strerror(errno));
 
-    if(fwrite(buff, size, 1, output) != 1) 
-        error("While writing file.<BR>%s", strerror(errno));
+    while(cgiFormFileRead(input, buff, sizeof(buff), &got) == cgiFormSuccess) 
+        if(got)
+            if(fwrite(buff, got, 1, output) != 1) 
+                error("While writing file.<BR>%s", strerror(errno));
 
+    cgiFormFileClose(input);
     fclose(output);
-    free(buff);
     
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
 
@@ -140,11 +129,11 @@ void edit_save(void) {
     int size=0;
     int tmpfd;
     char *buff;
-    char tempname[64];
+    char tempname[64]={0};
     //FILE *output;
     FILE *tempf;
-    char backup[4];
-    char backup_filename[PHYS_DESTINATION_SIZE];
+    char backup[4]={0};
+    char backup_filename[PHYS_DESTINATION_SIZE]={0};
    	regex_t re;
 	regmatch_t pmatch;
     struct stat tmpstat;
@@ -223,7 +212,7 @@ void fileio_re_rmdir(char *dirname) {
     DIR *dir;
     struct dirent *direntry;
     struct stat fileinfo;
-    char tempfullpath[PHYS_FILENAME_SIZE];
+    char tempfullpath[PHYS_FILENAME_SIZE]={0};
 
     dir=opendir(dirname);
     if(!dir) 
@@ -305,7 +294,7 @@ void delete(void) {
 // Called by move()
 //
 void fileio_move(void) {
-    char final_destination[PHYS_DESTINATION_SIZE];
+    char final_destination[PHYS_DESTINATION_SIZE]={0};
     struct stat fileinfo;
 
         // If moving file to a different directory we need to append the original file name
@@ -354,7 +343,7 @@ off_t du(char *pdir) {
     DIR *dir;
     struct dirent *direntry;
     struct stat fileinfo;
-    char child[PHYS_DIRNAME_SIZE];
+    char child[PHYS_DIRNAME_SIZE]={0};
     off_t tot=0;
 
     if(lstat(pdir, &fileinfo)==0)
@@ -387,9 +376,9 @@ off_t du(char *pdir) {
 void re_dir_ui(char *vdir, int level) {
 	struct dirent **direntry;
 	struct stat fileinfo;
-	char child[VIRT_DIRNAME_SIZE];
-	char phy_child[PHYS_DIRNAME_SIZE];
-	char re_phys_dirname[PHYS_DIRNAME_SIZE];
+	char child[VIRT_DIRNAME_SIZE]={0};
+	char phy_child[PHYS_DIRNAME_SIZE]={0};
+	char re_phys_dirname[PHYS_DIRNAME_SIZE]={0};
 	int n;
 	int nentr, e;
 	
@@ -465,7 +454,7 @@ int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, con
 	ASDIR *names;
 	struct dirent *entry;
     struct stat fileinfo;
-    char filename[PATH_MAX];
+    char filename[PATH_MAX]={0};
     int entries=0;
 
 	dirh=opendir(dir);

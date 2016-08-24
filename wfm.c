@@ -18,7 +18,7 @@ void html_title(char *msg) {
 // Called on early action=icon
 //
 int icon(void) {
-    char icon_name[32];
+    char icon_name[32]={0};
 
     cgiFormStringNoNewlines("name", icon_name, sizeof(icon_name));
 
@@ -70,7 +70,7 @@ void upload_status(void) {
 //
 char *mktoken(char *str) {
     md5_state_t state;
-    md5_byte_t digest[16];
+    md5_byte_t digest[16]={0};
     char *outstr;
     int i;
 
@@ -92,9 +92,9 @@ char *mktoken(char *str) {
 // Called from WFM main procedure if no sufficient access permission available
 //
 void login(void) {
-    char username[64];
-    char password[64];
-    char token_inp[256];
+    char username[64]={0};
+    char password[64]={0};
+    char token_inp[256]={0};
 
     cgiFormStringNoNewlines("username", username, sizeof(username)); // only used if JavaScript not 
     cgiFormStringNoNewlines("password", password, sizeof(password)); // available in the browser
@@ -113,11 +113,11 @@ void login(void) {
 // Called by cfg read routine during initialization
 //
 void access_check(char *access_string) {
-    char ipaddr[32];
-    char user[32];
-    char pass[32];
-    char type[4];
-    char token_inp[64];
+    char ipaddr[32]={0};
+    char user[32]={0};
+    char pass[32]={0};
+    char type[4]={0};
+    char token_inp[64]={0};
 
     memset(ipaddr, 0, sizeof(ipaddr));
     memset(user, 0, sizeof(user));
@@ -166,7 +166,7 @@ void access_check(char *access_string) {
 // Should be called by every function that uses filename
 //
 void checkfilename(char *inp_filename) {
-    char temp_dirname[PHYS_FILENAME_SIZE];
+    char temp_dirname[PHYS_FILENAME_SIZE]={0};
     char *bname;
 
     if(inp_filename && strlen(inp_filename)) {
@@ -230,7 +230,7 @@ void checkdestination(void) {
 // Only used by cgiMain during initialization
 //
 void checkdirectory(void) {
-    char temp[VIRT_DIRNAME_SIZE];
+    char temp[VIRT_DIRNAME_SIZE]={0};
     
     cgiFormStringNoNewlines("directory", virt_dirname, VIRT_DIRNAME_SIZE);
     strip(virt_dirname, VIRT_DIRNAME_SIZE, VALIDCHRS_DST);
@@ -347,7 +347,7 @@ char *buprintf(float v, int bold) {
 //
 void redirect(char *location, ...) {
     va_list ap;
-    char buff[1024];
+    char buff[1024]={0};
 
     va_start(ap, location);
     vsnprintf(buff, sizeof(buff), location, ap);
@@ -360,11 +360,11 @@ void redirect(char *location, ...) {
 // CGI entry
 //
 int cgiMain(void) {
-    char action[32];
-    char ea[8];
+    char action[32]={0};
+    char ea[8]={0};
     FILE *cfgfile;
-    char cfgname[128];
-    char cfgline[256];
+    char cfgname[128]={0};
+    char cfgline[256]={0};
     char c_tagline[]="tagline=";
     char c_favicon[]="favicon=";
     char c_homeurl[]="browser-url=";

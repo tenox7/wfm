@@ -10,7 +10,7 @@ void multiprompt_ui(char *m_action) {
     int res;
     char **responses; 
     struct stat fileinfo;
-    char M_action[64];
+    char M_action[64]={0};
 
     res=cgiFormStringMultiple("multiselect_filename", &responses);
 
@@ -46,7 +46,7 @@ void multiprompt_ui(char *m_action) {
         checkfilename(NULL);
         if(stat(phys_filename, &fileinfo)==0) {
             fprintf(cgiOut, "<INPUT TYPE=\"HIDDEN\" NAME=\"filename\" VALUE=\"%s\">\n", virt_filename);
-            fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s/</B>", virt_filename);
+            fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s</B>", virt_filename);
             if(S_ISDIR(fileinfo.st_mode))
                 fprintf(cgiOut, " [directory %s]\n", buprintf(du(phys_filename), FALSE));
             else
@@ -99,7 +99,7 @@ void multiprompt_ui(char *m_action) {
 // Used for rename, mkfile, mkdir
 //
 void singleprompt_ui(char *m_action) {
-    char M_action[64];
+    char M_action[64]={0};
 
     snprintf(M_action, sizeof(M_action), "%c%s", toupper(m_action[0]), m_action+1);
 
@@ -337,7 +337,7 @@ void login_ui(void) {
 void edit_ui(void) {
     FILE *input;
     char *buff;
-    char backup[4];
+    char backup[4]={0};
     char *bkcolor;
     int size;
 
