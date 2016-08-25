@@ -167,27 +167,28 @@ void access_check(char *access_string) {
 //
 void checkfilename(char *inp_filename) {
     char temp_dirname[PHYS_FILENAME_SIZE]={0};
+    char temp_filename[VIRT_FILENAME_SIZE]={0};
     char *bname;
 
     if(inp_filename && strlen(inp_filename)) {
-        strncpy(virt_filename, inp_filename, VIRT_FILENAME_SIZE);
+        strncpy(temp_filename, inp_filename, VIRT_FILENAME_SIZE);
     }
-    else if(cgiFormFileName("filename", virt_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
+    else if(cgiFormFileName("filename", temp_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
         
     }
-    else if(cgiFormStringNoNewlines("filename", virt_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
+    else if(cgiFormStringNoNewlines("filename", temp_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
         
     }
     else
         error("No filename specified.");
 
     // We only want basename from the client!
-    bname=strrchr(virt_filename, '/');
+    bname=strrchr(temp_filename, '/');
     if(!bname)
-        bname=strrchr(virt_filename, '\\');
+        bname=strrchr(temp_filename, '\\');
             
     if(!bname)
-        bname=virt_filename;
+        bname=temp_filename;
     else
         (void) *bname++;
 
@@ -195,8 +196,8 @@ void checkfilename(char *inp_filename) {
     strncpy(virt_filename, bname, VIRT_FILENAME_SIZE);
     snprintf(phys_filename, PHYS_FILENAME_SIZE, "%s/%s", phys_dirname, virt_filename);
 
-    if(!strlen(phys_filename) || strlen(phys_filename)>(PHYS_FILENAME_SIZE-2)) error("Invalid pfilename lenght");
-    if(!strlen(virt_filename) || strlen(virt_filename)>(VIRT_FILENAME_SIZE-2)) error("Invalid vfilename lenght");
+    if(!strlen(phys_filename) || strlen(phys_filename)>(PHYS_FILENAME_SIZE-2)) error("Invalid phys_filename lenght [%d]", strlen(phys_filename));
+    if(!strlen(virt_filename) || strlen(virt_filename)>(VIRT_FILENAME_SIZE-2)) error("Invalid virt_filename lenght [%d]", strlen(virt_filename));
     if(regexec(&dotdot, phys_filename, 0, 0, 0)==0) error("Double dots in pfilename");
     if(regexec(&dotdot, virt_filename, 0, 0, 0)==0) error("Double dots in vfilename");
 
@@ -219,8 +220,8 @@ void checkdestination(void) {
     else
         snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", phys_dirname, virt_destination);
 
-    if(strlen(phys_destination)<1 || strlen(phys_destination)>(PHYS_DESTINATION_SIZE-2)) error("Invalid vfilename lenght");
-    if(strlen(virt_destination)<1 || strlen(virt_destination)>(VIRT_DESTINATION_SIZE-2)) error("Invalid pfilename lenght");
+    if(strlen(phys_destination)<1 || strlen(phys_destination)>(PHYS_DESTINATION_SIZE-2)) error("Invalid phys_destination lenght [%d]", strlen(phys_destination));
+    if(strlen(virt_destination)<1 || strlen(virt_destination)>(VIRT_DESTINATION_SIZE-2)) error("Invalid virt_destination lenght [%d]", strlen(virt_destination));
     if(regexec(&dotdot, phys_destination, 0, 0, 0)==0) error("Double dots in pfilename");
     if(regexec(&dotdot, virt_destination, 0, 0, 0)==0) error("Double dots in vfilename");
 }
