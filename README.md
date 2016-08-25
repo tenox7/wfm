@@ -16,6 +16,7 @@ and does not require PHP, Perl, Python or any other interpreted language.
 It's very small and lightning fast. I runs on resource constrained embedded
 or vintage / historical systems.
 
+![alt text](https://raw.githubusercontent.com/tenox7/wfm/master/screenshot.png "WFM Screenshot")
 
 ## History
 The application begun its life in 1994 as a perl CGI script for CERN httpd
