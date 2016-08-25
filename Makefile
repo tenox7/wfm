@@ -7,7 +7,6 @@ wfm: ${OB}
 	${CC} ${OB} -o wfm 
 	@strip wfm
 	@du -h wfm
-	cp wfm ../web/tenox/app
 
 wfm.o: wfm.c wfmiconres.h wfm.h
 
