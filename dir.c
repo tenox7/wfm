@@ -66,9 +66,13 @@ void dirlist(void) {
     char *name, *icon, *linecolor;
 	int nentr=0, e=0, n=1;
     int editable;
+    int upload_id=0;
     time_t now;
 
     time(&now);
+    upload_id=ftok(getenv("SCRIPT_FILENAME"), getpid()); 
+    if(upload_id<1)
+        upload_id=now; // holy shit
 
     cgiFormStringNoNewlines("highlight", highlight, VIRT_FILENAME_SIZE-1);
     cgiFormStringNoNewlines("sortby", sortby, 63);
@@ -100,7 +104,6 @@ void dirlist(void) {
         "<HEAD>\n"
         "<TITLE>%s : %c%s</TITLE>\n",
         copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname);
-
 
     if(js) fprintf(cgiOut,
         "<SCRIPT LANGUAGE=\"JavaScript\" TYPE=\"text/javascript\">\n"
@@ -141,9 +144,9 @@ void dirlist(void) {
         "}\n"
         "\n"
         "function start() {\n"
-        "   setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%s\");', 250);\n"
+        "   setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%d\");', 250);\n"
         "}\n",
-        cgiScriptName, "1234");
+        cgiScriptName, upload_id);
 
     if(js) fprintf(cgiOut,
         "//-->\n"
@@ -293,13 +296,13 @@ void dirlist(void) {
                 "<TD NOWRAP  BGCOLOR=\"#F1F1F1\"  VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"directory\" VALUE=\"%s\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
-                    "<INPUT TYPE=\"hidden\" NAME=\"upload_id\" VALUE=\"%s\">\n"
+                    "<INPUT TYPE=\"hidden\" NAME=\"upload_id\" VALUE=\"%d\">\n"
                     "<INPUT TYPE=\"file\" NAME=\"filename\">&nbsp;\n"
                     "<INPUT TYPE=\"submit\" NAME=\"upload\" ID=\"Upload_Status\" VALUE=\"Upload\" >\n"
                 "</TD>\n"
                 "</TR>\n"
             "</TABLE>\n",
-            virt_dirname, token, "1234");
+            virt_dirname, token, upload_id);
 
     //
     // SORT BY
