@@ -246,6 +246,7 @@ void about(void) {
             "Server Side RFC 1321 implementation by L. Peter Deutsch<BR>\n"
             "Client Side RFC 1321 implementation by Paul Johnston<BR>\n"
             "Icons by Yusuke Kamiyamane<BR>\n"
+            "URL Encoding routines by Fred Bulback<BR>\n"
             "Copyright &copy; 1994-2016 by Antoni Sawicki<BR>\n"
             "Copyright &copy; 1996-2011 by Thomas Boutell and Boutell.Com, Inc.<BR>\n"
             "Copyright &copy; 2002 by Aladdin Enterprises<BR>\n"
@@ -318,7 +319,7 @@ void login_ui(void) {
 
     if(js>=2) fprintf(cgiOut,
         "onClick=\"self.location='%s?directory=%s&amp;login=client&amp;token=' + hex_md5('%s:' + document.wfm.username.value + ':' + document.wfm.password.value); return false;\"",
-        cgiScriptName, virt_dirname, cgiRemoteAddr);
+        cgiScriptName, virt_dirname_urlencoded, cgiRemoteAddr);
 
     fputs(
         ">\n"

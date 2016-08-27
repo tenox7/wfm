@@ -63,7 +63,7 @@ void dirlist(void) {
     char rtime[64], mtime[64], atime[64];
     char *stime;
     char sortby[64]={0};
-    char *name, *icon, *linecolor;
+    char *name, *name_urlencoded, *icon, *linecolor;
 	int nentr=0, e=0, n=1;
     int editable;
     int upload_id=0;
@@ -74,7 +74,7 @@ void dirlist(void) {
     if(upload_id<1)
         upload_id=now; // holy shit
 
-    cgiFormStringNoNewlines("highlight", highlight, VIRT_FILENAME_SIZE-1);
+    cgiFormStringNoNewlines("highlight", highlight, VIRT_FILENAME_SIZE-1); //TODO: urlencode ?
     cgiFormStringNoNewlines("sortby", sortby, 63);
     if(strlen(sortby)<4)
         snprintf(sortby, 63, "name");
@@ -189,8 +189,7 @@ void dirlist(void) {
                 "<TD NOWRAP  WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"
                 "&nbsp;<IMG SRC=\"%s%s\" ALIGN=\"MIDDLE\" ALT=\"WFM\">\n"
                 "%s : %c%s \n"
-                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"
-                ,
+                "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n",
             ICONSURL, FAVICON, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname 
     );
 
@@ -200,24 +199,21 @@ void dirlist(void) {
         fprintf(cgiOut, 
             "<A HREF=\"%s?action=login&amp;directory=%s\">"
             "&nbsp;<IMG SRC=\"%s%s.gif\" ALIGN=\"MIDDLE\" BORDER=\"0\" ALT=\"Access\"></A>&nbsp;%s\n",  
-            cgiScriptName, virt_dirname, ICONSURL, access_string[access_level], access_string[access_level]);
+            cgiScriptName, virt_dirname_urlencoded, ICONSURL, access_string[access_level], access_string[access_level]);
     else
         fprintf(cgiOut, 
             "<A HREF=\"%s?directory=%s\"><IMG SRC=\"%s%s.gif\" BORDER=\"0\" ALIGN=\"MIDDLE\" ALT=\"Access\">"
             "</A>&nbsp;%s&nbsp;<IMG SRC=\"%suser.gif\" ALIGN=\"MIDDLE\" ALT=\"User\">&nbsp;%s&nbsp;\n",
-            cgiScriptName, virt_dirname, ICONSURL, access_string[access_level], access_string[access_level], ICONSURL, loggedinuser);
+            cgiScriptName, virt_dirname_urlencoded, ICONSURL, access_string[access_level], access_string[access_level], ICONSURL, loggedinuser);
 
     // about / version
     fprintf(cgiOut, 
-            //"</TD><TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
-            "&nbsp;<IMG SRC=\"%snet.gif\" ALIGN=\"MIDDLE\" ALT=\"Client IP\">&nbsp;%s&nbsp;"//</TD>"
-            //"<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">"
+            "&nbsp;<IMG SRC=\"%snet.gif\" ALIGN=\"MIDDLE\" ALT=\"Client IP\">&nbsp;%s&nbsp;"
             "<A HREF=\"%s?action=about&amp;directory=%s&amp;token=%s\"><IMG BORDER=\"0\" SRC=\"%sver.gif\" ALIGN=\"MIDDLE\" ALT=\"Version\"></A>&nbsp;v%s&nbsp;"
             "</TD>\n"\
             "</TR>\n"\
             "</TABLE>\n",
-            ICONSURL, cgiRemoteAddr, cgiScriptName, virt_dirname, token, ICONSURL, VERSION
-    );
+            ICONSURL, cgiRemoteAddr, cgiScriptName, virt_dirname_urlencoded, token, ICONSURL, VERSION);
 
 
 
@@ -234,7 +230,7 @@ void dirlist(void) {
                     "<IMG SRC=\"%sdir_up.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Dir Up\">&nbsp;Up"
                  "</A>\n"
                 "</TD>\n",
-                cgiScriptName, sortby, virt_parent, token, ICONSURL);
+                cgiScriptName, sortby, virt_parent_urlencoded, token, ICONSURL);
 
     fprintf(cgiOut,                 
                 "<!-- HOME -->\n"
@@ -252,7 +248,7 @@ void dirlist(void) {
                          "<IMG SRC=\"%sreload.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"Reload\">&nbsp;Refresh"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, sortby, virt_dirname, token, ICONSURL);
+                cgiScriptName, sortby, virt_dirname_urlencoded, token, ICONSURL);
 
     fprintf(cgiOut,                 
                 "<!-- MULTI DELETE -->\n"\
@@ -277,7 +273,7 @@ void dirlist(void) {
                             "<IMG SRC=\"%smkdir.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New Folder\">&nbsp;New Folder\n"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, virt_dirname, token, ICONSURL);
+                cgiScriptName, virt_dirname_urlencoded, token, ICONSURL);
                 
 
     fprintf(cgiOut,                                 
@@ -287,7 +283,7 @@ void dirlist(void) {
                             "<IMG SRC=\"%smkfile.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New File\">&nbsp;New File"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, virt_dirname, token, ICONSURL);
+                cgiScriptName, virt_dirname_urlencoded, token, ICONSURL);
 
 
                 
@@ -308,33 +304,33 @@ void dirlist(void) {
     // SORT BY
     //
     if(strcmp(sortby, "size")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname, token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname, token, ADNIMG);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname, token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, ADNIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, token);
     } else if(strcmp(sortby, "rsize")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname, token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname, token, AUPIMG);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname, token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, AUPIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, token);
     } else if(strcmp(sortby, "date")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname, token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname, token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname, token, ADNIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, ADNIMG);
     } else if(strcmp(sortby, "rdate")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname, token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname, token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname, token, AUPIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, AUPIMG);
     } else if(strcmp(sortby, "name")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname, token, ADNIMG);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname, token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname, token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, ADNIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, token);
     } else if(strcmp(sortby, "rname")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname, token, AUPIMG);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname, token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname, token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, token, AUPIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, token);
     } else {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname, token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname, token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname, token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, token);
     }
 
 
@@ -376,8 +372,9 @@ void dirlist(void) {
             "<!-- End of Header -->\n\n",
             namepfx, sizepfx, datepfx);
 
-
-    // Directories
+    //
+    // Enumerate Directories
+    //
     for(e=0; e<nentr; e++) {
         if(!S_ISDIR(direntry[e].type)) 
             continue;
@@ -385,6 +382,8 @@ void dirlist(void) {
             continue; 
             
         name=direntry[e].name;
+        name_urlencoded=url_encode(name);
+
         if(recursive_du) {
             snprintf(phys_filename, PHYS_FILENAME_SIZE, "%s/%s", phys_dirname, direntry[e].name);
             size=du(phys_filename);
@@ -448,7 +447,7 @@ void dirlist(void) {
             "<TD NOWRAP  ALIGN=\"RIGHT\"><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n"\
             "<TD NOWRAP >&nbsp;</TD>"\
             "<TD NOWRAP  ALIGN=\"LEFT\">",
-        cgiScriptName, sortby, (strcmp(virt_dirname, "/")==0) ? "" : virt_dirname, name,  token, icon, name,  
+        cgiScriptName, sortby, (strcmp(virt_dirname, "/")==0) ? "" : virt_dirname_urlencoded, name_urlencoded,  token, icon, name,  
         buprintf(size, TRUE), rtime, mtime, atime, stime, mtime);
 
         // rename
@@ -456,14 +455,14 @@ void dirlist(void) {
             "<A HREF=\"%s?action=rename_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Rename '%s'\">\n"\
             "<IMG SRC=\"%srename.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Rename File\">\n"\
             "</A>\n",
-            cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
 
         // move
         fprintf(cgiOut, "\n"\
             "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move '%s'\">\n"\
             "<IMG SRC=\"%smove.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Move File\">\n"\
             "</A>\n",
-        cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+        cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
 
         // delete
         fprintf(cgiOut, "\n"\
@@ -472,7 +471,7 @@ void dirlist(void) {
             "</A>\n"\
             "</TD>\n"\
             "</TR>\n\n\n",
-        cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+        cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
                   
         totalsize+=size;
         n++;
@@ -487,6 +486,7 @@ void dirlist(void) {
             continue; 
 
         name=direntry[e].name;
+        name_urlencoded=url_encode(name);
         size=direntry[e].size;
 
         ctime_r(&direntry[e].atime, atime);
@@ -545,7 +545,7 @@ void dirlist(void) {
         fprintf(cgiOut,
             ">\n<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
             "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
-        name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", virt_dirname, name, token, name, icon, name);
+        name, cgiScriptName, (edit_by_default && editable) ? "edit" : "sendfile", virt_dirname_urlencoded, name_urlencoded, token, name, icon, name);
 
 
         // size / date
@@ -565,7 +565,7 @@ void dirlist(void) {
             "<A HREF=\"%s?action=rename_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Rename '%s'\">\n"
             "<IMG SRC=\"%srename.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Rename File\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
 
         // move
         fprintf(cgiOut, 
@@ -573,7 +573,7 @@ void dirlist(void) {
             "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move '%s'\">"
             "<IMG SRC=\"%smove.gif\" BORDER=0 WIDTH=16 HEIGHT=16  ALT=\"Move '%s'\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname, name, token, name,  ICONSURL, name);
+            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name,  ICONSURL, name);
 
         // delete
         fprintf(cgiOut, 
@@ -582,7 +582,7 @@ void dirlist(void) {
             "TITLE=\"Remove '%s'\"> \n"
             "<IMG SRC=\"%sdelete.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Delete File\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
 
 
         // view
@@ -605,7 +605,7 @@ void dirlist(void) {
                     "</A>\n"
                     "</TD>\n"
                     "</TR>\n\n",
-                cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+                cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
             else
                 fprintf(cgiOut, 
                     "\n"
@@ -614,7 +614,7 @@ void dirlist(void) {
                     "</A>\n"
                     "</TD>\n"
                     "</TR>\n\n",
-                cgiScriptName, virt_dirname, name, token, name, ICONSURL);
+                cgiScriptName, virt_dirname_urlencoded, name_urlencoded, token, name, ICONSURL);
         }
         else {
             fprintf(cgiOut, 

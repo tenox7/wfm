@@ -101,7 +101,7 @@ void login(void) {
     
     if(strlen(username)) {
         snprintf(token_inp, sizeof(token_inp), "%s:%s:%s", cgiRemoteAddr, username, password);
-        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname, mktoken(token_inp));  // generate MD5 as if it was the client
+        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, mktoken(token_inp));  // generate MD5 as if it was the client
     }
     else
         login_ui(); // display actual login page, which normally generates token in JavaScript
@@ -203,17 +203,19 @@ void checkfilename(char *inp_filename) {
 
     strncpy(temp_dirname, phys_filename, PHYS_FILENAME_SIZE);
     if(strlen(dirname(temp_dirname)) < strlen(HOMEDIR)) error("Invalid directory name.");
+
+    virt_filename_urlencoded=url_encode(virt_filename);
 }
 
 //
 // Check destination
-// Only used by move()
+// Only called by move()
 //
 void checkdestination(void) {
     int absolute_destination;
     
     cgiFormStringNoNewlines("destination", virt_destination, VIRT_DESTINATION_SIZE);
-    strip(virt_destination, VIRT_DESTINATION_SIZE, VALIDCHRS_DST);
+    strip(virt_destination, VIRT_DESTINATION_SIZE, VALIDCHRS_DIR);
     cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths
     if(absolute_destination)
         snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", HOMEDIR, virt_destination);
@@ -228,13 +230,13 @@ void checkdestination(void) {
 
 //
 // Check directory
-// Only used by cgiMain during initialization
+// Only called by cgiMain during initialization
 //
 void checkdirectory(void) {
     char temp[VIRT_DIRNAME_SIZE]={0};
     
     cgiFormStringNoNewlines("directory", virt_dirname, VIRT_DIRNAME_SIZE);
-    strip(virt_dirname, VIRT_DIRNAME_SIZE, VALIDCHRS_DST);
+    strip(virt_dirname, VIRT_DIRNAME_SIZE, VALIDCHRS_DIR);
     snprintf(phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", HOMEDIR, virt_dirname);
 
     if(strlen(phys_dirname)<2 || strlen(phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
@@ -245,9 +247,12 @@ void checkdirectory(void) {
 
     if(!strlen(virt_dirname)) strcpy(virt_dirname, "/");
 
+    virt_dirname_urlencoded=url_encode(virt_dirname);
+
     // parent
     strncpy(temp, virt_dirname, VIRT_DIRNAME_SIZE);
     strncpy(virt_parent, dirname(temp), VIRT_DIRNAME_SIZE);
+    virt_parent_urlencoded=url_encode(virt_parent);
 }
 
 
@@ -440,6 +445,7 @@ int cgiMain(void) {
     if(!strlen(FAVICON))
         strcpy(FAVICON, "wfmicon.gif");
 
+    snprintf(VALIDCHRS_DIR, sizeof(VALIDCHRS_DIR), "%s/", VALIDCHRS);
     checkdirectory();
 
     // JavaScript check

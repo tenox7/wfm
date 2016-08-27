@@ -82,7 +82,7 @@ void receivefile(void) {
     cgiFormFileClose(input);
     fclose(output);
     
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
 }
 
@@ -102,7 +102,8 @@ void mkfile(void) {
 
     fclose(output);
     
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded
+        , token);
 
 }
 
@@ -117,7 +118,7 @@ void newdir(void) {
     if(mkdir(phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
     
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
 }
 
@@ -201,7 +202,7 @@ void edit_save(void) {
 
     free(buff);
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 }
 
 //
@@ -286,7 +287,7 @@ void delete(void) {
         }
     }           
 
-    redirect("%s?directory=%s&token=%s", cgiScriptName, virt_dirname, token);
+    redirect("%s?directory=%s&token=%s", cgiScriptName, virt_dirname_urlencoded, token);
 }
 
 //
@@ -331,7 +332,7 @@ void move(void) {
         }
     }           
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_destination, virt_dirname, token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, url_encode(virt_destination), virt_dirname_urlencoded, token);
 }
 
 

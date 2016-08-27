@@ -1,4 +1,4 @@
-#define VERSION "1.0.5"
+#define VERSION "1.1.0"
 #define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2016 by Antoni Sawicki -->\n"
 
 #define CSS_STYLE         \
@@ -52,8 +52,8 @@
 #include "cgic.h"
 #include "wfmiconres.h"
 
-#define VALIDCHRS "anu-_."
-#define VALIDCHRS_DST "anu-_./"
+#define VALIDCHRS "an ()[]{}-_.,!@#$%^&=+;"
+char VALIDCHRS_DIR[256]; // above + /
 
 
 #define P1024_1 1024.0f
@@ -71,12 +71,15 @@
 #define PHYS_DESTINATION_SIZE 1280
 
 char virt_dirname[VIRT_DIRNAME_SIZE];
+char *virt_dirname_urlencoded;
 char phys_dirname[PHYS_DIRNAME_SIZE]; 
 char virt_filename[VIRT_FILENAME_SIZE]; 
+char *virt_filename_urlencoded; 
 char phys_filename[PHYS_FILENAME_SIZE];
 char virt_destination[VIRT_DESTINATION_SIZE]; 
 char phys_destination[PHYS_DESTINATION_SIZE];
 char virt_parent[VIRT_DIRNAME_SIZE];
+char *virt_parent_urlencoded;
 
 char ICONSURL[1024];
 char HOMEDIR[1024];
@@ -144,4 +147,5 @@ void login_ui(void);
 void tstop(void);
 void html_title(char *);
 void singleprompt_ui(char *);
-
+char *url_encode(char *);
+char *url_decode(char *);
