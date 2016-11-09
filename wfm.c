@@ -150,7 +150,6 @@ void access_check(char *access_string) {
                 access_level=PERM_RW;
                 access_as_user=1;
                 strncpy(loggedinuser, user, sizeof(loggedinuser));
-                cgiAllowUploadFiles=1;
             }
         }
     }
