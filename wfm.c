@@ -119,11 +119,6 @@ void access_check(char *access_string) {
     char type[4]={0};
     char token_inp[64]={0};
 
-    memset(ipaddr, 0, sizeof(ipaddr));
-    memset(user, 0, sizeof(user));
-    memset(pass, 0, sizeof(pass));
-    memset(type, 0, sizeof(type));
-
     if(sscanf(access_string, "access-ip=%2s:%30s", type, ipaddr)==2) {
 
         if(ipaddr[0]=='*') {
@@ -155,6 +150,7 @@ void access_check(char *access_string) {
                 access_level=PERM_RW;
                 access_as_user=1;
                 strncpy(loggedinuser, user, sizeof(loggedinuser));
+                cgiAllowUploadFiles=1;
             }
         }
     }

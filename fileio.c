@@ -135,8 +135,8 @@ void edit_save(void) {
     FILE *tempf;
     char backup[4]={0};
     char backup_filename[PHYS_DESTINATION_SIZE]={0};
-   	regex_t re;
-	regmatch_t pmatch;
+    regex_t re;
+    regmatch_t pmatch;
     struct stat tmpstat;
 
     checkfilename(NULL);
@@ -375,21 +375,21 @@ off_t du(char *pdir) {
 // Called by for move_ui()
 //
 void re_dir_ui(char *vdir, int level) {
-	struct dirent **direntry;
-	struct stat fileinfo;
-	char child[VIRT_DIRNAME_SIZE]={0};
-	char phy_child[PHYS_DIRNAME_SIZE]={0};
-	char re_phys_dirname[PHYS_DIRNAME_SIZE]={0};
-	int n;
-	int nentr, e;
-	
-	snprintf(re_phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", HOMEDIR, vdir);
+    struct dirent **direntry;
+    struct stat fileinfo;
+    char child[VIRT_DIRNAME_SIZE]={0};
+    char phy_child[PHYS_DIRNAME_SIZE]={0};
+    char re_phys_dirname[PHYS_DIRNAME_SIZE]={0};
+    int n;
+    int nentr, e;
+    
+    snprintf(re_phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", HOMEDIR, vdir);
 
-	if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
-		error("Invalid directory name.");
+    if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
+        error("Invalid directory name.");
 
-	if(regexec(&dotdot, re_phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-	if(strlen(re_phys_dirname) < strlen(HOMEDIR)) error("Invalid directory name.");
+    if(regexec(&dotdot, re_phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
+    if(strlen(re_phys_dirname) < strlen(HOMEDIR)) error("Invalid directory name.");
 
     nentr=scandir(re_phys_dirname, &direntry, 0, alphasort);
 
@@ -398,7 +398,7 @@ void re_dir_ui(char *vdir, int level) {
         if((direntry[e]->d_name[0]!='.') && (lstat(phy_child, &fileinfo)==0) && S_ISDIR(fileinfo.st_mode))  {
 
 
-            snprintf(child, VIRT_DIRNAME_SIZE, "%s/%s", vdir, direntry[e]->d_name);	
+            snprintf(child, VIRT_DIRNAME_SIZE, "%s/%s", vdir, direntry[e]->d_name); 
 
             fprintf(cgiOut, "<OPTION VALUE=\"%s\">", child);
 
@@ -411,7 +411,7 @@ void re_dir_ui(char *vdir, int level) {
             re_dir_ui(child,level+1);
         }
         free(direntry[e]);
-	}
+    }
 
 }
 
@@ -419,11 +419,11 @@ void re_dir_ui(char *vdir, int level) {
 // Scandir replacement function
 //
 int namesort(const void *d1, const void *d2) {
-	return(strcasecmp(((ASDIR*)d1)->name, ((ASDIR*)d2)->name));
+    return(strcasecmp(((ASDIR*)d1)->name, ((ASDIR*)d2)->name));
 }
 
 int rnamesort(const void *d1, const void *d2) {
-	return(strcasecmp(((ASDIR*)d2)->name, ((ASDIR*)d1)->name));
+    return(strcasecmp(((ASDIR*)d2)->name, ((ASDIR*)d1)->name));
 }
 
 int sizesort(const void *d1, const void *d2) {
@@ -451,20 +451,20 @@ int rtimesort(const void *d1, const void *d2) {
 }
 
 int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, const void *)) {
-	DIR *dirh;
-	ASDIR *names;
-	struct dirent *entry;
+    DIR *dirh;
+    ASDIR *names;
+    struct dirent *entry;
     struct stat fileinfo;
     char filename[PATH_MAX]={0};
     int entries=0;
 
-	dirh=opendir(dir);
-	if(dirh==NULL)
-		return -1;
-		
-	names=(ASDIR*)malloc(sizeof(ASDIR));
-	if(names==NULL)
-		return -1;
+    dirh=opendir(dir);
+    if(dirh==NULL)
+        return -1;
+        
+    names=(ASDIR*)malloc(sizeof(ASDIR));
+    if(names==NULL)
+        return -1;
 
     entry=readdir(dirh);
     while(entry!=NULL) {
@@ -495,5 +495,5 @@ int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, con
         qsort(&names[0], entries, sizeof(ASDIR), compar);
 
     *namelist=names;
-	return entries;
+    return entries;
 }
