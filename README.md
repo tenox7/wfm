@@ -2,7 +2,9 @@
 WFM is a web file management application. It allows to perform regular
 file and folder operations such as upload, download, rename, delete files
 and organize directory tree structure using a standard web browser. It also
-allows editing small text files directly in the browser using textarea.
+allows editing small text files directly in the browser using textarea. Since
+WFM lets you edit html and markdown documents over the web, You can think and
+ use WFM as a small Content Management System (CMS).
 
 Unlike Dropbox, box.net and others, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
@@ -92,7 +94,7 @@ then in order to authenticate click on the lock sign on right side of
 the top status bar.
 
 ## Copyrights and Credits
-Copyright (c) 1994-2016 by Antoni Sawicki  
+Copyright (c) 1994-2017 by Antoni Sawicki  
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.  
 Copyright (c) 2002 by Aladdin Enterprises  
 Copyright (c) 1999-2009 by Paul Johnston  
@@ -104,3 +106,4 @@ Client Side RFC 1321 implementation by [Paul Johnston](http://pajhome.org.uk/cry
 Icons by [Yusuke Kamiyamane](http://p.yusukekamiyamane.com/)  
 URL Encoding routines by Fred Bulback
 Web browser testing by [BrowserStack](http://www.browserstack.com/) 
+
