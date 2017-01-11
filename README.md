@@ -9,8 +9,8 @@ WFM lets you edit html and markdown documents over the web, You can think and
 Unlike Dropbox, box.net and others, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
 Mosaic 3.0. It outputs W3C certified HTML 4.01. JavaScript is optional and
-only used for non-essential luxuries on modern web browsers. Modern browsers
-are tested using [BrowserStack](http://www.browserstack.com/).
+only used for non-essential luxuries on modern web browsers. Compatibility
+is tested using [BrowserStack](http://www.browserstack.com/).
 
 This program is written using portable C code and compiles natively
 for many flavors of Unix. It runs as a CGI application on most httpd servers
@@ -25,8 +25,7 @@ The application begun its life in 1994 as a perl CGI script for CERN httpd
 server to allow uploading and managing customer logs by field support
 engineers over the web. Later rewritten in C language, when CGIC library and
 Apache httpd were released. Up to 2015 WFM has been a closed source commercial
-application, supported by a few large enterprise, telco and ISP corporations.
-WFM is now released as open source.
+application, supported by a few companies. WFM is now released as open source.
 
 
 ## Installation
@@ -105,6 +104,5 @@ Server Side RFC 1321 implementation by [L. Peter Deutsch](https://sourceforge.ne
 Client Side RFC 1321 implementation by [Paul Johnston](http://pajhome.org.uk/crypt/md5/index.html)  
 Icons by [Yusuke Kamiyamane](http://p.yusukekamiyamane.com/)  
 URL Encoding routines by Fred Bulback
-
 Web browser testing by [BrowserStack](http://www.browserstack.com/) 
 
