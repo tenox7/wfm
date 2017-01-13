@@ -246,8 +246,11 @@ void about(void) {
             "Server Side RFC 1321 implementation by L. Peter Deutsch<BR>\n"
             "Client Side RFC 1321 implementation by Paul Johnston<BR>\n"
             "Icons by Yusuke Kamiyamane<BR>\n"
+#ifdef WFMGIT
+            "Uses libgit2 library<BR>\n"
+#endif
             "URL Encoding routines by Fred Bulback<BR>\n"
-            "Copyright &copy; 1994-2016 by Antoni Sawicki<BR>\n"
+            "Copyright &copy; 1994-2017 by Antoni Sawicki<BR>\n"
             "Copyright &copy; 1996-2011 by Thomas Boutell and Boutell.Com, Inc.<BR>\n"
             "Copyright &copy; 2002 by Aladdin Enterprises<BR>\n"
             "Copyright &copy; 1999-2009 by Paul Johnston<BR>\n"
@@ -258,6 +261,7 @@ void about(void) {
             "Server: %s<BR>\n"
             "User Agent: %s<BR>\n"
             "JavaScript Level: %d<BR>\n"
+            "Git Support: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
             "&nbsp;<P>\n"
             "</TD>\n"
@@ -274,7 +278,14 @@ void about(void) {
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
-        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, js, cgiScriptName, virt_dirname, token);
+        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, js, 
+#ifdef WFMGIT
+        "Yes"
+#else
+        "No"
+#endif
+        , (repo_check()) ? "Oo Repo Present" : "Repo OK",    
+        cgiScriptName, virt_dirname, token);
 
 }
 

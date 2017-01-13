@@ -149,3 +149,6 @@ void html_title(char *);
 void singleprompt_ui(char *);
 char *url_encode(char *);
 char *url_decode(char *);
+int revup_commit(char *);
+int delete_commit(char *);
+int repo_check(void);

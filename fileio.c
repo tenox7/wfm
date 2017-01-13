@@ -81,6 +81,8 @@ void receivefile(void) {
 
     cgiFormFileClose(input);
     fclose(output);
+
+    revup_commit("Receive File");
     
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -101,9 +103,10 @@ void mkfile(void) {
         error("Unable to create file.<BR>%s", strerror(errno));
 
     fclose(output);
-    
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded
-        , token);
+
+    revup_commit("New File");
+
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
 }
 
@@ -117,7 +120,7 @@ void newdir(void) {
 
     if(mkdir(phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
-    
+
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
 }
@@ -202,6 +205,8 @@ void edit_save(void) {
 
     free(buff);
 
+    revup_commit("Editor Save");
+
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 }
 
@@ -234,7 +239,8 @@ void fileio_re_rmdir(char *dirname) {
                     error("Unable to remove directory...<BR>%s", strerror(errno));
             } else {
                 if(unlink(tempfullpath)!=0)
-                    error("Unable to remove directory....<BR>%s", strerror(errno));
+                    error("Unable to remove file....<BR>%s", strerror(errno));
+                delete_commit("Recursive Delete");
             }
             
         }
@@ -261,6 +267,7 @@ void fileio_delete(void) {
             else {
                 if(unlink(phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
+                delete_commit("Delete File");
             }
         }
 
@@ -277,7 +284,7 @@ void delete(void) {
     // Single
     if(cgiFormStringMultiple("multiselect_filename", &responses) == cgiFormNotFound) {  
         checkfilename(NULL);
-        fileio_delete();
+        fileio_delete(); 
     } 
     // Multi
     else {
@@ -339,7 +346,8 @@ void move(void) {
 //
 // Recursive Dir Size
 //
-// WARNING: will not count directories starting with .
+// NOTE: will not count directories starting with . (dot)
+//       so size of git repo will not show here...
 off_t du(char *pdir) {
     DIR *dir;
     struct dirent *direntry;
