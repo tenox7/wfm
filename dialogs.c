@@ -260,6 +260,7 @@ void about(void) {
             "GCC: %s<BR>\n"
             "Server: %s<BR>\n"
             "User Agent: %s<BR>\n"
+            "NAME_MAX: %d<BR>\n"
             "JavaScript Level: %d<BR>\n"
             "Git Support: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
@@ -278,7 +279,7 @@ void about(void) {
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
-        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, js, 
+        ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, NAME_MAX, js,
 #ifdef WFMGIT
         "Yes"
 #else

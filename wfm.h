@@ -63,7 +63,7 @@ char VALIDCHRS_DIR[256]; // above + /
 
 #define SHM_SIZE 16
 
-#define VIRT_DIRNAME_SIZE NAME_MAX
+#define VIRT_DIRNAME_SIZE NAME_MAX  // around 255
 #define PHYS_DIRNAME_SIZE 1024
 #define VIRT_FILENAME_SIZE NAME_MAX
 #define PHYS_FILENAME_SIZE 1280
@@ -149,6 +149,8 @@ void html_title(char *);
 void singleprompt_ui(char *);
 char *url_encode(char *);
 char *url_decode(char *);
-int revup_commit(char *);
+int change_commit(char *);
 int delete_commit(char *);
+int rename_commit(char *);
+int move_commit(char *);
 int repo_check(void);

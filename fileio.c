@@ -82,7 +82,7 @@ void receivefile(void) {
     cgiFormFileClose(input);
     fclose(output);
 
-    revup_commit("Receive File");
+    change_commit("Receive File");
     
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -104,7 +104,7 @@ void mkfile(void) {
 
     fclose(output);
 
-    revup_commit("New File");
+    change_commit("New File");
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -205,7 +205,7 @@ void edit_save(void) {
 
     free(buff);
 
-    revup_commit("Editor Save");
+    change_commit("Editor Save");
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 }
@@ -267,7 +267,7 @@ void fileio_delete(void) {
             else {
                 if(unlink(phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
-                delete_commit("Delete File");
+                    delete_commit("Delete File");
             }
         }
 
@@ -304,15 +304,25 @@ void delete(void) {
 void fileio_move(void) {
     char final_destination[PHYS_DESTINATION_SIZE]={0};
     struct stat fileinfo;
+    int move=0;
 
-        // If moving file to a different directory we need to append the original file name
-        if( stat(phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) ) 
-            snprintf(final_destination, sizeof(final_destination), "%s/%s", phys_destination, virt_filename);
-        else
-            strncpy(final_destination, phys_destination, sizeof(final_destination));
-    
-        if(rename(phys_filename, final_destination)!=0) 
-            error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), phys_filename, final_destination);
+    // If moving file to a different directory we need to append the original file name to destination
+    if( stat(phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) )  {
+        snprintf(final_destination, sizeof(final_destination), "%s/%s", phys_destination, virt_filename);
+        move=1;
+    } else {
+        strncpy(final_destination, phys_destination, sizeof(final_destination));
+        move=0;
+    }
+
+    if(rename(phys_filename, final_destination)!=0) 
+        error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), phys_filename, final_destination);
+
+    if(move)
+        move_commit("Move File");
+    else
+        rename_commit("Rename File");
+
 }
 
 // 
@@ -347,7 +357,7 @@ void move(void) {
 // Recursive Dir Size
 //
 // NOTE: will not count directories starting with . (dot)
-//       so size of git repo will not show here...
+//       so size of git repo will not be included
 off_t du(char *pdir) {
     DIR *dir;
     struct dirent *direntry;
