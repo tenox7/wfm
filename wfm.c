@@ -388,6 +388,15 @@ int cgiMain(void) {
 
     fprintf(cgiOut, "Cache-Control: max-age=0, private\r\nExpires: -1\r\n");
 
+    memset(virt_dirname, 0, VIRT_DIRNAME_SIZE);
+    memset(phys_dirname, 0, PHYS_DIRNAME_SIZE); 
+    memset(virt_filename, 0, VIRT_FILENAME_SIZE); 
+    memset(phys_filename, 0, PHYS_FILENAME_SIZE);
+    memset(virt_destination, 0, VIRT_DESTINATION_SIZE); 
+    memset(phys_destination, 0, PHYS_DESTINATION_SIZE);
+    memset(final_destination, 0, PHYS_DESTINATION_SIZE);
+    memset(virt_parent, 0, VIRT_DIRNAME_SIZE);
+
     snprintf(ICONSURL, sizeof(ICONSURL), "%s?ea=icon&amp;name=", cgiScriptName);
     
 

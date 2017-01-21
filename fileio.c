@@ -2,6 +2,36 @@
 
 #include "wfm.h"
 
+
+/*
+// Debug dump vars
+//void debugdumpvars(void) {
+
+    cgiHeaderContentType("text/plain");
+
+    printf(
+        "virt_dirname=%s\n"
+        "phys_dirname=%s\n"
+        "virt_filename=%s\n"
+        "phys_filename=%s\n"
+        "virt_destination=%s\n"
+        "phys_destination=%s\n"
+  //      "final_destination=%s\n"
+        "virt_parent=%s\n",
+        virt_dirname,
+        phys_dirname,
+        virt_filename,
+        phys_filename,
+        virt_destination,
+        phys_destination,
+    //    final_destination,
+        virt_parent
+   );
+
+    exit(1);
+}
+*/
+
 //
 // Send file to client browser 
 // Called by cgiMain action=sendfile
@@ -82,7 +112,7 @@ void receivefile(void) {
     cgiFormFileClose(input);
     fclose(output);
 
-    change_commit("Receive File");
+    wfm_commit(CHANGE);
     
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -104,7 +134,7 @@ void mkfile(void) {
 
     fclose(output);
 
-    change_commit("New File");
+    wfm_commit(CHANGE);
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -136,10 +166,12 @@ void edit_save(void) {
     char tempname[64]={0};
     //FILE *output;
     FILE *tempf;
+#ifndef WFMGIT
     char backup[4]={0};
     char backup_filename[PHYS_DESTINATION_SIZE]={0};
     regex_t re;
     regmatch_t pmatch;
+#endif
     struct stat tmpstat;
 
     checkfilename(NULL);
@@ -157,6 +189,7 @@ void edit_save(void) {
         
     cgiFormString("content", buff, size);
 
+#ifndef WFMGIT
     // rename to .bak if requested
     cgiFormStringNoNewlines("backup", backup, sizeof(backup));
 
@@ -171,7 +204,7 @@ void edit_save(void) {
             }
         }
     }
-
+#endif
     // write to temporary file
     snprintf(tempname, sizeof(tempname), "%s/.wfmXXXXXX", phys_dirname);
     
@@ -205,7 +238,7 @@ void edit_save(void) {
 
     free(buff);
 
-    change_commit("Editor Save");
+    wfm_commit(CHANGE);
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 }
@@ -240,7 +273,7 @@ void fileio_re_rmdir(char *dirname) {
             } else {
                 if(unlink(tempfullpath)!=0)
                     error("Unable to remove file....<BR>%s", strerror(errno));
-                delete_commit("Recursive Delete");
+                wfm_commit(DELETE);
             }
             
         }
@@ -267,7 +300,7 @@ void fileio_delete(void) {
             else {
                 if(unlink(phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
-                    delete_commit("Delete File");
+                    wfm_commit(DELETE);
             }
         }
 
@@ -302,26 +335,18 @@ void delete(void) {
 // Called by move()
 //
 void fileio_move(void) {
-    char final_destination[PHYS_DESTINATION_SIZE]={0};
     struct stat fileinfo;
-    int move=0;
 
     // If moving file to a different directory we need to append the original file name to destination
-    if( stat(phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) )  {
+    if( stat(phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) )  
         snprintf(final_destination, sizeof(final_destination), "%s/%s", phys_destination, virt_filename);
-        move=1;
-    } else {
+    else 
         strncpy(final_destination, phys_destination, sizeof(final_destination));
-        move=0;
-    }
-
+    
     if(rename(phys_filename, final_destination)!=0) 
         error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), phys_filename, final_destination);
 
-    if(move)
-        move_commit("Move File");
-    else
-        rename_commit("Rename File");
+    wfm_commit(MOVE);
 
 }
 
@@ -332,7 +357,6 @@ void fileio_move(void) {
 void move(void) {
     int i;
     char **responses; 
-
 
     checkdestination();
    

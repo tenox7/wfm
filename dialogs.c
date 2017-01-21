@@ -262,7 +262,7 @@ void about(void) {
             "User Agent: %s<BR>\n"
             "NAME_MAX: %d<BR>\n"
             "JavaScript Level: %d<BR>\n"
-            "Git Support: %s (%s)<BR>\n"
+            "Change Control: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
             "&nbsp;<P>\n"
             "</TD>\n"
@@ -281,9 +281,9 @@ void about(void) {
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
         ICONSURL, TAGLINE, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, NAME_MAX, js,
 #ifdef WFMGIT
-        "Yes"
+        "Git"
 #else
-        "No"
+        "Nono"
 #endif
         , (repo_check()) ? "Oo Repo Present" : "Repo OK",    
         cgiScriptName, virt_dirname, token);
@@ -351,17 +351,21 @@ void edit_ui(void) {
     FILE *input;
     char *buff;
     char backup[4]={0};
+#ifndef WFMGIT
     char *bkcolor;
+#endif
     int size;
 
     checkfilename(NULL);
 
+#ifndef WFMGIT
     cgiFormString("backup", backup, sizeof(backup));
 
     if(strcmp("yes", backup)==0) 
         bkcolor="background-color:#404040; color:#FFFFFF;";
     else
         bkcolor="background-color:#EEEEEE; color:#000000;";
+#endif
 
     input=fopen(phys_filename, "r");
     if(input==NULL) 
@@ -400,6 +404,7 @@ void edit_ui(void) {
         "        document.EDITOR.wrapbtn.style.color='#000000';\n"
         "    }    \n"
         "}     \n"
+#ifndef WFMGIT
         "function chbak() {               \n"
         "    if(document.EDITOR.backup.value=='yes') {                \n"
         "        document.EDITOR.backup.value='no';                \n"
@@ -411,6 +416,7 @@ void edit_ui(void) {
         "        document.EDITOR.bakbtn.style.color='#FFFFFF';\n"
         "    } \n"
         "}     \n"
+#endif
         "//-->\n"
     "</SCRIPT>\n");
 
@@ -430,10 +436,11 @@ void edit_ui(void) {
             "<TD  BGCOLOR=\"#CCCCCC\" ALIGN=\"RIGHT\">",
             cgiScriptName, (strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0) ? "80" : "100", ICONSURL, virt_filename);
 
-    if(js) fprintf(cgiOut, 
-                "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n"
-                "<INPUT TYPE=\"button\" ID=\"wrapbtn\" onClick=\"chwrap()\" VALUE=\"Wrap\" STYLE=\"border:none; background-color:#404040; color:#FFFFFF;\">\n",
-                 bkcolor);
+#ifndef WFMGIT
+    if(js) fprintf(cgiOut, "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n", bkcolor);
+#endif
+
+    if(js) fprintf(cgiOut, "<INPUT TYPE=\"button\" ID=\"wrapbtn\" onClick=\"chwrap()\" VALUE=\"Wrap\" STYLE=\"border:none; background-color:#404040; color:#FFFFFF;\">\n");
 
     fprintf(cgiOut,
             "</TD>\n"

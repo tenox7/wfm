@@ -78,6 +78,7 @@ char *virt_filename_urlencoded;
 char phys_filename[PHYS_FILENAME_SIZE];
 char virt_destination[VIRT_DESTINATION_SIZE]; 
 char phys_destination[PHYS_DESTINATION_SIZE];
+char final_destination[PHYS_DESTINATION_SIZE];
 char virt_parent[VIRT_DIRNAME_SIZE];
 char *virt_parent_urlencoded;
 
@@ -105,6 +106,7 @@ struct timeval mt;
 
 enum { FALSE, TRUE };
 enum { PERM_NO, PERM_RO, PERM_RW };
+enum { CHANGE, DELETE, MOVE };
 
 typedef struct asdir_ {
     char name[NAME_MAX];
@@ -149,8 +151,5 @@ void html_title(char *);
 void singleprompt_ui(char *);
 char *url_encode(char *);
 char *url_decode(char *);
-int change_commit(char *);
-int delete_commit(char *);
-int rename_commit(char *);
-int move_commit(char *);
+int wfm_commit(int);
 int repo_check(void);
