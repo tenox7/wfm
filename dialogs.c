@@ -285,7 +285,7 @@ void about(void) {
 #else
         "Nono"
 #endif
-        , (repo_check()) ? "Oo Repo Present" : "Repo OK",    
+        , (repo_check()) ? "No Repo Present" : "Repo OK",    
         cgiScriptName, virt_dirname, token);
 
 }
