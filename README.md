@@ -6,6 +6,10 @@ allows editing small text files directly in the browser using textarea. Since
 WFM lets you edit html and markdown documents over the web, You can think and
  use WFM as a small Content Management System (CMS).
 
+Since version 1.2 WFM has a built-in file version control system using GIT
+via libgit2 library. All file operations from within the application are
+automatically commited to a Git repository. 
+
 Unlike Dropbox, box.net and others, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
 Mosaic 3.0. It outputs W3C certified HTML 4.01. JavaScript is optional and

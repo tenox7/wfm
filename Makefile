@@ -1,10 +1,11 @@
-CC=gcc -O3 -Wall 
-OB=wfm.o dir.o dialogs.o fileio.o cgic.o md5.o 
+CC=gcc -Wall -O3 -DWFMGIT 
+OB=wfm.o dir.o dialogs.o fileio.o cgic.o md5.o urlencode.o git.o
+LD=-lgit2 -lpthread
 
 all: wfm
 
 wfm: ${OB}
-	${CC} ${OB} -o wfm 
+	${CC} ${OB} -o wfm ${LD}
 	@strip wfm
 	@du -h wfm
 
@@ -21,4 +22,5 @@ bin2c: bin2c.c
 
 clean:
 	rm -f *.o  wfm wfmicon*.h bin2c
+
 
