@@ -151,5 +151,5 @@ void html_title(char *);
 void singleprompt_ui(char *);
 char *url_encode(char *);
 char *url_decode(char *);
-int wfm_commit(int);
+int wfm_commit(int, char *);
 int repo_check(void);

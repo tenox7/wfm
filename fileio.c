@@ -112,7 +112,7 @@ void receivefile(void) {
     cgiFormFileClose(input);
     fclose(output);
 
-    wfm_commit(CHANGE);
+    wfm_commit(CHANGE, NULL);
     
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -134,7 +134,7 @@ void mkfile(void) {
 
     fclose(output);
 
-    wfm_commit(CHANGE);
+    wfm_commit(CHANGE, NULL);
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 
@@ -238,7 +238,7 @@ void edit_save(void) {
 
     free(buff);
 
-    wfm_commit(CHANGE);
+    wfm_commit(CHANGE, NULL);
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
 }
@@ -273,7 +273,7 @@ void fileio_re_rmdir(char *dirname) {
             } else {
                 if(unlink(tempfullpath)!=0)
                     error("Unable to remove file....<BR>%s", strerror(errno));
-                wfm_commit(DELETE);
+                wfm_commit(DELETE, tempfullpath);
             }
             
         }
@@ -300,7 +300,7 @@ void fileio_delete(void) {
             else {
                 if(unlink(phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
-                    wfm_commit(DELETE);
+                    wfm_commit(DELETE, NULL);
             }
         }
 
@@ -346,7 +346,7 @@ void fileio_move(void) {
     if(rename(phys_filename, final_destination)!=0) 
         error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), phys_filename, final_destination);
 
-    wfm_commit(MOVE);
+    wfm_commit(MOVE, NULL);
 
 }
 
