@@ -1,9 +1,6 @@
 //
 // File Version Control with GIT
 //
-
-// TODO: recursive delete
-
 #ifdef WFMGIT
 #include <git2.h>
 #include "wfm.h"
