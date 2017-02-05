@@ -438,6 +438,8 @@ void edit_ui(void) {
 
 #ifndef WFMGIT
     if(js) fprintf(cgiOut, "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n", bkcolor);
+#else
+            fprintf(cgiOut, "%s\n", (repo_check()) ? "No GIT Repo Present" : "GIT Backed &nbsp;&nbsp;&nbsp;");
 #endif
 
     if(js) fprintf(cgiOut, "<INPUT TYPE=\"button\" ID=\"wrapbtn\" onClick=\"chwrap()\" VALUE=\"Wrap\" STYLE=\"border:none; background-color:#404040; color:#FFFFFF;\">\n");

@@ -1,5 +1,5 @@
-#define VERSION "1.1.2"
-#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2016 by Antoni Sawicki -->\n"
+#define VERSION "1.2.0"
+#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2017 by Antoni Sawicki -->\n"
 
 #define CSS_STYLE         \
             "  <STYLE TYPE=\"text/css\"><!-- \n" \
