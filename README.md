@@ -5,7 +5,7 @@ and organize directory tree structure using standard web browser. The
 application has an integrated GIT client using libgit2 library. It can
 track and commit all file change operations in to a to a GIT repository.
 
-The app allows editing small text files directly in a browser using textarea. 
+The app allows editing small text files directly in the browser using textarea. 
 Since WFM lets you edit html and markdown documents over the web and has GIT
 change control, you can think and use WFM as a small Content Management System (CMS).
 
