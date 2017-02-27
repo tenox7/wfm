@@ -1,20 +1,19 @@
 # WFM - Web File Manager
 WFM is a web file management application. It allows to perform regular
 file and folder operations such as upload, download, rename, delete files
-and organize directory tree structure using a standard web browser. It also
-allows editing small text files directly in the browser using textarea. Since
-WFM lets you edit html and markdown documents over the web, You can think and
- use WFM as a small Content Management System (CMS).
+and organize directory tree structure using standard web browser. The
+application has an integrated GIT client using libgit2 library. It can
+track and commit all file change operations in to a to a GIT repository.
 
-Since version 1.2 WFM has a built-in file version control system using GIT
-via libgit2 library. All file operations from within the application are
-automatically commited to a Git repository. 
+The app allows editing small text files directly in a browser using textarea. 
+Since WFM lets you edit html and markdown documents over the web and has GIT
+change control, you can think and use WFM as a small Content Management System (CMS).
 
-Unlike Dropbox, box.net and others, WFM is compatible with most modern and
+Unlike other similar appliactions, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
 Mosaic 3.0. It outputs W3C certified HTML 4.01. JavaScript is optional and
-only used for non-essential luxuries on modern web browsers. Compatibility
-is tested using [BrowserStack](http://www.browserstack.com/).
+only used for non-essential luxuries. Compatibility is tested using
+[BrowserStack](http://www.browserstack.com/).
 
 This program is written using portable C code and compiles natively
 for many flavors of Unix. It runs as a CGI application on most httpd servers
