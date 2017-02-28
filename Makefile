@@ -12,7 +12,7 @@ wfm: ${OB}
 wfm.o: wfm.c wfmiconres.h wfm.h
 
 wfmiconres.h: bin2c
-	bash ./mkicons.sh
+	sh ./mkicons.sh
 
 bin2c: bin2c.c
 	${CC} -o bin2c bin2c.c
@@ -22,5 +22,4 @@ bin2c: bin2c.c
 
 clean:
 	rm -f *.o  wfm wfmicon*.h bin2c
-
 
