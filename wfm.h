@@ -1,5 +1,6 @@
-#define VERSION "1.2.0"
-#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n<!-- Copyright (c) 1994-2017 by Antoni Sawicki -->\n"
+#define VERSION "1.2.1"
+#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
+                  "<!-- Copyright (c) 1994-2017 by Antoni Sawicki -->\n"
 
 #define CSS_STYLE         \
             "  <STYLE TYPE=\"text/css\"><!-- \n" \
@@ -18,7 +19,7 @@
 #define HTML_HEADER \
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" \
         "   \"http://www.w3.org/TR/html4/loose.dtd\">\n" \
-        "<HTML>\n" \
+        "<HTML LANG=\"en\">\n" \
         copyright \
         "<HEAD>\n" \
         "  <META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n" \

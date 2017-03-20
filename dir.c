@@ -99,8 +99,8 @@ void dirlist(void) {
     //
     fprintf(cgiOut,
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\"http://www.w3.org/TR/html4/loose.dtd\">\n"
-        "\n%s" 
-        "<HTML>"
+        "\n%s\n" 
+        "<HTML LANG=\"en\">\n"
         "<HEAD>\n"
         "<TITLE>%s : %c%s</TITLE>\n",
         copyright, TAGLINE, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname);
