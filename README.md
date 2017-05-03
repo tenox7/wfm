@@ -1,13 +1,15 @@
 # WFM - Web File Manager
 WFM is a web file management application. It allows to perform regular
 file and folder operations such as upload, download, rename, delete files
-and organize directory tree structure using standard web browser. The
-application has an integrated GIT client using libgit2 library. It can
-track and commit all file change operations in to a to a GIT repository.
+and organize directory tree structure using standard web browser. Text files
+can be edited directly in the browser. 
 
-The app allows editing small text files directly in the browser using textarea. 
-Since WFM lets you edit html and markdown documents over the web and has GIT
-change control, you can think and use WFM as a small Content Management System (CMS).
+An integrated GIT client can track and auto commit all file change operations
+in to a to a GIT repository.
+
+WFM is most commonly used as a web front end for an FTP server. However since you
+can edit html and markdown documents over the web and there is GIT backed
+version control, you can think and use WFM as a small Content Management System (CMS).
 
 Unlike other similar appliactions, WFM is compatible with most modern and
 legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
@@ -24,11 +26,12 @@ or vintage / historical systems.
 ![alt text](https://raw.githubusercontent.com/tenox7/wfm/master/screenshot.png "WFM Screenshot")
 
 ## History
-The application begun its life in 1994 as a perl CGI script for CERN httpd
+WFM begun its life around 1994 as a Perl CGI script for CERN httpd
 server to allow uploading and managing customer logs by field support
-engineers over the web. Later rewritten in C language, when CGIC library and
-Apache httpd were released. Up to 2015 WFM has been a closed source commercial
-application, supported by a few companies. WFM is now released as open source.
+engineers over the web and as a front end to FTP server. Later rewritten in
+C language, when CGIC library and Apache httpd were released. Up to 2015 WFM
+has been a closed source commercial application, supported by a few companies.
+WFM is now released as open source.
 
 
 ## Installation
