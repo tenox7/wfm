@@ -170,6 +170,7 @@ void dirlist(void) {
         "-->\n"
         "</STYLE>\n" 
         "<META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n"
+        "<META NAME=\"viewport\" CONTENT=\"width=device-width\">\n"
         "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
@@ -298,7 +299,7 @@ void dirlist(void) {
                 "</TD>\n"
                 "</TR>\n"
             "</TABLE>\n",
-            virt_dirname, token, upload_id);
+            virt_dirname, token, upload_id); 
 
     //
     // SORT BY

@@ -1,4 +1,4 @@
-#define VERSION "1.2.1"
+#define VERSION "1.2.2"
 #define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2017 by Antoni Sawicki -->\n"
 
@@ -23,6 +23,7 @@
         copyright \
         "<HEAD>\n" \
         "  <META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=UTF-8\">\n" \
+        "  <META NAME=\"viewport\" CONTENT=\"width=device-width\">\n" \
         CSS_STYLE
 
 
