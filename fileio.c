@@ -300,7 +300,8 @@ void fileio_delete(void) {
             else {
                 if(unlink(phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
-                    wfm_commit(DELETE, NULL);
+
+                wfm_commit(DELETE, NULL);
             }
         }
 

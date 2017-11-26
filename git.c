@@ -81,7 +81,7 @@ int wfm_commit(int op, char *fname) {
     if(op>2)
         return 0;
 
-	git_libgit2_init();
+    git_libgit2_init();
 
     snprintf(repodir, sizeof(repodir), "%s/.git", HOMEDIR);
     ret=git_repository_open(&repo, repodir);                
