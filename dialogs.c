@@ -426,7 +426,7 @@ void edit_ui(void) {
     "--></STYLE>\n"
     "</HEAD>\n"
     "<BODY>\n"
-    "<FORM NAME=\"EDITOR\" ACTION=\"%s?action=edit_save\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" >\n"
+    "<FORM NAME=\"EDITOR\" ACTION=\"%s?action=edit_save\" METHOD=\"POST\" ACCEPT-CHARSET=\"US-ASCII\" ENCTYPE=\"multipart/form-data\" >\n"
         "<TABLE BGCOLOR=\"#EEEEEE\" BORDER=0 CELLSPACING=0 CELLPADDING=5 STYLE=\"height:%s%%;\">\n"
          "<TR STYLE=\"height:1%%;\">\n"
             "<TD ALIGN=\"LEFT\" VALIGN=\"MIDDLE\" BGCOLOR=\"#CCCCCC\">\n"
