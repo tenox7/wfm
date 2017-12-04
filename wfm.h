@@ -22,7 +22,8 @@
         "<HTML LANG=\"en\">\n" \
         copyright \
         "<HEAD>\n" \
-        "  <META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html;charset=US-ASCII\">\n" \
+        "  <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;charset=US-ASCII\">\n" \
+        "  <META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en\">\n" \
         "  <META NAME=\"viewport\" CONTENT=\"width=device-width\">\n" \
         CSS_STYLE
 
