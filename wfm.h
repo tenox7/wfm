@@ -23,7 +23,8 @@
         copyright \
         "<HEAD>\n" \
         "  <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;charset=US-ASCII\">\n" \
-        "  <META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en\">\n" \
+        "  <META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en-US\">\n" \
+        "  <META HTTP-EQUIV=\"google\" CONTENT=\"notranslate\">\n" \
         "  <META NAME=\"viewport\" CONTENT=\"width=device-width\">\n" \
         CSS_STYLE
 
