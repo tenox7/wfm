@@ -121,13 +121,7 @@ void access_check(char *access_string) {
 
     if(sscanf(access_string, "access-ip=%2s:%30s", type, ipaddr)==2) {
 
-        if(ipaddr[0]=='*') {
-            if(strcmp(type, "ro")==0) 
-                access_level=PERM_RO;
-            else if(strcmp(type, "rw")==0) 
-                access_level=PERM_RW;
-        }
-        else if(strcmp(cgiRemoteAddr, ipaddr)==0) {
+        if(ipaddr[0]=='*' || strcmp(cgiRemoteAddr, ipaddr)==0) {
             if(strcmp(type, "ro")==0) 
                 access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
@@ -141,16 +135,13 @@ void access_check(char *access_string) {
         snprintf(token_inp, sizeof(token_inp), "%s:%s:%s", cgiRemoteAddr, user, pass);
         // perform user auth by comparing user supplied token with system generated token
         if(strcmp(mktoken(token_inp), token)==0) {
-            if(strcmp(type, "ro")==0) {
+            if(strcmp(type, "ro")==0) 
                 access_level=PERM_RO;
-                access_as_user=1;
-                strncpy(loggedinuser, user, sizeof(loggedinuser));
-            }
-            else if(strcmp(type, "rw")==0) {
+            else if(strcmp(type, "rw")==0) 
                 access_level=PERM_RW;
-                access_as_user=1;
-                strncpy(loggedinuser, user, sizeof(loggedinuser));
-            }
+
+            access_as_user=1;
+            strncpy(loggedinuser, user, sizeof(loggedinuser));
         }
     }
     else if(sscanf(access_string, "access-htauth=%2[^':']:%30s", type, user)==2) {
