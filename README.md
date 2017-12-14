@@ -85,14 +85,18 @@ Below is a simple, self-explanatory configuration file example:
     # external link button without going through cgi routines
     browser-url=http://x.x.x.x/files/
 
-    # access lists - ace type is either access-ip or access-user
+    # access lists - ace type is either access-ip, access-user or access-htauth
     # mixable, eg access-ip=ro:* with number of access-user=rw
-    # level is ro|rw, one host or username per line  * denotes all hosts
+    # level is ro|rw, one host or username per line * denotes all hosts
     # user is username:password combination
+    # htauth is for http basic/digest auth username or * any authenticated user
+    # htauth requires externally defined auth database and Require directive
     access-ip=ro:*
     access-ip=rw:127.0.0.1
     access-user=ro:guest:secret
     access-user=rw:admin:password
+    access-htauth=ro:*
+    access-htauth=rw:admin
 
 If you use mixed ro/rw access for instance ip=ro:* and user=rw:admin
 then in order to authenticate click on the lock sign on right side of
