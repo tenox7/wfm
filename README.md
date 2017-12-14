@@ -102,6 +102,9 @@ If you use mixed ro/rw access for instance ip=ro:* and user=rw:admin
 then in order to authenticate click on the lock sign on right side of
 the top status bar.
 
+For LDAP/AD refer to mod_authnz_ldap with basic / digest authentication.
+To allow a specific LDAP group use `Require ldap-group` and `access-htauth=:rw:*`.
+
 ## Copyrights and Credits
 Copyright (c) 1994-2017 by Antoni Sawicki  
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.  
