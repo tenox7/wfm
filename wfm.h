@@ -1,4 +1,4 @@
-#define VERSION "1.2.3"
+#define VERSION "1.2.4"
 #define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2017 by Antoni Sawicki -->\n"
 
