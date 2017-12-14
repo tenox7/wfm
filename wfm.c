@@ -153,6 +153,19 @@ void access_check(char *access_string) {
             }
         }
     }
+    else if(sscanf(access_string, "access-htauth=%2[^':']:%30s", type, user)==2) {
+        users_defined=1;
+
+        if(user[0]=='*' || strcmp(user, getenv("REMOTE_USER"))==0) {
+            if(strcmp(type, "ro")==0) 
+                access_level=PERM_RO;
+            else if(strcmp(type, "rw")==0) 
+                access_level=PERM_RW;
+
+            access_as_user=1;
+            strncpy(loggedinuser, getenv("REMOTE_USER"), sizeof(loggedinuser));
+        }
+    }
 }
 
 
