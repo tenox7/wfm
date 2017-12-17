@@ -68,7 +68,7 @@ void upload_status(void) {
 // Generate auth token
 // Used by access_check() to compare tokens and login() to generate token from a web form
 //
-char *mktoken(char *str) {
+char *md5hash(char *str) {
     md5_state_t state;
     md5_byte_t digest[16]={0};
     char *outstr;
@@ -94,14 +94,16 @@ char *mktoken(char *str) {
 void login(void) {
     char username[64]={0};
     char password[64]={0};
-    char token_inp[256]={0};
+    char userpass[256]={0};
+    char hostuserpass[256]={0};
 
-    cgiFormStringNoNewlines("username", username, sizeof(username)); // only used if JavaScript not 
-    cgiFormStringNoNewlines("password", password, sizeof(password)); // available in the browser
+    cgiFormStringNoNewlines("username", username, sizeof(username)); // only used if JavaScript is
+    cgiFormStringNoNewlines("password", password, sizeof(password)); // not available in the browser
     
-    if(strlen(username)) {
-        snprintf(token_inp, sizeof(token_inp), "%s:%s:%s", cgiRemoteAddr, username, password);
-        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, mktoken(token_inp));  // generate MD5 as if it was the client
+    if(strlen(username) && strlen(password)) {
+        snprintf(userpass, sizeof(userpass), "%s:%s", username, password);
+        snprintf(hostuserpass, sizeof(hostuserpass), "%s:%s", cgiRemoteAddr, md5hash(userpass));
+        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, md5hash(hostuserpass));  // generate MD5 as if it was the client
     }
     else
         login_ui(); // display actual login page, which normally generates token in JavaScript
@@ -115,9 +117,9 @@ void login(void) {
 void access_check(char *access_string) {
     char ipaddr[32]={0};
     char user[32]={0};
-    char pass[32]={0};
+    char pass[64]={0};
     char type[4]={0};
-    char token_inp[64]={0};
+    char token_cfg[256]={0};
 
     if(sscanf(access_string, "access-ip=%2s:%30s", type, ipaddr)==2) {
 
@@ -129,12 +131,12 @@ void access_check(char *access_string) {
         }
 
     }
-    else if(sscanf(access_string, "access-user=%2[^':']:%30[^':']:%30s", type, user, pass)==3) {
+    else if(sscanf(access_string, "access-md5pw=%2[^':']:%30[^':']:%63s", type, user, pass)==3) {
         users_defined=1;
 
-        snprintf(token_inp, sizeof(token_inp), "%s:%s:%s", cgiRemoteAddr, user, pass);
+        snprintf(token_cfg, sizeof(token_cfg), "%s:%s", cgiRemoteAddr, pass);
         // perform user auth by comparing user supplied token with system generated token
-        if(strcmp(mktoken(token_inp), token)==0) {
+        if(strcmp(md5hash(token_cfg), token)==0) {
             if(strcmp(type, "ro")==0) 
                 access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
@@ -147,7 +149,7 @@ void access_check(char *access_string) {
     else if(sscanf(access_string, "access-htauth=%2[^':']:%30s", type, user)==2) {
         users_defined=1;
 
-        if(user[0]=='*' || strcmp(user, getenv("REMOTE_USER"))==0) {
+        if(user[0]=='*' || (getenv("REMOTE_USER") && strcmp(user, getenv("REMOTE_USER"))==0)) {
             if(strcmp(type, "ro")==0) 
                 access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
