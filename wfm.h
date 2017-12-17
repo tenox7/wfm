@@ -128,6 +128,7 @@ int timesort(const void *, const void *);
 int rtimesort(const void *, const void *);
 int asscandir(const char *, ASDIR **, int (*compar)(const void *, const void *));
 
+void dbgprintf(char *, ...);
 void error(char *, ...);
 void redirect(char *, ...);
 char *buprintf(float, int);

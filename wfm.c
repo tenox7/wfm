@@ -348,6 +348,31 @@ char *buprintf(float v, int bold) {
 }
 
 //
+// Debug print to a file
+//
+void dbgprintf(char *msg, ...) {
+    va_list ap;
+    char buff[1024]={0};
+    FILE *f;
+
+    if(msg) {
+        va_start(ap, msg);
+        vsnprintf(buff, sizeof(buff), msg, ap);
+        va_end(ap);
+
+        f=fopen("/tmp/wfmdbg.log", "a");
+        if(!f)
+            error("Unable to open debug file");
+
+        fprintf(f, "DEBUG: %s\n", buff);
+
+        fclose(f);
+    }
+
+}
+
+
+//
 // redirect browser
 //
 void redirect(char *location, ...) {
