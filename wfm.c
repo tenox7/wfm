@@ -68,24 +68,39 @@ void upload_status(void) {
 // Generate auth token
 // Used by access_check() to compare tokens and login() to generate token from a web form
 //
-char *md5hash(char *str) {
+char *md5hash(char *str, ...) {
+    va_list ap;
+    char buff[1024]={0};
     md5_state_t state;
     md5_byte_t digest[16]={0};
     char *outstr;
     int i;
 
-    outstr=(char*) malloc((sizeof(digest)*2)+2);
-    memset(outstr, 0, (sizeof(digest)*2)+2);
+    if(str) {
+        va_start(ap, str);
+        vsnprintf(buff, sizeof(buff), str, ap);
+        va_end(ap);
 
-    md5_init(&state);
-    md5_append(&state, (const md5_byte_t *)str, strlen(str));
-    md5_finish(&state, digest);
+        outstr=(char*) malloc((sizeof(digest)*2)+2);
+        memset(outstr, 0, (sizeof(digest)*2)+2);
 
-    for (i = 0; i < sizeof(digest); i++)
-            sprintf(outstr + i * 2, "%02x", digest[i]);
+        md5_init(&state);
+        md5_append(&state, (const md5_byte_t *)buff, strlen(buff));
+        md5_finish(&state, digest);
 
-    return outstr;
+        for (i = 0; i < sizeof(digest); i++)
+                sprintf(outstr + i * 2, "%02x", digest[i]);
+        
+        if(strlen(outstr))
+            return outstr;
+        else
+            return NULL;
+    }
+    else {
+        return NULL;
+    }
 }
+
 
 //
 // WFM Login Procedure
@@ -94,17 +109,12 @@ char *md5hash(char *str) {
 void login(void) {
     char username[64]={0};
     char password[64]={0};
-    char userpass[256]={0};
-    char hostuserpass[256]={0};
 
     cgiFormStringNoNewlines("username", username, sizeof(username)); // only used if JavaScript is
     cgiFormStringNoNewlines("password", password, sizeof(password)); // not available in the browser
     
-    if(strlen(username) && strlen(password)) {
-        snprintf(userpass, sizeof(userpass), "%s:%s", username, password);
-        snprintf(hostuserpass, sizeof(hostuserpass), "%s:%s", cgiRemoteAddr, md5hash(userpass));
-        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, md5hash(hostuserpass));  // generate MD5 as if it was the client
-    }
+    if(strlen(username) && strlen(password)) 
+        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, md5hash("%s:%s", cgiRemoteAddr, md5hash("%s:%s", username, password)));  // generate MD5 as if it was the client
     else
         login_ui(); // display actual login page, which normally generates token in JavaScript
         
@@ -116,10 +126,9 @@ void login(void) {
 //
 void access_check(char *access_string) {
     char ipaddr[32]={0};
-    char user[32]={0};
+    char user[64]={0};
     char pass[64]={0};
     char type[4]={0};
-    char token_cfg[256]={0};
 
     if(sscanf(access_string, "access-ip=%2s:%30s", type, ipaddr)==2) {
 
@@ -134,9 +143,8 @@ void access_check(char *access_string) {
     else if(sscanf(access_string, "access-md5pw=%2[^':']:%30[^':']:%63s", type, user, pass)==3) {
         users_defined=1;
 
-        snprintf(token_cfg, sizeof(token_cfg), "%s:%s", cgiRemoteAddr, pass);
         // perform user auth by comparing user supplied token with system generated token
-        if(strcmp(md5hash(token_cfg), token)==0) {
+        if(strcmp(md5hash("%s:%s", cgiRemoteAddr, pass), token)==0) {
             if(strcmp(type, "ro")==0) 
                 access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
