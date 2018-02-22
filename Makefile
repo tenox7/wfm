@@ -1,6 +1,12 @@
-CC=gcc -Wall -O3 -DWFMGIT 
+# With GIT Integration
+#CC=gcc -Wall -O3 -DWFMGIT 
+#LD=-lgit2 -lpthread
+
+# Without GIT Integration
+CC=gcc -Wall -O3
+LD=
+
 OB=wfm.o dir.o dialogs.o fileio.o cgic.o md5.o urlencode.o git.o
-LD=-lgit2 -lpthread
 
 all: wfm
 
