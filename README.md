@@ -86,14 +86,16 @@ Below is a simple, self-explanatory configuration file example:
     browser-url=http://x.x.x.x/files/
 
     # access lists - ace type is either access-ip, access-md5pw or access-htauth
-    # mixable, for example public read only with some read-write users
+    # mixable, for example a public read only access with some read-write users:
     # access-ip=ro:* with number of access-md5=rw:user:md5hash
     # level is ro|rw, one host or username per line * denotes any ip or user (htauth)
     # md5 format is username:md5of(username:password) for example:
-    # access-md5=rw:foo:4e99e8c12de7e01535248d2bac85e732
-    # to generate this use echo -n "foo:bar" | md5
-    # htauth is for http basic/digest auth username or * any valid user
-    # htauth requires externally defined auth / require
+    # access-md5=rw:admin:df4414154fd956eac41e643671d7cdde
+    # to generate this use echo -n "admin:pass" | md5
+    # htauth is for http basic/digest auth regular username or * any valid user
+    # htauth requires externally defined auth / require in httpd.conf or .htaccess
+    # examples:
+    # by ip address
     access-ip=ro:*
     access-ip=rw:127.0.0.1
     # guest / guest
@@ -103,15 +105,14 @@ Below is a simple, self-explanatory configuration file example:
     access-htauth=ro:*
     access-htauth=rw:admin
 
-If you use mixed ro/rw access for instance ip=ro:* and user=rw:admin
-then in order to authenticate click on the lock sign on right side of
-the top status bar.
+If you use mixed readonly and readwrite access then then in order to authenticate
+click on the lock sign on right side of the top status bar.
 
 For LDAP/AD refer to `mod_authnz_ldap` with basic / digest authentication.
 To allow a specific LDAP group use `Require ldap-group` and `access-htauth=:rw:*`.
 
 ## Copyrights and Credits
-Copyright (c) 1994-2017 by Antoni Sawicki  
+Copyright (c) 1994-2018 by Antoni Sawicki  
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.  
 Copyright (c) 2002 by Aladdin Enterprises  
 Copyright (c) 1999-2009 by Paul Johnston  
