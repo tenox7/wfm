@@ -250,7 +250,7 @@ void about(void) {
             "Uses libgit2 library<BR>\n"
 #endif
             "URL Encoding routines by Fred Bulback<BR>\n"
-            "Copyright &copy; 1994-2017 by Antoni Sawicki<BR>\n"
+            "Copyright &copy; 1994-2018 by Antoni Sawicki<BR>\n"
             "Copyright &copy; 1996-2011 by Thomas Boutell and Boutell.Com, Inc.<BR>\n"
             "Copyright &copy; 2002 by Aladdin Enterprises<BR>\n"
             "Copyright &copy; 1999-2009 by Paul Johnston<BR>\n"
@@ -283,7 +283,7 @@ void about(void) {
 #ifdef WFMGIT
         "Git"
 #else
-        "Nono"
+        "None"
 #endif
         , (repo_check()) ? "No Repo Present" : "Repo OK",    
         cgiScriptName, virt_dirname, token);
