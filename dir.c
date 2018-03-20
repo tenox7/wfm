@@ -297,11 +297,11 @@ void dirlist(void) {
                     "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
                     "<INPUT TYPE=\"hidden\" NAME=\"upload_id\" VALUE=\"%d\">\n"
                     "<INPUT TYPE=\"file\" NAME=\"filename\">&nbsp;\n"
-                    "<INPUT TYPE=\"submit\" NAME=\"upload\" ID=\"Upload_Status\" VALUE=\"Upload\" >\n"
+                    "<INPUT TYPE=\"submit\" NAME=\"upload\" ID=\"Upload_Status\" VALUE=\"Upload\" %s >\n"
                 "</TD>\n"
                 "</TR>\n"
             "</TABLE>\n",
-            virt_dirname, token, upload_id); 
+            virt_dirname, token, upload_id, (access_level==PERM_RW) ? " " : "DISABLED"); 
 
     //
     // SORT BY
