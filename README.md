@@ -55,7 +55,7 @@ advanced configuration different instances can suexec to different users.
 
 In basic form each instance reads it's configuration file of 
 instance name + .cfg extension from the current working directory.
-For instance if you decide to use "ftpadmin" as name of the executable
+For example if you decide to use "ftpadmin" as name of the executable
 (or link) it will read file named "ftpadmin.cfg" for the configuration.
 Below is a simple, self-explanatory configuration file example:
 
@@ -68,7 +68,7 @@ Below is a simple, self-explanatory configuration file example:
     # recursively calculate directory sizes - only enable if you have
     # fast disk (eg. SSD), large cache or a small directory tree structure
     # note that file and folder names starting with dot (.) are not counted
-    # recursive-du=true
+    #recursive-du=true
 
     # favicon / application icon, must be one of the embedded/compiled icon files
     # by default wfmicon.gif
@@ -83,19 +83,17 @@ Below is a simple, self-explanatory configuration file example:
     # optional browser url prefix - aka "external link" - if defined, file
     # names will be glued to it giving option to be opened directly with the
     # external link button without going through cgi routines
-    browser-url=http://x.x.x.x/files/
+    #browser-url=http://x.x.x.x/files/
 
-    # access lists - ace type is either access-ip, access-md5pw or access-htauth
-    # mixable, for example a public read only access with some read-write users:
-    # access-ip=ro:* with number of access-md5=rw:user:md5hash
-    # level is ro|rw, one host or username per line * denotes any ip or user (htauth)
-    # md5 format is username:md5of(username:password) for example:
-    # access-md5=rw:admin:df4414154fd956eac41e643671d7cdde
-    # to generate this use echo -n "admin:pass" | md5
-    # htauth is for http basic/digest auth regular username or * any valid user
-    # htauth requires externally defined auth / require in httpd.conf or .htaccess
-    # examples:
-    # by ip address
+    # access lists 
+    # acl format is access-type=level:check, one per line
+    # type is either access-ip, access-md5pw or access-htauth
+    # level is ro|rw
+    # check is ip address, username or * for any ip or user
+    # md5 format is username:md5hashof(username:password) 
+    # to generate this use: echo -n "foo:bar" | md5
+    # htauth is for http basic/digest auth, use username or * for any user
+    # htauth requires externally (httpd) defined auth and require directive
     access-ip=ro:*
     access-ip=rw:127.0.0.1
     # guest / guest
@@ -108,8 +106,7 @@ Below is a simple, self-explanatory configuration file example:
 If you use mixed readonly and readwrite access then then in order to authenticate
 click on the lock sign on right side of the top status bar.
 
-For LDAP/AD refer to `mod_authnz_ldap` with basic / digest authentication.
-To allow a specific LDAP group use `Require ldap-group` and `access-htauth=:rw:*`.
+For enterprise users LDAP/Active Directory is supported. Refer to [mod_authnz_ldap](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html) with basic / digest authentication.  To allow a specific LDAP group or DN use [Require ldap-group](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqgroup) or [Require ldap-dn](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqdn) and `access-htauth=:rw:*` in wfm.cfg.
 
 ## Copyrights and Credits
 Copyright (c) 1994-2018 by Antoni Sawicki  
