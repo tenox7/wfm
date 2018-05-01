@@ -1,4 +1,4 @@
-#define VERSION "1.3.1"
+#define VERSION "1.3.2"
 #define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n"
 
@@ -52,6 +52,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/shm.h>    
+#include <sys/file.h>
 //#include <sys/dir.h>
 #include "md5.h"
 #include "cgic.h"

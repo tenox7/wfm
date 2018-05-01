@@ -2,7 +2,6 @@
 
 #include "wfm.h"
 
-
 /*
 // Debug dump vars
 //void debugdumpvars(void) {
@@ -103,6 +102,9 @@ void receivefile(void) {
     output=fopen(phys_filename, "wb");
     if(!output) 
         error("Unable to open file %s for writing.<BR>%s", virt_filename, strerror(errno));
+
+    if(flock(fileno(output), LOCK_EX) == -1)
+        error("Unable to lock file %s.<BR>%s", virt_filename, strerror(errno));
 
     while(cgiFormFileRead(input, buff, sizeof(buff), &got) == cgiFormSuccess) 
         if(got)
@@ -220,6 +222,9 @@ void edit_save(void) {
     
     if(!tempf)
         error("Unable to open temporary file %s.<BR>%s", basename(tempname), strerror(errno));
+
+    if(flock(fileno(tempf), LOCK_EX) == -1)
+        error("Unable to lock file %s.<BR>%s", basename(tempname), strerror(errno));
 
     if(fwrite(buff, strlen(buff), 1, tempf) != 1)
         error("Unable to write to temporary file %s.<BR>%s", basename(tempname), strerror(errno));
