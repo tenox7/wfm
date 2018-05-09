@@ -516,25 +516,27 @@ int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, con
 
     entry=readdir(dirh);
     while(entry!=NULL) {
-        snprintf(filename, sizeof(filename), "%s/%s", dir, entry->d_name);
-        if(stat(filename, &fileinfo)!=0)
-            return -1;
+        if(entry->d_name[0]!='.') {
+            snprintf(filename, sizeof(filename), "%s/%s", dir, entry->d_name);
+            if(stat(filename, &fileinfo)!=0)
+                return -1;
 
-        memset(&names[entries], 0, sizeof(ASDIR));
-        strcpy(names[entries].name, entry->d_name);
-        names[entries].type=fileinfo.st_mode;
-        if(S_ISDIR(fileinfo.st_mode) && recursive_du)
-            names[entries].size=du(filename);
-        else            
-            names[entries].size=fileinfo.st_size;
-        names[entries].atime=fileinfo.st_atime;
-        names[entries].mtime=fileinfo.st_mtime;
-        names[entries].rtime=fileinfo.st_ctime;
-        
-        names=(ASDIR*)realloc((ASDIR*)names, sizeof(ASDIR)*(entries+2));
-        if(names==NULL)
-            return -1;
-        entries++;
+            memset(&names[entries], 0, sizeof(ASDIR));
+            strcpy(names[entries].name, entry->d_name);
+            names[entries].type=fileinfo.st_mode;
+            if(S_ISDIR(fileinfo.st_mode) && recursive_du)
+                names[entries].size=du(filename);
+            else            
+                names[entries].size=fileinfo.st_size;
+            names[entries].atime=fileinfo.st_atime;
+            names[entries].mtime=fileinfo.st_mtime;
+            names[entries].rtime=fileinfo.st_ctime;
+            
+            names=(ASDIR*)realloc((ASDIR*)names, sizeof(ASDIR)*(entries+2));
+            if(names==NULL)
+                return -1;
+            entries++;
+        }
         entry=readdir(dirh);
     }
     closedir(dirh);
