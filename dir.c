@@ -387,13 +387,7 @@ void dirlist(void) {
         name=direntry[e].name;
         name_urlencoded=url_encode(name);
 
-        if(recursive_du) {
-            snprintf(phys_filename, PHYS_FILENAME_SIZE, "%s/%s", phys_dirname, direntry[e].name);
-            size=du(phys_filename);
-        }
-        else {
-            size=-1;
-        }
+        size=direntry[e].size;
 
         ctime_r(&direntry[e].atime, atime);
         ctime_r(&direntry[e].mtime, mtime);
