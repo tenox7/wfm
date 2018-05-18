@@ -8,6 +8,7 @@
 void multiprompt_ui(char *m_action) {
     int i;
     int res;
+    int level;
     char **responses; 
     struct stat fileinfo;
     char M_action[64]={0};
@@ -70,8 +71,15 @@ void multiprompt_ui(char *m_action) {
 
     // move needs a destination...
     if(strcmp(m_action, "move")==0) {
-        fprintf(cgiOut, "<P>Source: %s<P>Destination: <SELECT NAME=\"destination\"><OPTION VALUE=\"/\">/ - Root Directory</OPTION>\n", virt_dirname);
-        re_dir_ui("/", 1);
+        fprintf(cgiOut, "<P>Source: %s<P>Destination: <SELECT NAME=\"destination\">\n", virt_dirname);
+        fprintf(cgiOut, "<OPTION VALUE=\"/\">/ - Root Directory</OPTION>\n");
+        if(largeset) {
+            level=re_dir_up(virt_dirname);
+            re_dir_ui(virt_dirname, level);
+        }
+        else {
+            re_dir_ui("/", 1);
+        }
         fprintf(cgiOut, "</SELECT>\n<INPUT TYPE=\"HIDDEN\" NAME=\"absdst\" VALUE=\"1\">\n<P>\n");
     }
 

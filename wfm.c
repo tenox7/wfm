@@ -327,6 +327,65 @@ int strip(char *str, int len, char *allow) {
     return 0; //strlen(dst);
 }
 
+
+// split string in to array of char[] with separators
+// Warning this function modifies src!
+// Written by Tomasz Nowak
+int strsplit(char *src, char ***dst, char *sep) {
+    char **arr;
+    char defsep[]=" \t\n\r\f";
+
+    if(!sep)
+        sep=defsep;
+
+    char *src_org = src;
+    char *c;
+    int n = 0;
+
+    while (c = strpbrk(src, sep)) {
+        while (c == src) {
+            src++;
+            c = strpbrk(src, sep);
+        }
+        if (c == NULL) 
+            break;
+
+        src = c + 1;
+        n++;
+    }
+
+    int n_elem = n + 1;
+    arr = (char **)malloc(sizeof(char *) * n_elem);
+    memset(arr, 0, sizeof(char *) * n_elem);
+
+    src = src_org;
+    n = 0;
+
+    while (c = strpbrk(src, sep)) {
+        while (c == src) {
+            src++;
+            c = strpbrk(src, sep);
+        }
+        if (c == NULL) 
+            break;
+
+        *c = 0;
+        arr[n] = src;
+
+        src = c + 1;
+        n++;
+    }
+
+    arr[n] = src;
+
+    *dst = arr;
+
+    if(!*arr[n])
+        return n_elem-1;
+    else
+        return n_elem;
+}
+
 //
 // Byte unit printf
 //
@@ -412,6 +471,7 @@ int cgiMain(void) {
     char c_editdef[]="txt-default-edit=true";
     char c_editany[]="edit-any-file=true";
     char c_du[]="recursive-du=true";
+    char c_largeset[]="large-file-set=true";
     char c_access[]="access";
 
     // early action - simple actions before cfg is read or access check performed (no security!)
@@ -446,6 +506,7 @@ int cgiMain(void) {
     edit_by_default=0; // for .txt files
     edit_any_file=0; 
     recursive_du=0;
+    largeset=0;
 
     memset(HOMEDIR, 0, sizeof(HOMEDIR));
     memset(HOMEURL, 0, sizeof(HOMEURL));    
@@ -467,6 +528,7 @@ int cgiMain(void) {
         else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              strncpy(FAVICON, cfgline+strlen(c_favicon), sizeof(FAVICON));
         else if(strncmp(cfgline, c_editdef, strlen(c_editdef))==0)              edit_by_default=1;
         else if(strncmp(cfgline, c_editany, strlen(c_editany))==0)              edit_any_file=1;
+        else if(strncmp(cfgline, c_largeset, strlen(c_largeset))==0)            largeset=1;
         else if(strncmp(cfgline, c_du, strlen(c_du))==0)                        recursive_du=1;
         else if(strncmp(cfgline, c_access, strlen(c_access))==0)                access_check(cfgline);
     }

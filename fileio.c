@@ -453,14 +453,44 @@ void re_dir_ui(char *vdir, int level) {
             for (n=0; n<(level-1); n++)
                 fprintf(cgiOut, "&nbsp;&nbsp;&nbsp;");
 
-            fprintf(cgiOut, "%s&nbsp;%s</OPTION>\n", (js) ? "&lfloor;" : "-", direntry[e]->d_name);
+            fprintf(cgiOut, "%s&nbsp;%s</OPTION>\n", (js) ? "&boxvr;" : "-", direntry[e]->d_name);
 
             // recurse
-            re_dir_ui(child,level+1);
+            if(!largeset)
+                re_dir_ui(child,level+1);
         }
         free(direntry[e]);
     }
 
+}
+
+//
+// Display directory up tree used for file move with large file set
+//
+int re_dir_up(char *vdir) {
+    int n,nn,m,len;
+    char **dirs;
+    char tmp[sizeof(virt_dirname)]={0};
+
+    strcpy(tmp, vdir);
+    len=strsplit(tmp, &dirs, "/.");
+    for(n=0; n<len; n++) {
+        fprintf(cgiOut, "<OPTION VALUE=\"/");
+        
+        for(nn=0; nn<n+1; nn++)
+            fprintf(cgiOut, "%s/", dirs[nn]);
+
+        fprintf(cgiOut, "\">");
+
+        for(m=0; m<n; m++)
+            fprintf(cgiOut, "&nbsp;&nbsp;&nbsp;");
+
+        fprintf(cgiOut, "&boxvr; %s</OPTION>\n", dirs[n]);
+
+    }
+
+    
+    return n+1;
 }
 
 //

@@ -104,6 +104,7 @@ int users_defined;
 int edit_by_default;
 int edit_any_file;
 int recursive_du;
+int largeset;
 
 int js;
 
@@ -134,6 +135,7 @@ void error(char *, ...);
 void redirect(char *, ...);
 char *buprintf(float, int);
 int strip(char *, int, char *);
+int strsplit(char *, char ***, char *);
 void checkfilename(char *);
 void checkdestination(void); 
 void mkfile(void);
@@ -152,6 +154,7 @@ void sendfile(void);
 void receivefile(void);
 off_t du(char *);
 void re_dir_ui(char *, int);
+int re_dir_up(char *);
 void login_ui(void);
 void tstop(void);
 void html_title(char *);
