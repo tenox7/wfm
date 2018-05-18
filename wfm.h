@@ -2,13 +2,15 @@
 #define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n"
 
+#define FONT_SIZE "13px"
+
 #define CSS_STYLE         \
             "  <STYLE TYPE=\"text/css\"><!-- \n" \
             "    A:link {text-decoration: none; color:#0000CE; } \n" \
             "    A:visited {text-decoration: none; color:#0000CE; } \n" \
             "    A:active {text-decoration: none; color:#FF0000; } \n" \
             "    A:hover {text-decoration: none; color:#FF0000; } \n" \
-            "    body, td, th, input { font-family: Tahoma, Sans-Serif; font-size:11px;  } \n" \
+            "    body, td, th, input { font-family: Tahoma, Sans-Serif; font-size:" FONT_SIZE ";  } \n" \
             "    html, body { box-sizing: border-box; width:100%%; height:100%%; margin:0px; padding:0px; } \n" \
             "    input  { border-color:#000000; border-style:solid; }\n" \
             "    img { vertical-align: middle; }\n" \

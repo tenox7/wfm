@@ -162,9 +162,9 @@ void dirlist(void) {
         "A:hover {text-decoration: none; color:#FF0000; } \n"
         "html, body, table { width:100%%; margin:0px; padding:0px; border:none; } \n"
         "img { vertical-align:middle; } \n"
-        "td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:11px; margin:0px; padding:2px; border:none;  } \n"
+        "td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:%s; margin:0px; padding:2px; border:none;  } \n"
         "input { border-color:#000000;border-style:solid; \n"
-        "font-family: Tahoma, Arial, Geneva, sans-serif; font-size:11px; }\n"
+        "font-family: Tahoma, Arial, Geneva, sans-serif; font-size:%s; }\n"
         ".hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }\n"
         ".hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }\n"
         "-->\n"
@@ -177,7 +177,7 @@ void dirlist(void) {
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
         "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" %s>\n",
-      ICONSURL, FAVICON, cgiScriptName, (js>=2) ? "onsubmit=\"start()\"" : "");
+      FONT_SIZE, FONT_SIZE, ICONSURL, FAVICON, cgiScriptName, (js>=2) ? "onsubmit=\"start()\"" : "");
 
 
 
