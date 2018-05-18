@@ -71,6 +71,10 @@ Below is a simple, self-explanatory configuration file example:
     # this may be a problem for large .git repos which would not be scanned
     #recursive-du=true
 
+	# large file set makes move dialog display only reduced directory tree
+	# instead of all directories from the whole repository
+	#large-file-set=true
+
     # favicon / application icon, must be one of the embedded/compiled icon files
     # by default wfmicon.gif
     #favicon=home.gif
