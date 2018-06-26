@@ -548,8 +548,10 @@ int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, con
     while(entry!=NULL) {
         if(entry->d_name[0]!='.') {
             snprintf(filename, sizeof(filename), "%s/%s", dir, entry->d_name);
-            if(stat(filename, &fileinfo)!=0)
-                return -1;
+            if(stat(filename, &fileinfo)!=0) {
+                entry=readdir(dirh);
+                continue;
+            }
 
             memset(&names[entries], 0, sizeof(ASDIR));
             strcpy(names[entries].name, entry->d_name);
