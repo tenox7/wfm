@@ -386,8 +386,6 @@ void move(void) {
 //
 // Recursive Dir Size
 //
-// NOTE: will not count directories starting with . (dot)
-//       so size of git repo will not be included
 off_t du(char *pdir) {
     DIR *dir;
     struct dirent *direntry;
@@ -405,10 +403,17 @@ off_t du(char *pdir) {
         while(direntry) {
             snprintf(child, PHYS_DIRNAME_SIZE, "%s/%s", pdir, direntry->d_name);
             if(lstat(child, &fileinfo)==0) {
-                if(S_ISDIR(fileinfo.st_mode) && (direntry->d_name[0]!='.')) //TODO: count other ".files" except . & ..
-                    tot+=du(child);
-                else 
+                if(S_ISDIR(fileinfo.st_mode)) {
+                    if(direntry->d_name[0]=='.' && direntry->d_name[1]=='\0') 
+                        ;
+                    else if(direntry->d_name[0]=='.' && direntry->d_name[1]=='.' && direntry->d_name[2]=='\0') 
+                        ;
+                    else
+                        tot+=du(child);
+                }
+                else {
                     tot+=fileinfo.st_size;
+                }
             }
             direntry=readdir(dir);
         }
