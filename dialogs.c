@@ -45,22 +45,22 @@ void multiprompt_ui(char *m_action) {
 
     if(res == cgiFormNotFound) {  
         checkfilename(NULL);
-        if(stat(phys_filename, &fileinfo)==0) {
-            fprintf(cgiOut, "<INPUT TYPE=\"HIDDEN\" NAME=\"filename\" VALUE=\"%s\">\n", virt_filename);
-            fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s</B>", virt_filename);
+        if(stat(wp.phys_filename, &fileinfo)==0) {
+            fprintf(cgiOut, "<INPUT TYPE=\"HIDDEN\" NAME=\"filename\" VALUE=\"%s\">\n", wp.virt_filename);
+            fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s</B>", wp.virt_filename);
             if(S_ISDIR(fileinfo.st_mode))
-                fprintf(cgiOut, " [directory %s]\n", buprintf(du(phys_filename), FALSE));
+                fprintf(cgiOut, " [directory %s]\n", buprintf(du(wp.phys_filename), FALSE));
             else
                 fprintf(cgiOut, " [file %s]\n", buprintf(fileinfo.st_size, FALSE));
         }
     } else {
         for(i=0; responses[i]; i++) {
             checkfilename(responses[i]);
-            if(stat(phys_filename, &fileinfo)==0) {
-                fprintf(cgiOut, "<INPUT TYPE=\"HIDDEN\" NAME=\"multiselect_filename\" VALUE=\"%s\">\n", virt_filename);
-                fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s</B>", virt_filename);
+            if(stat(wp.phys_filename, &fileinfo)==0) {
+                fprintf(cgiOut, "<INPUT TYPE=\"HIDDEN\" NAME=\"multiselect_filename\" VALUE=\"%s\">\n", wp.virt_filename);
+                fprintf(cgiOut, "<LI TYPE=\"square\"><B>%s</B>", wp.virt_filename);
                 if(S_ISDIR(fileinfo.st_mode))
-                    fprintf(cgiOut, "/ [directory %s]\n", buprintf(du(phys_filename), FALSE)); 
+                    fprintf(cgiOut, "/ [directory %s]\n", buprintf(du(wp.phys_filename), FALSE)); 
                 else
                     fprintf(cgiOut, " [file %s]\n", buprintf(fileinfo.st_size, FALSE));
             }
@@ -71,11 +71,11 @@ void multiprompt_ui(char *m_action) {
 
     // move needs a destination...
     if(strcmp(m_action, "move")==0) {
-        fprintf(cgiOut, "<P>Source: %s<P>Destination: <SELECT NAME=\"destination\">\n", virt_dirname);
+        fprintf(cgiOut, "<P>Source: %s<P>Destination: <SELECT NAME=\"destination\">\n", wp.virt_dirname);
         fprintf(cgiOut, "<OPTION VALUE=\"/\">/ - Root Directory</OPTION>\n");
         if(cfg.largeset) {
-            level=re_dir_up(virt_dirname);
-            re_dir_ui(virt_dirname, level);
+            level=re_dir_up(wp.virt_dirname);
+            re_dir_ui(wp.virt_dirname, level);
         }
         else {
             re_dir_ui("/", 1);
@@ -96,7 +96,7 @@ void multiprompt_ui(char *m_action) {
         "   </TD></TR>\n"
         "</TABLE></FORM>\n\n"
         "</TD></TR></TABLE>\n"
-        "</BODY>\n</HTML>\n", m_action, virt_dirname, rt.token);
+        "</BODY>\n</HTML>\n", m_action, wp.virt_dirname, rt.token);
 
     cgiStringArrayFree(responses);
 
@@ -138,7 +138,7 @@ void singleprompt_ui(char *m_action) {
         "    Enter new name:<P>\n"
         "    <INPUT TYPE=\"TEXT\" ID=\"inp1\" NAME=\"destination\" SIZE=\"40\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"filename\" VALUE=\"%s\">\n",
-            virt_filename, virt_filename, virt_filename);
+            wp.virt_filename, wp.virt_filename, wp.virt_filename);
 
     else if(strcmp(m_action, "mkfile")==0)
         fprintf(cgiOut,
@@ -163,7 +163,7 @@ void singleprompt_ui(char *m_action) {
         "   </TD></TR>\n"
         "</TABLE></FORM>\n\n"
         "</TD></TR></TABLE>\n"
-        "</BODY>\n</HTML>\n", m_action, virt_dirname, rt.token);
+        "</BODY>\n</HTML>\n", m_action, wp.virt_dirname, rt.token);
 
 }
 
@@ -215,7 +215,7 @@ void error(char *msg, ...) {
             "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
             "</TABLE>\n"
             "</TD></TR></TABLE>\n</BODY></HTML>\n",        
-        buff, cgiScriptName, virt_dirname, rt.token);
+        buff, cgiScriptName, wp.virt_dirname, rt.token);
     }
     else {
         cgiHeaderContentType("text/plain");
@@ -269,6 +269,7 @@ void about(void) {
             "Server: %s<BR>\n"
             "User Agent: %s<BR>\n"
             "NAME_MAX: %d<BR>\n"
+            "PATH_MAX: %d<BR>\n"
             "JavaScript Level: %d<BR>\n"
             "Change Control: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
@@ -287,14 +288,14 @@ void about(void) {
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
-        rt.iconsurl, cfg.tagline, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, NAME_MAX, rt.js,
+        rt.iconsurl, cfg.tagline, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, NAME_MAX, PATH_MAX, rt.js,
 #ifdef WFMGIT
         "Git"
 #else
         "None"
 #endif
         , (repo_check()) ? "No Repo Present" : "Repo OK",    
-        cgiScriptName, virt_dirname, rt.token);
+        cgiScriptName, wp.virt_dirname, rt.token);
 
 }
 
@@ -335,11 +336,11 @@ void login_ui(void) {
         "    <INPUT TYPE=\"HIDDEN\" VALUE=\"login\" NAME=\"action\">\n"
         "    <INPUT TYPE=\"HIDDEN\" VALUE=\"%s\" NAME=\"directory\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" %s Login \" NAME=\"login\" ",
-        cgiScriptName, virt_dirname, (getenv("HTTPS")) ? "SSL" : "Plaintext");
+        cgiScriptName, wp.virt_dirname, (getenv("HTTPS")) ? "SSL" : "Plaintext");
 
     if(rt.js>=2) fprintf(cgiOut,
         "onClick=\"self.location='%s?directory=%s&amp;login=client&amp;rt.token=' + hex_md5('%s:' + hex_md5(document.wfm.username.value + ':' + document.wfm.password.value)); return false;\"",
-        cgiScriptName, virt_dirname_urlencoded, cgiRemoteAddr);
+        cgiScriptName, wp.virt_dirname_urlencoded, cgiRemoteAddr);
 
     fputs(
         ">\n"
@@ -375,7 +376,7 @@ void edit_ui(void) {
         bkcolor="background-color:#EEEEEE; color:#000000;";
 #endif
 
-    input=fopen(phys_filename, "r");
+    input=fopen(wp.phys_filename, "r");
     if(input==NULL) 
         error("Unable to open file.<BR>%s", strerror(errno));
 
@@ -442,7 +443,7 @@ void edit_ui(void) {
             "File Editor: %s\n"
             "</TD>\n"
             "<TD  BGCOLOR=\"#CCCCCC\" ALIGN=\"RIGHT\">",
-            cgiScriptName, (strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0) ? "80" : "100", rt.iconsurl, virt_filename);
+            cgiScriptName, (strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0) ? "80" : "100", rt.iconsurl, wp.virt_filename);
 
 #ifndef WFMGIT
     if(rt.js) fprintf(cgiOut, "<INPUT TYPE=\"button\" ID=\"bakbtn\" onClick=\"chbak()\" VALUE=\"Backup\" STYLE=\"border:none; %s \"> \n", bkcolor);
@@ -478,7 +479,7 @@ void edit_ui(void) {
     "<INPUT TYPE=\"hidden\" NAME=\"rt.token\" VALUE=\"%s\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"backup\" VALUE=\"%s\">\n"
     "</FORM></BODY></HTML>\n",
-    virt_filename,  virt_dirname, rt.token, backup);
+    wp.virt_filename,  wp.virt_dirname, rt.token, backup);
 
     free(buff);
 

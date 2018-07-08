@@ -9,7 +9,7 @@ void html_title(char *msg) {
         HTML_HEADER
         "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "<TITLE>%s : %s</TITLE>\n",
-        rt.iconsurl, cfg.favicon, cfg.tagline, msg); // (strlen(virt_dirname)>0) ? ' ' : '/', TAGLINE, virt_dirname
+        rt.iconsurl, cfg.favicon, cfg.tagline, msg); // (strlen(wp.virt_dirname)>0) ? ' ' : '/', TAGLINE, wp.virt_dirname
 }
 
 
@@ -115,7 +115,7 @@ void login(void) {
     cgiFormStringNoNewlines("password", password, sizeof(password));
     
     if(strlen(username) && strlen(password)) 
-        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, md5hash("%s:%s", cgiRemoteAddr, md5hash("%s:%s", username, password)));  // generate MD5 as if it was the client
+        redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, wp.virt_dirname_urlencoded, md5hash("%s:%s", cgiRemoteAddr, md5hash("%s:%s", username, password)));  // generate MD5 as if it was the client
     else
         login_ui(); // display actual login page, which normally generates token in JavaScript
         
@@ -177,17 +177,17 @@ void access_check(char *access_string) {
 // Function can be passed implicit filename or use the global variable
 //
 void checkfilename(char *inp_filename) {
-    char temp_dirname[PHYS_FILENAME_SIZE]={0};
-    char temp_filename[VIRT_FILENAME_SIZE]={0};
+    char temp_dirname[sizeof(wp.phys_filename)]={0};
+    char temp_filename[sizeof(wp.virt_filename)]={0};
     char *bname;
 
     if(inp_filename && strlen(inp_filename)) {
-        strncpy(temp_filename, inp_filename, VIRT_FILENAME_SIZE);
+        strncpy(temp_filename, inp_filename, sizeof(wp.virt_filename));
     }
-    else if(cgiFormFileName("filename", temp_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
+    else if(cgiFormFileName("filename", temp_filename, sizeof(wp.virt_filename)) == cgiFormSuccess) {
         
     }
-    else if(cgiFormStringNoNewlines("filename", temp_filename, VIRT_FILENAME_SIZE) == cgiFormSuccess) {
+    else if(cgiFormStringNoNewlines("filename", temp_filename, sizeof(wp.virt_filename)) == cgiFormSuccess) {
         
     }
     else
@@ -203,20 +203,20 @@ void checkfilename(char *inp_filename) {
     else
         (void) *bname++;
 
-    strip(bname, VIRT_FILENAME_SIZE, VALIDCHRS);
-    strncpy(virt_filename, bname, VIRT_FILENAME_SIZE);
-    snprintf(phys_filename, PHYS_FILENAME_SIZE, "%s/%s", phys_dirname, virt_filename);
+    strip(bname, sizeof(wp.virt_filename), VALIDCHRS);
+    strncpy(wp.virt_filename, bname, sizeof(wp.virt_filename));
+    snprintf(wp.phys_filename, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_filename);
 
     // Do checks
-    if(!strlen(phys_filename) || strlen(phys_filename)>(PHYS_FILENAME_SIZE-2)) error("Invalid phys_filename lenght [%d]", strlen(phys_filename));
-    if(!strlen(virt_filename) || strlen(virt_filename)>(VIRT_FILENAME_SIZE-2)) error("Invalid virt_filename lenght [%d]", strlen(virt_filename));
-    if(regexec(&dotdot, phys_filename, 0, 0, 0)==0) error("Double dots in pfilename");
-    if(regexec(&dotdot, virt_filename, 0, 0, 0)==0) error("Double dots in vfilename");
+    if(!strlen(wp.phys_filename) || strlen(wp.phys_filename)>(sizeof(wp.phys_filename)-2)) error("Invalid wp.phys_filename lenght [%d]", strlen(wp.phys_filename));
+    if(!strlen(wp.virt_filename) || strlen(wp.virt_filename)>(sizeof(wp.virt_filename)-2)) error("Invalid wp.virt_filename lenght [%d]", strlen(wp.virt_filename));
+    if(regexec(&dotdot, wp.phys_filename, 0, 0, 0)==0) error("Double dots in pfilename");
+    if(regexec(&dotdot, wp.virt_filename, 0, 0, 0)==0) error("Double dots in vfilename");
 
-    strncpy(temp_dirname, phys_filename, PHYS_FILENAME_SIZE);
+    strncpy(temp_dirname, wp.phys_filename, sizeof(wp.phys_filename));
     if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) error("Invalid directory name.");
 
-    virt_filename_urlencoded=url_encode(virt_filename);
+    wp.virt_filename_urlencoded=url_encode(wp.virt_filename);
 }
 
 //
@@ -226,18 +226,18 @@ void checkfilename(char *inp_filename) {
 void checkdestination(void) {
     int absolute_destination;
     
-    cgiFormStringNoNewlines("destination", virt_destination, VIRT_DESTINATION_SIZE);
-    strip(virt_destination, VIRT_DESTINATION_SIZE, VALIDCHRS_DIR);
+    cgiFormStringNoNewlines("destination", wp.virt_destination, sizeof(wp.virt_filename));
+    strip(wp.virt_destination, sizeof(wp.virt_filename), VALIDCHRS_DIR);
     cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths
     if(absolute_destination)
-        snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", cfg.homedir, virt_destination);
+        snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", cfg.homedir, wp.virt_destination);
     else
-        snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", phys_dirname, virt_destination);
+        snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_destination);
 
-    if(strlen(phys_destination)<1 || strlen(phys_destination)>(PHYS_DESTINATION_SIZE-2)) error("Invalid phys_destination lenght [%d]", strlen(phys_destination));
-    if(strlen(virt_destination)<1 || strlen(virt_destination)>(VIRT_DESTINATION_SIZE-2)) error("Invalid virt_destination lenght [%d]", strlen(virt_destination));
-    if(regexec(&dotdot, phys_destination, 0, 0, 0)==0) error("Double dots in pfilename");
-    if(regexec(&dotdot, virt_destination, 0, 0, 0)==0) error("Double dots in vfilename");
+    if(strlen(wp.phys_destination)<1 || strlen(wp.phys_destination)>(sizeof(wp.phys_filename)-2)) error("Invalid wp.phys_destination lenght [%d]", strlen(wp.phys_destination));
+    if(strlen(wp.virt_destination)<1 || strlen(wp.virt_destination)>(sizeof(wp.virt_filename)-2)) error("Invalid wp.virt_destination lenght [%d]", strlen(wp.virt_destination));
+    if(regexec(&dotdot, wp.phys_destination, 0, 0, 0)==0) error("Double dots in pfilename");
+    if(regexec(&dotdot, wp.virt_destination, 0, 0, 0)==0) error("Double dots in vfilename");
 }
 
 //
@@ -245,26 +245,26 @@ void checkdestination(void) {
 // Only called by cgiMain during initialization
 //
 void checkdirectory(void) {
-    char temp[VIRT_DIRNAME_SIZE]={0};
+    char temp[sizeof(wp.virt_dirname)]={0};
     
-    cgiFormStringNoNewlines("directory", virt_dirname, VIRT_DIRNAME_SIZE);
-    strip(virt_dirname, VIRT_DIRNAME_SIZE, VALIDCHRS_DIR);
-    snprintf(phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", cfg.homedir, virt_dirname);
+    cgiFormStringNoNewlines("directory", wp.virt_dirname, sizeof(wp.virt_dirname));
+    strip(wp.virt_dirname, sizeof(wp.virt_dirname), VALIDCHRS_DIR);
+    snprintf(wp.phys_dirname, sizeof(wp.phys_dirname), "%s/%s", cfg.homedir, wp.virt_dirname);
 
-    if(strlen(phys_dirname)<2 || strlen(phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
+    if(strlen(wp.phys_dirname)<2 || strlen(wp.phys_dirname)>(sizeof(wp.phys_dirname)-2)) 
         error("Invalid directory name.");
 
-    if(regexec(&dotdot, phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-    if(strlen(phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
+    if(regexec(&dotdot, wp.phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
+    if(strlen(wp.phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
 
-    if(!strlen(virt_dirname)) strcpy(virt_dirname, "/");
+    if(!strlen(wp.virt_dirname)) strcpy(wp.virt_dirname, "/");
 
-    virt_dirname_urlencoded=url_encode(virt_dirname);
+    wp.virt_dirname_urlencoded=url_encode(wp.virt_dirname);
 
     // parent
-    strncpy(temp, virt_dirname, VIRT_DIRNAME_SIZE);
-    strncpy(virt_parent, dirname(temp), VIRT_DIRNAME_SIZE);
-    virt_parent_urlencoded=url_encode(virt_parent);
+    strncpy(temp, wp.virt_dirname, sizeof(wp.virt_dirname));
+    strncpy(wp.virt_parent, dirname(temp), sizeof(wp.virt_dirname));
+    wp.virt_parent_urlencoded=url_encode(wp.virt_parent);
 }
 
 
@@ -480,6 +480,7 @@ void cfgload(void) {
 
     memset(&cfg, 0, sizeof(cfg));
     memset(&rt, 0, sizeof(rt));
+    memset(&wp, 0, sizeof(wp));
 
     cgiFormStringNoNewlines("token", rt.token, sizeof(rt.token));
     snprintf(rt.iconsurl, sizeof(rt.iconsurl), "%s?ea=icon&amp;name=", cgiScriptName);
@@ -551,15 +552,6 @@ int cgiMain(void) {
     tstart();
 
     fprintf(cgiOut, "Cache-Control: max-age=0, private\r\nExpires: -1\r\n");
-
-    memset(virt_dirname, 0, VIRT_DIRNAME_SIZE);
-    memset(phys_dirname, 0, PHYS_DIRNAME_SIZE); 
-    memset(virt_filename, 0, VIRT_FILENAME_SIZE); 
-    memset(phys_filename, 0, PHYS_FILENAME_SIZE);
-    memset(virt_destination, 0, VIRT_DESTINATION_SIZE); 
-    memset(phys_destination, 0, PHYS_DESTINATION_SIZE);
-    memset(final_destination, 0, PHYS_DESTINATION_SIZE);
-    memset(virt_parent, 0, VIRT_DIRNAME_SIZE);
 
     cfgload();
 

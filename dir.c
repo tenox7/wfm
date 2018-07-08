@@ -58,7 +58,7 @@ void dir_icoinita(void) {
 void dirlist(void) {
     ASDIR *direntry;
     off_t size, totalsize=0;
-    char highlight[VIRT_FILENAME_SIZE]={0};
+    char highlight[sizeof(wp.virt_filename)]={0};
     char namepfx[1024], sizepfx[1024], datepfx[1024];
     char rtime[64], mtime[64], atime[64];
     char *stime;
@@ -74,7 +74,7 @@ void dirlist(void) {
     if(upload_id<1)
         upload_id=now; // holy shit
 
-    cgiFormStringNoNewlines("highlight", highlight, VIRT_FILENAME_SIZE-1); //TODO: urlencode ?
+    cgiFormStringNoNewlines("highlight", highlight, sizeof(wp.virt_filename)-1); //TODO: urlencode ?
     cgiFormStringNoNewlines("sortby", sortby, 63);
     if(strlen(sortby)<4)
         snprintf(sortby, 63, "name");
@@ -82,13 +82,13 @@ void dirlist(void) {
     //
     // Get and Print Directory Entries
     //
-         if(strcmp(sortby, "name")==0)        nentr=asscandir(phys_dirname, &direntry, namesort);
-    else if(strcmp(sortby, "rname")==0)       nentr=asscandir(phys_dirname, &direntry, rnamesort);
-    else if(strcmp(sortby, "size")==0)        nentr=asscandir(phys_dirname, &direntry, sizesort);
-    else if(strcmp(sortby, "rsize")==0)       nentr=asscandir(phys_dirname, &direntry, rsizesort);
-    else if(strcmp(sortby, "date")==0)        nentr=asscandir(phys_dirname, &direntry, timesort);
-    else if(strcmp(sortby, "rdate")==0)       nentr=asscandir(phys_dirname, &direntry, rtimesort);
-    else                                      nentr=asscandir(phys_dirname, &direntry, namesort);
+         if(strcmp(sortby, "name")==0)        nentr=asscandir(wp.phys_dirname, &direntry, namesort);
+    else if(strcmp(sortby, "rname")==0)       nentr=asscandir(wp.phys_dirname, &direntry, rnamesort);
+    else if(strcmp(sortby, "size")==0)        nentr=asscandir(wp.phys_dirname, &direntry, sizesort);
+    else if(strcmp(sortby, "rsize")==0)       nentr=asscandir(wp.phys_dirname, &direntry, rsizesort);
+    else if(strcmp(sortby, "date")==0)        nentr=asscandir(wp.phys_dirname, &direntry, timesort);
+    else if(strcmp(sortby, "rdate")==0)       nentr=asscandir(wp.phys_dirname, &direntry, rtimesort);
+    else                                      nentr=asscandir(wp.phys_dirname, &direntry, namesort);
 
     dir_icoinita();
 
@@ -103,7 +103,7 @@ void dirlist(void) {
         "<HTML LANG=\"en\">\n"
         "<HEAD>\n"
         "<TITLE>%s : %c%s</TITLE>\n",
-        COPYRIGHT, cfg.tagline, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname);
+        COPYRIGHT, cfg.tagline, (strlen(wp.virt_dirname)>0) ? ' ' : '/', wp.virt_dirname);
 
     if(rt.js) fprintf(cgiOut,
         "<SCRIPT LANGUAGE=\"JavaScript\" TYPE=\"text/javascript\">\n"
@@ -193,7 +193,7 @@ void dirlist(void) {
                 "&nbsp;<IMG SRC=\"%s%s\" ALIGN=\"MIDDLE\" ALT=\"WFM\">\n"
                 "%s : %c%s \n"
                 "<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n",
-            rt.iconsurl, cfg.favicon, cfg.tagline, (strlen(virt_dirname)>0) ? ' ' : '/', virt_dirname 
+            rt.iconsurl, cfg.favicon, cfg.tagline, (strlen(wp.virt_dirname)>0) ? ' ' : '/', wp.virt_dirname 
     );
 
 
@@ -202,12 +202,12 @@ void dirlist(void) {
         fprintf(cgiOut, 
             "<A HREF=\"%s?action=login&amp;directory=%s\">"
             "&nbsp;<IMG SRC=\"%s%s.gif\" ALIGN=\"MIDDLE\" BORDER=\"0\" ALT=\"Access\"></A>&nbsp;%s\n",  
-            cgiScriptName, virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level]);
+            cgiScriptName, wp.virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level]);
     else
         fprintf(cgiOut, 
             "<A HREF=\"%s?directory=%s\"><IMG SRC=\"%s%s.gif\" BORDER=\"0\" ALIGN=\"MIDDLE\" ALT=\"Access\">"
             "</A>&nbsp;%s&nbsp;<IMG SRC=\"%suser.gif\" ALIGN=\"MIDDLE\" ALT=\"User\">&nbsp;%s&nbsp;\n",
-            cgiScriptName, virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level], rt.iconsurl, rt.loggedinuser);
+            cgiScriptName, wp.virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level], rt.iconsurl, rt.loggedinuser);
 
     // about / version
     fprintf(cgiOut, 
@@ -216,7 +216,7 @@ void dirlist(void) {
             "</TD>\n"\
             "</TR>\n"\
             "</TABLE>\n",
-            rt.iconsurl, cgiRemoteAddr, cgiScriptName, virt_dirname_urlencoded, rt.token, rt.iconsurl, VERSION);
+            rt.iconsurl, cgiRemoteAddr, cgiScriptName, wp.virt_dirname_urlencoded, rt.token, rt.iconsurl, VERSION);
 
 
 
@@ -233,7 +233,7 @@ void dirlist(void) {
                     "<IMG SRC=\"%sdir_up.gif\" BORDER=0 ALIGN=\"MIDDLE\" WIDTH=\"16\" HEIGHT=\"16\" ALT=\"Dir Up\">&nbsp;Up"
                  "</A>\n"
                 "</TD>\n",
-                cgiScriptName, sortby, virt_parent_urlencoded, rt.token, rt.iconsurl);
+                cgiScriptName, sortby, wp.virt_parent_urlencoded, rt.token, rt.iconsurl);
 
     fprintf(cgiOut,                 
                 "<!-- HOME -->\n"
@@ -251,7 +251,7 @@ void dirlist(void) {
                          "<IMG SRC=\"%sreload.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"Reload\">&nbsp;Refresh"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, sortby, virt_dirname_urlencoded, rt.token, rt.iconsurl);
+                cgiScriptName, sortby, wp.virt_dirname_urlencoded, rt.token, rt.iconsurl);
 
     fprintf(cgiOut,                 
                 "<!-- MULTI DELETE -->\n"\
@@ -276,7 +276,7 @@ void dirlist(void) {
                             "<IMG SRC=\"%smkdir.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New Folder\">&nbsp;New Folder\n"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, virt_dirname_urlencoded, rt.token, rt.iconsurl);
+                cgiScriptName, wp.virt_dirname_urlencoded, rt.token, rt.iconsurl);
                 
 
     fprintf(cgiOut,                                 
@@ -286,7 +286,7 @@ void dirlist(void) {
                             "<IMG SRC=\"%smkfile.gif\" BORDER=0 ALIGN=\"MIDDLE\" ALT=\"New File\">&nbsp;New File"
                      "</A>\n"
                 "</TD>\n",
-                cgiScriptName, virt_dirname_urlencoded, rt.token, rt.iconsurl);
+                cgiScriptName, wp.virt_dirname_urlencoded, rt.token, rt.iconsurl);
 
 
                 
@@ -301,39 +301,39 @@ void dirlist(void) {
                 "</TD>\n"
                 "</TR>\n"
             "</TABLE>\n",
-            virt_dirname, rt.token, upload_id, (rt.access_level==PERM_RW) ? " " : "DISABLED"); 
+            wp.virt_dirname, rt.token, upload_id, (rt.access_level==PERM_RW) ? " " : "DISABLED"); 
 
     //
     // SORT BY
     //
     if(strcmp(sortby, "size")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, ADNIMG);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "rsize")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, AUPIMG);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "date")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
     } else if(strcmp(sortby, "rdate")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
     } else if(strcmp(sortby, "name")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, ADNIMG);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "rname")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, virt_dirname_urlencoded, rt.token, AUPIMG);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, virt_dirname_urlencoded, rt.token);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     }
 
 
@@ -444,7 +444,7 @@ void dirlist(void) {
             "<TD NOWRAP  ALIGN=\"RIGHT\"><SPAN TITLE=\"Created:%s\n Modified:%s\n Accessed:%s\n\">%s&nbsp;%s</FONT></SPAN></TD>\n"\
             "<TD NOWRAP >&nbsp;</TD>"\
             "<TD NOWRAP  ALIGN=\"LEFT\">",
-        cgiScriptName, sortby, (strcmp(virt_dirname, "/")==0) ? "" : virt_dirname_urlencoded, name_urlencoded,  rt.token, icon, name,  
+        cgiScriptName, sortby, (strcmp(wp.virt_dirname, "/")==0) ? "" : wp.virt_dirname_urlencoded, name_urlencoded,  rt.token, icon, name,  
         buprintf(size, TRUE), rtime, mtime, atime, stime, mtime);
 
         // rename
@@ -452,14 +452,14 @@ void dirlist(void) {
             "<A HREF=\"%s?action=rename_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Rename '%s'\">\n"\
             "<IMG SRC=\"%srename.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Rename File\">\n"\
             "</A>\n",
-            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+            cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
         // move
         fprintf(cgiOut, "\n"\
             "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move '%s'\">\n"\
             "<IMG SRC=\"%smove.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Move File\">\n"\
             "</A>\n",
-        cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+        cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
         // delete
         fprintf(cgiOut, "\n"\
@@ -468,7 +468,7 @@ void dirlist(void) {
             "</A>\n"\
             "</TD>\n"\
             "</TR>\n\n\n",
-        cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+        cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
                   
         totalsize+=size;
         n++;
@@ -542,7 +542,7 @@ void dirlist(void) {
         fprintf(cgiOut,
             ">\n<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
             "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
-        name, cgiScriptName, (cfg.edit_by_default && editable) ? "edit" : "sendfile", virt_dirname_urlencoded, name_urlencoded, rt.token, name, icon, name);
+        name, cgiScriptName, (cfg.edit_by_default && editable) ? "edit" : "sendfile", wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, icon, name);
 
 
         // size / date
@@ -562,7 +562,7 @@ void dirlist(void) {
             "<A HREF=\"%s?action=rename_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Rename '%s'\">\n"
             "<IMG SRC=\"%srename.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Rename File\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+            cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
         // move
         fprintf(cgiOut, 
@@ -570,7 +570,7 @@ void dirlist(void) {
             "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move '%s'\">"
             "<IMG SRC=\"%smove.gif\" BORDER=0 WIDTH=16 HEIGHT=16  ALT=\"Move '%s'\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name,  rt.iconsurl, name);
+            cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name,  rt.iconsurl, name);
 
         // delete
         fprintf(cgiOut, 
@@ -579,7 +579,7 @@ void dirlist(void) {
             "TITLE=\"Remove '%s'\"> \n"
             "<IMG SRC=\"%sdelete.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Delete File\">\n"
             "</A>\n",
-            cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+            cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
 
         // view
@@ -589,7 +589,7 @@ void dirlist(void) {
                 "<A HREF=\"%s%s%s/%s\" TITLE=\"Preview '%s' In Browser\">\n"
                 "<IMG SRC=\"%sext.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Preview '%s' In Browser\" >\n"
                 "</A>\n", 
-            cfg.homeurl, (virt_dirname[0]!='/') ? "/" : "", (strcmp(virt_dirname, "/")==0) ? "" : virt_dirname, name, name, rt.iconsurl,  name);
+            cfg.homeurl, (wp.virt_dirname[0]!='/') ? "/" : "", (strcmp(wp.virt_dirname, "/")==0) ? "" : wp.virt_dirname, name, name, rt.iconsurl,  name);
 
         
         // edit for text files..
@@ -602,7 +602,7 @@ void dirlist(void) {
                     "</A>\n"
                     "</TD>\n"
                     "</TR>\n\n",
-                cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+                cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
             else
                 fprintf(cgiOut, 
                     "\n"
@@ -611,7 +611,7 @@ void dirlist(void) {
                     "</A>\n"
                     "</TD>\n"
                     "</TR>\n\n",
-                cgiScriptName, virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
+                cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
         }
         else {
             fprintf(cgiOut, 

@@ -61,7 +61,7 @@
 #include "wfmiconres.h"
 
 #define VALIDCHRS "an ()[]{}-_.,!@#$%^&=+;"
-#define VALIDCHRS_DIR "an ()[]{}-_.,!@#$%^&=+;/"
+#define VALIDCHRS_DIR VALIDCHRS "/"
 
 
 #define P1024_1 1024.0f
@@ -71,25 +71,19 @@
 
 #define SHM_SIZE 16
 
-#define VIRT_DIRNAME_SIZE NAME_MAX  // around 255
-#define PHYS_DIRNAME_SIZE 1024
-#define VIRT_FILENAME_SIZE NAME_MAX
-#define PHYS_FILENAME_SIZE 1280
-#define VIRT_DESTINATION_SIZE NAME_MAX
-#define PHYS_DESTINATION_SIZE 1280
-
-char virt_dirname[VIRT_DIRNAME_SIZE];
-char *virt_dirname_urlencoded;
-char phys_dirname[PHYS_DIRNAME_SIZE]; 
-char virt_filename[VIRT_FILENAME_SIZE]; 
-char *virt_filename_urlencoded; 
-char phys_filename[PHYS_FILENAME_SIZE];
-char virt_destination[VIRT_DESTINATION_SIZE]; 
-char phys_destination[PHYS_DESTINATION_SIZE];
-char final_destination[PHYS_DESTINATION_SIZE];
-char virt_parent[VIRT_DIRNAME_SIZE];
-char *virt_parent_urlencoded;
-
+struct  wfm_paths {
+    char virt_dirname[NAME_MAX];
+    char *virt_dirname_urlencoded;
+    char virt_filename[NAME_MAX]; 
+    char *virt_filename_urlencoded; 
+    char virt_destination[NAME_MAX]; 
+    char virt_parent[NAME_MAX];
+    char *virt_parent_urlencoded;
+    char phys_dirname[PATH_MAX]; 
+    char phys_filename[PATH_MAX];
+    char phys_destination[PATH_MAX];
+    char final_destination[PATH_MAX];
+} wp;
 
 regex_t dotdot;
 

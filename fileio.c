@@ -10,20 +10,20 @@
 
     printf(
         "virt_dirname=%s\n"
-        "phys_dirname=%s\n"
-        "virt_filename=%s\n"
-        "phys_filename=%s\n"
-        "virt_destination=%s\n"
-        "phys_destination=%s\n"
-  //      "final_destination=%s\n"
+        "wp.phys_dirname=%s\n"
+        "wp.virt_filename=%s\n"
+        "wp.phys_filename=%s\n"
+        "wp.virt_destination=%s\n"
+        "wp.phys_destination=%s\n"
+  //      "wp.final_destination=%s\n"
         "virt_parent=%s\n",
         virt_dirname,
-        phys_dirname,
-        virt_filename,
-        phys_filename,
-        virt_destination,
-        phys_destination,
-    //    final_destination,
+        wp.phys_dirname,
+        wp.virt_filename,
+        wp.phys_filename,
+        wp.virt_destination,
+        wp.phys_destination,
+    //    wp.final_destination,
         virt_parent
    );
 
@@ -43,7 +43,7 @@ void sendfile(void) {
     checkfilename(NULL);
 
     // TODO: 2gb file limit?
-    in=fopen(phys_filename, "rb");
+    in=fopen(wp.phys_filename, "rb");
     if(!in)
         error("Unable to open file.<BR>%s", strerror(errno));
 
@@ -55,7 +55,7 @@ void sendfile(void) {
         "Content-Type: application/octet-stream\r\n"
         "Content-Disposition: attachment; filename=\"%s\"; size=%d\r\n"
         "Content-Length: %d\r\n\r\n", 
-        virt_filename, size, size
+        wp.virt_filename, size, size
     );
 
     blk=sizeof(buff);
@@ -99,12 +99,12 @@ void receivefile(void) {
     if(cgiFormFileOpen("filename", &input) != cgiFormSuccess) 
         error("Unable to access uploaded file.");
 
-    output=fopen(phys_filename, "wb");
+    output=fopen(wp.phys_filename, "wb");
     if(!output) 
-        error("Unable to open file %s for writing.<BR>%s", virt_filename, strerror(errno));
+        error("Unable to open file %s for writing.<BR>%s", wp.virt_filename, strerror(errno));
 
     if(flock(fileno(output), LOCK_EX) == -1)
-        error("Unable to lock file %s.<BR>%s", virt_filename, strerror(errno));
+        error("Unable to lock file %s.<BR>%s", wp.virt_filename, strerror(errno));
 
     while(cgiFormFileRead(input, buff, sizeof(buff), &got) == cgiFormSuccess) 
         if(got)
@@ -116,7 +116,7 @@ void receivefile(void) {
 
     wfm_commit(CHANGE, NULL);
     
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -129,7 +129,7 @@ void mkfile(void) {
 
     checkfilename(NULL);
 
-    output=fopen(phys_filename, "a"); //TODO: should probably give error if file already exists...
+    output=fopen(wp.phys_filename, "a"); //TODO: should probably give error if file already exists...
 
     if(!output) 
         error("Unable to create file.<BR>%s", strerror(errno));
@@ -138,7 +138,7 @@ void mkfile(void) {
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -150,10 +150,10 @@ void newdir(void) {
 
     checkfilename(NULL);
 
-    if(mkdir(phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
+    if(mkdir(wp.phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -170,7 +170,7 @@ void edit_save(void) {
     FILE *tempf;
 #ifndef WFMGIT
     char backup[4]={0};
-    char backup_filename[PHYS_DESTINATION_SIZE]={0};
+    char backup_filename[sizeof(wp.phys_dirname)]={0};
     regex_t re;
     regmatch_t pmatch;
 #endif
@@ -197,18 +197,18 @@ void edit_save(void) {
 
     if(strcmp(backup, "yes")==0) {
         regcomp(&re, "\\.(.+)$", REG_EXTENDED|REG_ICASE);
-        if(regexec(&re, phys_filename, 1, &pmatch, 0)==0) {
-            if(pmatch.rm_so+4 < PHYS_DESTINATION_SIZE) {
-                strcpy(backup_filename, phys_filename);
+        if(regexec(&re, wp.phys_filename, 1, &pmatch, 0)==0) {
+            if(pmatch.rm_so+4 < sizeof(wp.phys_dirname)) {
+                strcpy(backup_filename, wp.phys_filename);
                 strcpy(backup_filename+pmatch.rm_so+1, "bak\0");
-                if(rename(phys_filename, backup_filename)!=0)
-                    error("Unable to create .bak file.<BR>%s was not modified.<BR>%s", virt_filename, strerror(errno));
+                if(rename(wp.phys_filename, backup_filename)!=0)
+                    error("Unable to create .bak file.<BR>%s was not modified.<BR>%s", wp.virt_filename, strerror(errno));
             }
         }
     }
 #endif
     // write to temporary file
-    snprintf(tempname, sizeof(tempname), "%s/.wfmXXXXXX", phys_dirname);
+    snprintf(tempname, sizeof(tempname), "%s/.wfmXXXXXX", wp.phys_dirname);
     
     tmpfd=mkstemp(tempname);
 
@@ -235,17 +235,17 @@ void edit_save(void) {
         error("Unable to check temporary file size.<BR>%s<BR>%s", basename(tempname), strerror(errno));
 
     if(tmpstat.st_size != strlen(buff))
-        error("Temprary file has a wrong length. Giving up.<BR>%s size=%d, buff len=%d", virt_filename, tmpstat.st_size);
+        error("Temprary file has a wrong length. Giving up.<BR>%s size=%d, buff len=%d", wp.virt_filename, tmpstat.st_size);
 
     // finally rename to desination file
-    if(rename(tempname, phys_filename)!=0)
-        error("Unable to rename temp file.<BR>%s - %s<BR>%s<BR>", basename(tempname), virt_filename, strerror(errno));
+    if(rename(tempname, wp.phys_filename)!=0)
+        error("Unable to rename temp file.<BR>%s - %s<BR>%s<BR>", basename(tempname), wp.virt_filename, strerror(errno));
 
     free(buff);
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -256,7 +256,7 @@ void fileio_re_rmdir(char *dirname) {
     DIR *dir;
     struct dirent *direntry;
     struct stat fileinfo;
-    char tempfullpath[PHYS_FILENAME_SIZE]={0};
+    char tempfullpath[sizeof(wp.phys_filename)]={0};
 
     dir=opendir(dirname);
     if(!dir) 
@@ -266,7 +266,7 @@ void fileio_re_rmdir(char *dirname) {
     direntry=readdir(dir);
     while(direntry!=0) {
         if(strncmp(direntry->d_name, ".", 1) && strncmp(direntry->d_name, "..", 2)) {
-            snprintf(tempfullpath, PHYS_FILENAME_SIZE, "%s/%s", dirname, direntry->d_name);
+            snprintf(tempfullpath, sizeof(wp.phys_filename), "%s/%s", dirname, direntry->d_name);
 
             if(lstat(tempfullpath, &fileinfo)!=0)  
                 error("Unable to get file status.<BR>%s", strerror(errno));
@@ -296,14 +296,14 @@ void fileio_re_rmdir(char *dirname) {
 void fileio_delete(void) {
         struct stat fileinfo;
 
-        if(lstat(phys_filename, &fileinfo)==0) {
+        if(lstat(wp.phys_filename, &fileinfo)==0) {
             if(S_ISDIR(fileinfo.st_mode)) {
-                fileio_re_rmdir(phys_filename);
-                if(rmdir(phys_filename)!=0)
+                fileio_re_rmdir(wp.phys_filename);
+                if(rmdir(wp.phys_filename)!=0)
                     error("Unable to remove directory.<BR>%s", strerror(errno));
             }
             else {
-                if(unlink(phys_filename)!=0) 
+                if(unlink(wp.phys_filename)!=0) 
                     error("Unable to remove file.<BR>%s", strerror(errno));
 
                 wfm_commit(DELETE, NULL);
@@ -333,7 +333,7 @@ void delete(void) {
         }
     }           
 
-    redirect("%s?directory=%s&rt.token=%s", cgiScriptName, virt_dirname_urlencoded, rt.token);
+    redirect("%s?directory=%s&rt.token=%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -344,13 +344,13 @@ void fileio_move(void) {
     struct stat fileinfo;
 
     // If moving file to a different directory we need to append the original file name to destination
-    if( stat(phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) )  
-        snprintf(final_destination, sizeof(final_destination), "%s/%s", phys_destination, virt_filename);
+    if( stat(wp.phys_destination, &fileinfo)==0 && S_ISDIR(fileinfo.st_mode) )  
+        snprintf(wp.final_destination, sizeof(wp.final_destination), "%s/%s", wp.phys_destination, wp.virt_filename);
     else 
-        strncpy(final_destination, phys_destination, sizeof(final_destination));
+        strncpy(wp.final_destination, wp.phys_destination, sizeof(wp.final_destination));
     
-    if(rename(phys_filename, final_destination)!=0) 
-        error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), phys_filename, final_destination);
+    if(rename(wp.phys_filename, wp.final_destination)!=0) 
+        error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), wp.phys_filename, wp.final_destination);
 
     wfm_commit(MOVE, NULL);
 
@@ -379,7 +379,7 @@ void move(void) {
         }
     }           
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, url_encode(virt_destination), virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, url_encode(wp.virt_destination), wp.virt_dirname_urlencoded, rt.token);
 }
 
 
@@ -390,7 +390,7 @@ off_t du(char *pdir) {
     DIR *dir;
     struct dirent *direntry;
     struct stat fileinfo;
-    char child[PHYS_DIRNAME_SIZE]={0};
+    char child[sizeof(wp.phys_dirname)]={0};
     off_t tot=0;
 
     if(lstat(pdir, &fileinfo)==0)
@@ -401,7 +401,7 @@ off_t du(char *pdir) {
     if(dir) {
         direntry=readdir(dir);
         while(direntry) {
-            snprintf(child, PHYS_DIRNAME_SIZE, "%s/%s", pdir, direntry->d_name);
+            snprintf(child, sizeof(wp.phys_dirname), "%s/%s", pdir, direntry->d_name);
             if(lstat(child, &fileinfo)==0) {
                 if(S_ISDIR(fileinfo.st_mode)) {
                     if(direntry->d_name[0]=='.' && direntry->d_name[1]=='\0') 
@@ -430,15 +430,15 @@ off_t du(char *pdir) {
 void re_dir_ui(char *vdir, int level) {
     struct dirent **direntry;
     struct stat fileinfo;
-    char child[VIRT_DIRNAME_SIZE]={0};
-    char phy_child[PHYS_DIRNAME_SIZE]={0};
-    char re_phys_dirname[PHYS_DIRNAME_SIZE]={0};
+    char child[sizeof(wp.virt_dirname)]={0};
+    char phy_child[sizeof(wp.phys_dirname)]={0};
+    char re_phys_dirname[sizeof(wp.phys_dirname)]={0};
     int n;
     int nentr, e;
     
-    snprintf(re_phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", cfg.homedir, vdir);
+    snprintf(re_phys_dirname, sizeof(re_phys_dirname), "%s/%s", cfg.homedir, vdir);
 
-    if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
+    if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(sizeof(wp.phys_dirname)-2)) 
         error("Invalid directory name.");
 
     if(regexec(&dotdot, re_phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
@@ -447,11 +447,11 @@ void re_dir_ui(char *vdir, int level) {
     nentr=scandir(re_phys_dirname, &direntry, 0, alphasort);
 
     for(e=0; e<nentr; e++) {
-        snprintf(phy_child, PHYS_DIRNAME_SIZE, "%s/%s/%s", cfg.homedir, vdir, direntry[e]->d_name);
+        snprintf(phy_child, sizeof(phy_child), "%s/%s/%s", cfg.homedir, vdir, direntry[e]->d_name);
         if((direntry[e]->d_name[0]!='.') && (lstat(phy_child, &fileinfo)==0) && S_ISDIR(fileinfo.st_mode))  {
 
 
-            snprintf(child, VIRT_DIRNAME_SIZE, "%s/%s", vdir, direntry[e]->d_name); 
+            snprintf(child, sizeof(wp.virt_dirname), "%s/%s", vdir, direntry[e]->d_name); 
 
             fprintf(cgiOut, "<OPTION VALUE=\"%s\">", child);
 
@@ -475,7 +475,7 @@ void re_dir_ui(char *vdir, int level) {
 int re_dir_up(char *vdir) {
     int n,nn,m,len;
     char **dirs;
-    char tmp[sizeof(virt_dirname)]={0};
+    char tmp[sizeof(wp.virt_dirname)]={0};
 
     strcpy(tmp, vdir);
     len=strsplit(tmp, &dirs, "/.");
