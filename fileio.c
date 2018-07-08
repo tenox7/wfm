@@ -116,7 +116,7 @@ void receivefile(void) {
 
     wfm_commit(CHANGE, NULL);
     
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -138,7 +138,7 @@ void mkfile(void) {
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -153,7 +153,7 @@ void newdir(void) {
     if(mkdir(phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -245,7 +245,7 @@ void edit_save(void) {
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, virt_filename_urlencoded, virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -333,7 +333,7 @@ void delete(void) {
         }
     }           
 
-    redirect("%s?directory=%s&token=%s", cgiScriptName, virt_dirname_urlencoded, token);
+    redirect("%s?directory=%s&rt.token=%s", cgiScriptName, virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -379,7 +379,7 @@ void move(void) {
         }
     }           
 
-    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, url_encode(virt_destination), virt_dirname_urlencoded, token);
+    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, url_encode(virt_destination), virt_dirname_urlencoded, rt.token);
 }
 
 
@@ -436,18 +436,18 @@ void re_dir_ui(char *vdir, int level) {
     int n;
     int nentr, e;
     
-    snprintf(re_phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", HOMEDIR, vdir);
+    snprintf(re_phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", cfg.homedir, vdir);
 
     if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
         error("Invalid directory name.");
 
     if(regexec(&dotdot, re_phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-    if(strlen(re_phys_dirname) < strlen(HOMEDIR)) error("Invalid directory name.");
+    if(strlen(re_phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
 
     nentr=scandir(re_phys_dirname, &direntry, 0, alphasort);
 
     for(e=0; e<nentr; e++) {
-        snprintf(phy_child, PHYS_DIRNAME_SIZE, "%s/%s/%s", HOMEDIR, vdir, direntry[e]->d_name);
+        snprintf(phy_child, PHYS_DIRNAME_SIZE, "%s/%s/%s", cfg.homedir, vdir, direntry[e]->d_name);
         if((direntry[e]->d_name[0]!='.') && (lstat(phy_child, &fileinfo)==0) && S_ISDIR(fileinfo.st_mode))  {
 
 
@@ -458,10 +458,10 @@ void re_dir_ui(char *vdir, int level) {
             for (n=0; n<(level-1); n++)
                 fprintf(cgiOut, "&nbsp;&nbsp;&nbsp;");
 
-            fprintf(cgiOut, "%s&nbsp;%s</OPTION>\n", (js) ? "&boxvr;" : "-", direntry[e]->d_name);
+            fprintf(cgiOut, "%s&nbsp;%s</OPTION>\n", (rt.js) ? "&boxvr;" : "-", direntry[e]->d_name);
 
             // recurse
-            if(!largeset)
+            if(!cfg.largeset)
                 re_dir_ui(child,level+1);
         }
         free(direntry[e]);
@@ -561,7 +561,7 @@ int asscandir(const char *dir, ASDIR **namelist, int (*compar)(const void *, con
             memset(&names[entries], 0, sizeof(ASDIR));
             strcpy(names[entries].name, entry->d_name);
             names[entries].type=fileinfo.st_mode;
-            if(S_ISDIR(fileinfo.st_mode) && recursive_du)
+            if(S_ISDIR(fileinfo.st_mode) && cfg.recursive_du)
                 names[entries].size=du(filename);
             else            
                 names[entries].size=fileinfo.st_size;

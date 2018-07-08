@@ -1,5 +1,5 @@
-#define VERSION "1.3.3"
-#define copyright "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
+#define VERSION "1.4.0"
+#define COPYRIGHT "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n"
 
 #define FONT_SIZE "13px"
@@ -22,7 +22,7 @@
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n" \
         "   \"http://www.w3.org/TR/html4/loose.dtd\">\n" \
         "<HTML LANG=\"en\">\n" \
-        copyright \
+        COPYRIGHT \
         "<HEAD>\n" \
         "  <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;charset=US-ASCII\">\n" \
         "  <META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en-US\">\n" \
@@ -61,7 +61,7 @@
 #include "wfmiconres.h"
 
 #define VALIDCHRS "an ()[]{}-_.,!@#$%^&=+;"
-char VALIDCHRS_DIR[256]; // above + /
+#define VALIDCHRS_DIR "an ()[]{}-_.,!@#$%^&=+;/"
 
 
 #define P1024_1 1024.0f
@@ -90,25 +90,29 @@ char final_destination[PHYS_DESTINATION_SIZE];
 char virt_parent[VIRT_DIRNAME_SIZE];
 char *virt_parent_urlencoded;
 
-char ICONSURL[1024];
-char HOMEDIR[1024];
-char HOMEURL[1024];
-char TAGLINE[1024];
-char FAVICON[1024];
-
-char token[256];
-char loggedinuser[64];
 
 regex_t dotdot;
-int access_level;
-int access_as_user;
-int users_defined;
-int edit_by_default;
-int edit_any_file;
-int recursive_du;
-int largeset;
 
-int js;
+struct config_struct {
+    int users_defined;
+    int edit_by_default;
+    int edit_any_file;
+    int recursive_du;
+    int largeset;
+    char homedir[1024];
+    char homeurl[1024];
+    char tagline[1024];
+    char favicon[1024];
+} cfg;
+
+struct runtime_struct {
+    char token[256];
+    char iconsurl[1024];
+    char loggedinuser[64];
+    int access_level;
+    int access_as_user;
+    int js;
+} rt;
 
 double t1, t2;
 struct timeval mt;
@@ -116,6 +120,7 @@ struct timeval mt;
 enum { FALSE, TRUE };
 enum { PERM_NO, PERM_RO, PERM_RW };
 enum { CHANGE, DELETE, MOVE };
+
 
 typedef struct asdir_ {
     char name[NAME_MAX];

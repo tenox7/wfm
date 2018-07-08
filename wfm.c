@@ -9,7 +9,7 @@ void html_title(char *msg) {
         HTML_HEADER
         "<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"%s%s\">\n"
         "<TITLE>%s : %s</TITLE>\n",
-        ICONSURL, FAVICON, TAGLINE, msg); // (strlen(virt_dirname)>0) ? ' ' : '/', TAGLINE, virt_dirname
+        rt.iconsurl, cfg.favicon, cfg.tagline, msg); // (strlen(virt_dirname)>0) ? ' ' : '/', TAGLINE, virt_dirname
 }
 
 
@@ -104,14 +104,15 @@ char *md5hash(char *str, ...) {
 
 //
 // WFM Login Procedure
-// Called from WFM main procedure if no sufficient access permission available
+// Called from WFM main procedure if no sufficient access permission available and no
+// JavaScript is available in the browser. Normally client side genrates the auth token.
 //
 void login(void) {
     char username[64]={0};
     char password[64]={0};
 
-    cgiFormStringNoNewlines("username", username, sizeof(username)); // only used if JavaScript is
-    cgiFormStringNoNewlines("password", password, sizeof(password)); // not available in the browser
+    cgiFormStringNoNewlines("username", username, sizeof(username));
+    cgiFormStringNoNewlines("password", password, sizeof(password));
     
     if(strlen(username) && strlen(password)) 
         redirect("%s?directory=%s&login=server&token=%s", cgiScriptName, virt_dirname_urlencoded, md5hash("%s:%s", cgiRemoteAddr, md5hash("%s:%s", username, password)));  // generate MD5 as if it was the client
@@ -134,37 +135,37 @@ void access_check(char *access_string) {
 
         if(ipaddr[0]=='*' || strcmp(cgiRemoteAddr, ipaddr)==0) {
             if(strcmp(type, "ro")==0) 
-                access_level=PERM_RO;
+                rt.access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
-                access_level=PERM_RW;
+                rt.access_level=PERM_RW;
         }
 
     }
     else if(sscanf(access_string, "access-md5pw=%2[^':']:%30[^':']:%63s", type, user, pass)==3) {
-        users_defined=1;
+        cfg.users_defined=1;
 
         // perform user auth by comparing user supplied token with system generated token
-        if(strcmp(md5hash("%s:%s", cgiRemoteAddr, pass), token)==0) {
+        if(strcmp(md5hash("%s:%s", cgiRemoteAddr, pass), rt.token)==0) {
             if(strcmp(type, "ro")==0) 
-                access_level=PERM_RO;
+                rt.access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
-                access_level=PERM_RW;
+                rt.access_level=PERM_RW;
 
-            access_as_user=1;
-            strncpy(loggedinuser, user, sizeof(loggedinuser));
+            rt.access_as_user=1;
+            strncpy(rt.loggedinuser, user, sizeof(rt.loggedinuser));
         }
     }
     else if(sscanf(access_string, "access-htauth=%2[^':']:%30s", type, user)==2) {
-        users_defined=1;
+        cfg.users_defined=1;
 
         if(user[0]=='*' || (getenv("REMOTE_USER") && strcmp(user, getenv("REMOTE_USER"))==0)) {
             if(strcmp(type, "ro")==0) 
-                access_level=PERM_RO;
+                rt.access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
-                access_level=PERM_RW;
+                rt.access_level=PERM_RW;
 
-            access_as_user=1;
-            strncpy(loggedinuser, getenv("REMOTE_USER"), sizeof(loggedinuser));
+            rt.access_as_user=1;
+            strncpy(rt.loggedinuser, getenv("REMOTE_USER"), sizeof(rt.loggedinuser));
         }
     }
 }
@@ -173,6 +174,7 @@ void access_check(char *access_string) {
 //
 // Check filename
 // Should be called by every function that uses filename
+// Function can be passed implicit filename or use the global variable
 //
 void checkfilename(char *inp_filename) {
     char temp_dirname[PHYS_FILENAME_SIZE]={0};
@@ -205,13 +207,14 @@ void checkfilename(char *inp_filename) {
     strncpy(virt_filename, bname, VIRT_FILENAME_SIZE);
     snprintf(phys_filename, PHYS_FILENAME_SIZE, "%s/%s", phys_dirname, virt_filename);
 
+    // Do checks
     if(!strlen(phys_filename) || strlen(phys_filename)>(PHYS_FILENAME_SIZE-2)) error("Invalid phys_filename lenght [%d]", strlen(phys_filename));
     if(!strlen(virt_filename) || strlen(virt_filename)>(VIRT_FILENAME_SIZE-2)) error("Invalid virt_filename lenght [%d]", strlen(virt_filename));
     if(regexec(&dotdot, phys_filename, 0, 0, 0)==0) error("Double dots in pfilename");
     if(regexec(&dotdot, virt_filename, 0, 0, 0)==0) error("Double dots in vfilename");
 
     strncpy(temp_dirname, phys_filename, PHYS_FILENAME_SIZE);
-    if(strlen(dirname(temp_dirname)) < strlen(HOMEDIR)) error("Invalid directory name.");
+    if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) error("Invalid directory name.");
 
     virt_filename_urlencoded=url_encode(virt_filename);
 }
@@ -227,7 +230,7 @@ void checkdestination(void) {
     strip(virt_destination, VIRT_DESTINATION_SIZE, VALIDCHRS_DIR);
     cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths
     if(absolute_destination)
-        snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", HOMEDIR, virt_destination);
+        snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", cfg.homedir, virt_destination);
     else
         snprintf(phys_destination, PHYS_DESTINATION_SIZE, "%s/%s", phys_dirname, virt_destination);
 
@@ -246,13 +249,13 @@ void checkdirectory(void) {
     
     cgiFormStringNoNewlines("directory", virt_dirname, VIRT_DIRNAME_SIZE);
     strip(virt_dirname, VIRT_DIRNAME_SIZE, VALIDCHRS_DIR);
-    snprintf(phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", HOMEDIR, virt_dirname);
+    snprintf(phys_dirname, PHYS_DIRNAME_SIZE, "%s/%s", cfg.homedir, virt_dirname);
 
     if(strlen(phys_dirname)<2 || strlen(phys_dirname)>(PHYS_DIRNAME_SIZE-2)) 
         error("Invalid directory name.");
 
     if(regexec(&dotdot, phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-    if(strlen(phys_dirname) < strlen(HOMEDIR)) error("Invalid directory name.");
+    if(strlen(phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
 
     if(!strlen(virt_dirname)) strcpy(virt_dirname, "/");
 
@@ -342,7 +345,7 @@ int strsplit(char *src, char ***dst, char *sep) {
     char *c;
     int n = 0;
 
-    while (c = strpbrk(src, sep)) {
+    while ((c = strpbrk(src, sep))) {
         while (c == src) {
             src++;
             c = strpbrk(src, sep);
@@ -361,7 +364,7 @@ int strsplit(char *src, char ***dst, char *sep) {
     src = src_org;
     n = 0;
 
-    while (c = strpbrk(src, sep)) {
+    while ((c = strpbrk(src, sep))) {
         while (c == src) {
             src++;
             c = strpbrk(src, sep);
@@ -435,6 +438,7 @@ void dbgprintf(char *msg, ...) {
 
         fprintf(f, "DEBUG: %s\n", buff);
 
+        fflush(f);
         fclose(f);
     }
 
@@ -455,12 +459,12 @@ void redirect(char *location, ...) {
     cgiHeaderLocation(buff);
 }
 
+
 //
-// CGI entry
+// Load and process config file
+// Invoke Access Check
 //
-int cgiMain(void) {
-    char action[32]={0};
-    char ea[8]={0};
+void cfgload(void) {
     FILE *cfgfile;
     char cfgname[128]={0};
     char cfgline[256]={0};
@@ -474,16 +478,77 @@ int cgiMain(void) {
     char c_largeset[]="large-file-set=true";
     char c_access[]="access";
 
-    // early action - simple actions before cfg is read or access check performed (no security!)
+    memset(&cfg, 0, sizeof(cfg));
+    memset(&rt, 0, sizeof(rt));
+
+    cgiFormStringNoNewlines("token", rt.token, sizeof(rt.token));
+    snprintf(rt.iconsurl, sizeof(rt.iconsurl), "%s?ea=icon&amp;name=", cgiScriptName);
+
+    snprintf(cfgname, sizeof(cfgname), "%s.cfg", basename(cgiScriptName));
+    cfgfile=fopen(cfgname, "r");
+    if(!cfgfile)
+        error("Unable to open configuration file %s.<BR>%s", cfgname, strerror(errno));
+
+    while(fgets(cfgline, sizeof(cfgline), cfgfile)) {
+        if((*cfgline==';')||(*cfgline=='/')||(*cfgline=='#')||(*cfgline=='\n')) continue;
+        else if(strncmp(cfgline, c_homedir, strlen(c_homedir))==0)              strncpy(cfg.homedir, cfgline+strlen(c_homedir), sizeof(cfg.homedir));
+        else if(strncmp(cfgline, c_homeurl, strlen(c_homeurl))==0)              strncpy(cfg.homeurl, cfgline+strlen(c_homeurl), sizeof(cfg.homeurl));
+        else if(strncmp(cfgline, c_tagline, strlen(c_tagline))==0)              strncpy(cfg.tagline, cfgline+strlen(c_tagline), sizeof(cfg.tagline));
+        else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              strncpy(cfg.favicon, cfgline+strlen(c_favicon), sizeof(cfg.favicon));
+        else if(strncmp(cfgline, c_editdef, strlen(c_editdef))==0)              cfg.edit_by_default=1;
+        else if(strncmp(cfgline, c_editany, strlen(c_editany))==0)              cfg.edit_any_file=1;
+        else if(strncmp(cfgline, c_largeset, strlen(c_largeset))==0)            cfg.largeset=1;
+        else if(strncmp(cfgline, c_du, strlen(c_du))==0)                        cfg.recursive_du=1;
+        else if(strncmp(cfgline, c_access, strlen(c_access))==0)                access_check(cfgline);
+    }
+    fclose(cfgfile);
+    
+    // remove newlines
+    if(strlen(cfg.homedir)>2) cfg.homedir[strlen(cfg.homedir)-1]='\0';
+    if(strlen(cfg.homeurl)>2) cfg.homeurl[strlen(cfg.homeurl)-1]='\0';
+    if(strlen(cfg.tagline)>2) cfg.tagline[strlen(cfg.tagline)-1]='\0';
+    if(strlen(cfg.favicon)>2) cfg.favicon[strlen(cfg.favicon)-1]='\0';
+    
+    // do checks
+    if(strlen(cfg.homedir) < 4)
+        error("Home directory not defined.");
+
+    if(cfg.homedir[0]!='/')
+        error("Home directory must be absolute path.");
+
+    if(!strlen(cfg.tagline))
+        strcpy(cfg.tagline, "Web File Manager");
+
+    if(!strlen(cfg.favicon))
+        strcpy(cfg.favicon, "wfmicon.gif");
+
+    checkdirectory();
+
+
+    // JavaScript check
+         if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)                               rt.js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0)        rt.js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 7", 31)==0)        rt.js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 8", 31)==0)        rt.js=2;
+    else if(strncmp(cgiUserAgent, "Mozilla/4", 9)==0)                               rt.js=1;
+    else                                                                            rt.js=0;
+
+}
+
+//
+// WFM Entry
+//
+int cgiMain(void) {
+    char action[32]={0};
+    char ea[8]={0};
+
+    // early action - simple actions before cfg is read or access check performed (no authentication!)
     cgiFormStringNoNewlines("ea", ea, sizeof(ea));
     if(strcmp(ea, "icon")==0) icon();
     if(strcmp(ea, "upstat")==0) upload_status();
 
     // normal initialization
     tstart();
-
-    if(regcomp(&dotdot, "\\.\\.", REG_EXTENDED | REG_ICASE)!=0)
-        error("Regex compilation problem.<BR>%s", strerror(errno));
 
     fprintf(cgiOut, "Cache-Control: max-age=0, private\r\nExpires: -1\r\n");
 
@@ -496,96 +561,35 @@ int cgiMain(void) {
     memset(final_destination, 0, PHYS_DESTINATION_SIZE);
     memset(virt_parent, 0, VIRT_DIRNAME_SIZE);
 
-    snprintf(ICONSURL, sizeof(ICONSURL), "%s?ea=icon&amp;name=", cgiScriptName);
-    
+    cfgload();
 
-    // config file defaults
-    access_level=PERM_NO; // no access by default
-    access_as_user=0;
-    users_defined=0;
-    edit_by_default=0; // for .txt files
-    edit_any_file=0; 
-    recursive_du=0;
-    largeset=0;
 
-    memset(HOMEDIR, 0, sizeof(HOMEDIR));
-    memset(HOMEURL, 0, sizeof(HOMEURL));    
-    memset(TAGLINE, 0, sizeof(TAGLINE));
-    memset(FAVICON, 0, sizeof(FAVICON));
-
-    // process config file
-    cgiFormStringNoNewlines("token", token, sizeof(token));
-    snprintf(cfgname, sizeof(cfgname), "%s.cfg", basename(cgiScriptName));
-    cfgfile=fopen(cfgname, "r");
-    if(!cfgfile)
-        error("Unable to open configuration file %s.<BR>%s", cfgname, strerror(errno));
-            
-    while(fgets(cfgline, sizeof(cfgline), cfgfile)) {
-        if((*cfgline==';')||(*cfgline=='/')||(*cfgline=='#')||(*cfgline=='\n')) continue;
-        else if(strncmp(cfgline, c_homedir, strlen(c_homedir))==0)              strncpy(HOMEDIR, cfgline+strlen(c_homedir), sizeof(HOMEDIR));
-        else if(strncmp(cfgline, c_homeurl, strlen(c_homeurl))==0)              strncpy(HOMEURL, cfgline+strlen(c_homeurl), sizeof(HOMEURL));
-        else if(strncmp(cfgline, c_tagline, strlen(c_tagline))==0)              strncpy(TAGLINE, cfgline+strlen(c_tagline), sizeof(TAGLINE));
-        else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              strncpy(FAVICON, cfgline+strlen(c_favicon), sizeof(FAVICON));
-        else if(strncmp(cfgline, c_editdef, strlen(c_editdef))==0)              edit_by_default=1;
-        else if(strncmp(cfgline, c_editany, strlen(c_editany))==0)              edit_any_file=1;
-        else if(strncmp(cfgline, c_largeset, strlen(c_largeset))==0)            largeset=1;
-        else if(strncmp(cfgline, c_du, strlen(c_du))==0)                        recursive_du=1;
-        else if(strncmp(cfgline, c_access, strlen(c_access))==0)                access_check(cfgline);
-    }
-    fclose(cfgfile);
-    
-    // remove newlines
-    if(strlen(HOMEDIR)>2) HOMEDIR[strlen(HOMEDIR)-1]='\0';
-    if(strlen(HOMEURL)>2) HOMEURL[strlen(HOMEURL)-1]='\0';
-    if(strlen(TAGLINE)>2) TAGLINE[strlen(TAGLINE)-1]='\0';
-    if(strlen(FAVICON)>2) FAVICON[strlen(FAVICON)-1]='\0';
-    
-    // do checks
-    if(strlen(HOMEDIR) < 4 || *HOMEDIR!='/')
-        error("Home directory not defined.");
-
-    if(!strlen(TAGLINE))
-        strcpy(TAGLINE, "Web File Manager");
-
-    if(!strlen(FAVICON))
-        strcpy(FAVICON, "wfmicon.gif");
-
-    snprintf(VALIDCHRS_DIR, sizeof(VALIDCHRS_DIR), "%s/", VALIDCHRS);
-    checkdirectory();
-
-    // JavaScript check
-         if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)                               js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0)        js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 7", 31)==0)        js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 8", 31)==0)        js=2;
-    else if(strncmp(cgiUserAgent, "Mozilla/4", 9)==0)                               js=1;
-    else                                                                            js=0;
 
     // main routine - regular actions
     cgiFormStringNoNewlines("action", action, sizeof(action));
-    if(cgiFormSubmitClicked("noop")==cgiFormSuccess                       && access_level >= PERM_RO)         dirlist();
-    else if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("delete");
-    else if(cgiFormSubmitClicked("multi_delete_prompt.x")==cgiFormSuccess && access_level >= PERM_RO)         multiprompt_ui("delete");
-    else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess     && access_level >= PERM_RO)         multiprompt_ui("move");
-    else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess   && access_level >= PERM_RO)         multiprompt_ui("move");
-    else if(cgiFormSubmitClicked("upload")==cgiFormSuccess                && access_level >= PERM_RW)         receivefile();
-    else if(strcmp(action, "sendfile")==0                                 && access_level >= PERM_RO)         sendfile();
-    else if(strcmp(action, "delete")==0                                   && access_level >= PERM_RW)         delete();
-    else if(strcmp(action, "delete_prompt")==0                            && access_level >= PERM_RW)         multiprompt_ui("delete");
-    else if(strcmp(action, "move_prompt")==0                              && access_level >= PERM_RW)         multiprompt_ui("move");
-    else if(strcmp(action, "rename_prompt")==0                            && access_level >= PERM_RW)         singleprompt_ui("move");
-    else if(strcmp(action, "move")==0                                     && access_level >= PERM_RW)         move();
-    else if(strcmp(action, "edit")==0                                     && access_level >= PERM_RO)         edit_ui();
-    else if(strcmp(action, "edit_save")==0                                && access_level >= PERM_RW)         edit_save();
-    else if(strcmp(action, "mkfile")==0                                   && access_level >= PERM_RW)         mkfile();
-    else if(strcmp(action, "mkfile_prompt")==0                            && access_level >= PERM_RW)         singleprompt_ui("mkfile");
-    else if(strcmp(action, "mkdir")==0                                    && access_level >= PERM_RW)         newdir();
-    else if(strcmp(action, "mkdir_prompt")==0                             && access_level >= PERM_RW)         singleprompt_ui("mkdir");
-    else if(strcmp(action, "about")==0                                    && access_level >= PERM_RO)         about();
-    else if(strcmp(action, "login")==0      )                                                                 login();
-    else if(                                                                 access_level >= PERM_RO)         dirlist();
+    if(cgiFormSubmitClicked("noop")==cgiFormSuccess                       && rt.access_level >= PERM_RO)         dirlist();
+    else if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess   && rt.access_level >= PERM_RO)         multiprompt_ui("delete");
+    else if(cgiFormSubmitClicked("multi_delete_prompt.x")==cgiFormSuccess && rt.access_level >= PERM_RO)         multiprompt_ui("delete");
+    else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess     && rt.access_level >= PERM_RO)         multiprompt_ui("move");
+    else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess   && rt.access_level >= PERM_RO)         multiprompt_ui("move");
+    else if(cgiFormSubmitClicked("upload")==cgiFormSuccess                && rt.access_level >= PERM_RW)         receivefile();
+    else if(strcmp(action, "sendfile")==0                                 && rt.access_level >= PERM_RO)         sendfile();
+    else if(strcmp(action, "delete")==0                                   && rt.access_level >= PERM_RW)         delete();
+    else if(strcmp(action, "delete_prompt")==0                            && rt.access_level >= PERM_RW)         multiprompt_ui("delete");
+    else if(strcmp(action, "move_prompt")==0                              && rt.access_level >= PERM_RW)         multiprompt_ui("move");
+    else if(strcmp(action, "rename_prompt")==0                            && rt.access_level >= PERM_RW)         singleprompt_ui("move");
+    else if(strcmp(action, "move")==0                                     && rt.access_level >= PERM_RW)         move();
+    else if(strcmp(action, "edit")==0                                     && rt.access_level >= PERM_RO)         edit_ui();
+    else if(strcmp(action, "edit_save")==0                                && rt.access_level >= PERM_RW)         edit_save();
+    else if(strcmp(action, "mkfile")==0                                   && rt.access_level >= PERM_RW)         mkfile();
+    else if(strcmp(action, "mkfile_prompt")==0                            && rt.access_level >= PERM_RW)         singleprompt_ui("mkfile");
+    else if(strcmp(action, "mkdir")==0                                    && rt.access_level >= PERM_RW)         newdir();
+    else if(strcmp(action, "mkdir_prompt")==0                             && rt.access_level >= PERM_RW)         singleprompt_ui("mkdir");
+    else if(strcmp(action, "about")==0                                    && rt.access_level >= PERM_RO)         about();
+    else if(strcmp(action, "login")==0      )                                                                    login();
+    else if(                                                                 rt.access_level >= PERM_RO)         dirlist();
     else 
-        if(users_defined) // if users present but supplied credentials didn't match, or credentials not specified
+        if(cfg.users_defined) // if users present but supplied credentials didn't match, or credentials not specified
             redirect("%s?action=login", cgiScriptName);
         else
             error("Access Denied.");
