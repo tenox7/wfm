@@ -205,18 +205,17 @@ void checkfilename(char *inp_filename) {
 
     strip(bname, sizeof(wp.virt_filename), VALIDCHRS);
     strncpy(wp.virt_filename, bname, sizeof(wp.virt_filename));
+    wp.virt_filename_urlencoded=url_encode(wp.virt_filename);
     snprintf(wp.phys_filename, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_filename);
 
     // Do checks
-    if(!strlen(wp.phys_filename) || strlen(wp.phys_filename)>(sizeof(wp.phys_filename)-2)) error("Invalid wp.phys_filename lenght [%d]", strlen(wp.phys_filename));
-    if(!strlen(wp.virt_filename) || strlen(wp.virt_filename)>(sizeof(wp.virt_filename)-2)) error("Invalid wp.virt_filename lenght [%d]", strlen(wp.virt_filename));
-    if(regexec(&dotdot, wp.phys_filename, 0, 0, 0)==0) error("Double dots in pfilename");
-    if(regexec(&dotdot, wp.virt_filename, 0, 0, 0)==0) error("Double dots in vfilename");
+    if(!strlen(wp.phys_filename) || strlen(wp.phys_filename)>(sizeof(wp.phys_filename)-2)) error("Invalid pfilename lenght [%d]", strlen(wp.phys_filename));
+    if(!strlen(wp.virt_filename) || strlen(wp.virt_filename)>(sizeof(wp.virt_filename)-2)) error("Invalid vfilename lenght [%d]", strlen(wp.virt_filename));
+    if(strstr(wp.phys_filename, "..")) error("Double dots in pfilename");
+    if(strstr(wp.virt_filename, "..")) error("Double dots in vfilename");
 
     strncpy(temp_dirname, wp.phys_filename, sizeof(wp.phys_filename));
-    if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) error("Invalid directory name.");
-
-    wp.virt_filename_urlencoded=url_encode(wp.virt_filename);
+    if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) error("Basename path too short");
 }
 
 //
@@ -228,16 +227,18 @@ void checkdestination(void) {
     
     cgiFormStringNoNewlines("destination", wp.virt_destination, sizeof(wp.virt_filename));
     strip(wp.virt_destination, sizeof(wp.virt_filename), VALIDCHRS_DIR);
-    cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths
+
+    cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths, rename does not
     if(absolute_destination)
         snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", cfg.homedir, wp.virt_destination);
     else
         snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_destination);
 
-    if(strlen(wp.phys_destination)<1 || strlen(wp.phys_destination)>(sizeof(wp.phys_filename)-2)) error("Invalid wp.phys_destination lenght [%d]", strlen(wp.phys_destination));
-    if(strlen(wp.virt_destination)<1 || strlen(wp.virt_destination)>(sizeof(wp.virt_filename)-2)) error("Invalid wp.virt_destination lenght [%d]", strlen(wp.virt_destination));
-    if(regexec(&dotdot, wp.phys_destination, 0, 0, 0)==0) error("Double dots in pfilename");
-    if(regexec(&dotdot, wp.virt_destination, 0, 0, 0)==0) error("Double dots in vfilename");
+    if(strlen(wp.phys_destination)<1 || strlen(wp.phys_destination)>(sizeof(wp.phys_filename)-2)) error("Invalid pdestination lenght [%d]", strlen(wp.phys_destination));
+    if(strlen(wp.virt_destination)<1 || strlen(wp.virt_destination)>(sizeof(wp.virt_filename)-2)) error("Invalid vdestination lenght [%d]", strlen(wp.virt_destination));
+    if(strstr(wp.phys_destination, "..")) error("Double dots in pdestination");
+    if(strstr(wp.virt_destination, "..")) error("Double dots in vdestination");
+
 }
 
 //
@@ -246,25 +247,38 @@ void checkdestination(void) {
 //
 void checkdirectory(void) {
     char temp[sizeof(wp.virt_dirname)]={0};
+    char *real;
     
+    // virtual directory
     cgiFormStringNoNewlines("directory", wp.virt_dirname, sizeof(wp.virt_dirname));
     strip(wp.virt_dirname, sizeof(wp.virt_dirname), VALIDCHRS_DIR);
-    snprintf(wp.phys_dirname, sizeof(wp.phys_dirname), "%s/%s", cfg.homedir, wp.virt_dirname);
-
-    if(strlen(wp.phys_dirname)<2 || strlen(wp.phys_dirname)>(sizeof(wp.phys_dirname)-2)) 
-        error("Invalid directory name.");
-
-    if(regexec(&dotdot, wp.phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-    if(strlen(wp.phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
-
     if(!strlen(wp.virt_dirname)) strcpy(wp.virt_dirname, "/");
-
     wp.virt_dirname_urlencoded=url_encode(wp.virt_dirname);
 
     // parent
     strncpy(temp, wp.virt_dirname, sizeof(wp.virt_dirname));
     strncpy(wp.virt_parent, dirname(temp), sizeof(wp.virt_dirname));
     wp.virt_parent_urlencoded=url_encode(wp.virt_parent);
+
+    // physical directory
+    snprintf(wp.phys_dirname, sizeof(wp.phys_dirname), "%s/%s", cfg.homedir, wp.virt_dirname);
+
+    if(strlen(wp.phys_dirname)<2 || strlen(wp.phys_dirname)>(sizeof(wp.phys_dirname)-2)) 
+        error("Invalid directory name lenght 2");
+
+    if(strlen(wp.phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name 3.");
+    if(strstr(wp.phys_dirname, "..")) error("Double dots in dirname");
+
+    real=realpath(wp.phys_dirname, NULL);
+
+    if(!real)
+        error("Unable to resolve directory path.<BR>%s", strerror(errno));
+
+    if(strlen(real) > sizeof(wp.phys_dirname)-2)
+        error("Resolved path too long");
+
+    strncpy(wp.phys_dirname, real, sizeof(wp.phys_dirname));
+    free(real);
 }
 
 
@@ -400,6 +414,11 @@ char *buprintf(float v, int bold) {
     if(v == -1)
         return "&nbsp;";
 
+    #define P1024_1 1024.0f
+    #define P1024_2 1048576.0f
+    #define P1024_3 1073741824.0f
+    #define P1024_4 1099511627776.0f
+
          if(v >= P1024_1 && v < P1024_2 )   { size = v / P1024_1; unit = 'K'; }
     else if(v >= P1024_2 && v < P1024_3 )   { size = v / P1024_2; unit = 'M'; }
     else if(v >= P1024_3 && v < P1024_4 )   { size = v / P1024_3; unit = 'G'; }
@@ -525,7 +544,6 @@ void cfgload(void) {
 
     checkdirectory();
 
-
     // JavaScript check
          if(strncmp(cgiUserAgent, "Mozilla/5", 9)==0)                               rt.js=2;
     else if(strncmp(cgiUserAgent, "Mozilla/4.0 (compatible; MSIE 6", 31)==0)        rt.js=2;
@@ -550,14 +568,9 @@ int cgiMain(void) {
 
     // normal initialization
     tstart();
-
     fprintf(cgiOut, "Cache-Control: max-age=0, private\r\nExpires: -1\r\n");
-
     cfgload();
 
-
-
-    // main routine - regular actions
     cgiFormStringNoNewlines("action", action, sizeof(action));
     if(cgiFormSubmitClicked("noop")==cgiFormSuccess                       && rt.access_level >= PERM_RO)         dirlist();
     else if(cgiFormSubmitClicked("multi_delete_prompt")==cgiFormSuccess   && rt.access_level >= PERM_RO)         multiprompt_ui("delete");

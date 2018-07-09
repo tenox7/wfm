@@ -55,19 +55,13 @@
 #include <sys/stat.h>
 #include <sys/shm.h>    
 #include <sys/file.h>
-//#include <sys/dir.h>
+
 #include "md5.h"
 #include "cgic.h"
 #include "wfmiconres.h"
 
 #define VALIDCHRS "an ()[]{}-_.,!@#$%^&=+;"
 #define VALIDCHRS_DIR VALIDCHRS "/"
-
-
-#define P1024_1 1024.0f
-#define P1024_2 1048576.0f
-#define P1024_3 1073741824.0f
-#define P1024_4 1099511627776.0f
 
 #define SHM_SIZE 16
 
@@ -84,8 +78,6 @@ struct  wfm_paths {
     char phys_destination[PATH_MAX];
     char final_destination[PATH_MAX];
 } wp;
-
-regex_t dotdot;
 
 struct config_struct {
     int users_defined;

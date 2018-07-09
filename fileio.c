@@ -262,7 +262,6 @@ void fileio_re_rmdir(char *dirname) {
     if(!dir) 
         error("Unable to remove directory..");
 
-
     direntry=readdir(dir);
     while(direntry!=0) {
         if(strncmp(direntry->d_name, ".", 1) && strncmp(direntry->d_name, "..", 2)) {
@@ -353,7 +352,6 @@ void fileio_move(void) {
         error("Unable to move file. <BR>[%d: %s]<BR>[SRC=%s] [DST=%s]", errno, strerror(errno), wp.phys_filename, wp.final_destination);
 
     wfm_commit(MOVE, NULL);
-
 }
 
 // 
@@ -441,8 +439,8 @@ void re_dir_ui(char *vdir, int level) {
     if(strlen(re_phys_dirname)<2 || strlen(re_phys_dirname)>(sizeof(wp.phys_dirname)-2)) 
         error("Invalid directory name.");
 
-    if(regexec(&dotdot, re_phys_dirname, 0, 0, 0)==0) error("Invalid directory name.");
-    if(strlen(re_phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name.");
+    if(strlen(re_phys_dirname) < strlen(cfg.homedir)) error("Invalid directory name 4.");
+    if(strstr(re_phys_dirname, "..")) error("Double dots in directory name");
 
     nentr=scandir(re_phys_dirname, &direntry, 0, alphasort);
 
