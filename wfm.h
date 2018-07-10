@@ -55,6 +55,7 @@
 #include <sys/stat.h>
 #include <sys/shm.h>    
 #include <sys/file.h>
+#include <sys/utsname.h>
 
 #include "md5.h"
 #include "cgic.h"

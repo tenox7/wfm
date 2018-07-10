@@ -230,16 +230,20 @@ void error(char *msg, ...) {
 // About message 
 //
 void about(void) {
+    struct utsname ut;
+
+    memset(&ut, 0, sizeof(ut));
+    uname(&ut);
     cgiHeaderContentType("text/html");
     html_title("About");
     fprintf(cgiOut,
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
         "<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS=\"twh\"><TR><TD VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
-        "<TABLE WIDTH=\"500\" BGCOLOR=\"#D4D0C8\" BORDER=0 CELLSPACING=0 CELLPADDING=1 CLASS=\"tbr\">\n"
+        "<TABLE WIDTH=\"640\" BGCOLOR=\"#D4D0C8\" BORDER=0 CELLSPACING=0 CELLPADDING=1 CLASS=\"tbr\">\n"
         "<TR BGCOLOR=\"#0040A0\">\n"
          "<TD COLSPAN=3 ALIGN=\"LEFT\">\n"
-            "<IMG SRC=\"%swfmicon.gif\" ALT=\"wfm Icon\"><SPAN STYLE=\"color:#FFFFFF\"> About:</SPAN>\n"
+            "<IMG SRC=\"%swfmicon.gif\" ALT=\"wfm Icon\"><SPAN STYLE=\"color:#FFFFFF\"> About: %s</SPAN>\n"
          "</TD>\n"
         "</TR>\n"
         "<TR BGCOLOR=\"#EEEEEE\">\n"
@@ -248,7 +252,6 @@ void about(void) {
             "</TD>\n"
             "<TD ALIGN=\"LEFT\">\n"
             "&nbsp;<BR>\n"
-            "<U>%s</U><BR>\n"
             "WFM Implemented by Antoni Sawicki<BR>\n"
             "CGIC Library by Thomas Boutell<BR>\n"
             "Server Side RFC 1321 implementation by L. Peter Deutsch<BR>\n"
@@ -267,9 +270,10 @@ void about(void) {
             "WFM: %s (build %s / %s)<BR>\n"
             "GCC: %s<BR>\n"
             "Server: %s<BR>\n"
-            "User Agent: %s<BR>\n"
+            "OS: %s %s %s %s %s<BR>\n"
             "NAME_MAX: %d<BR>\n"
             "PATH_MAX: %d<BR>\n"
+            "User Agent: %s<BR>\n"
             "JavaScript Level: %d<BR>\n"
             "Change Control: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
@@ -288,7 +292,9 @@ void about(void) {
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
-        rt.iconsurl, cfg.tagline, VERSION, __DATE__, __TIME__, __VERSION__, cgiServerSoftware, cgiUserAgent, NAME_MAX, PATH_MAX, rt.js,
+        rt.iconsurl, cfg.tagline, VERSION, __DATE__, __TIME__, __VERSION__, 
+        cgiServerSoftware, ut.sysname, ut.nodename, ut.release, ut.version, ut.machine, 
+        NAME_MAX, PATH_MAX, cgiUserAgent, rt.js,
 #ifdef WFMGIT
         "Git"
 #else
