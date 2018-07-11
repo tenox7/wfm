@@ -2,7 +2,7 @@
 #define COPYRIGHT "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
                   "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n"
 
-#define FONT_SIZE "13px"
+#define FONT_SIZE "12px"
 
 #define CSS_STYLE         \
             "  <STYLE TYPE=\"text/css\"><!-- \n" \

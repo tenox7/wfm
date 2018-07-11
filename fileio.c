@@ -116,7 +116,7 @@ void receivefile(void) {
 
     wfm_commit(CHANGE, NULL);
     
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -138,7 +138,7 @@ void mkfile(void) {
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -153,7 +153,7 @@ void newdir(void) {
     if(mkdir(wp.phys_filename, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH )!=0)
         error("Unable to create directory.<BR>%s", strerror(errno));
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 
 }
 
@@ -245,7 +245,7 @@ void edit_save(void) {
 
     wfm_commit(CHANGE, NULL);
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -332,7 +332,7 @@ void delete(void) {
         }
     }           
 
-    redirect("%s?directory=%s&rt.token=%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?directory=%s&token=%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
 }
 
 //
@@ -377,7 +377,7 @@ void move(void) {
         }
     }           
 
-    redirect("%s?highlight=%s&directory=%s&rt.token=%s", cgiScriptName, url_encode(wp.virt_destination), wp.virt_dirname_urlencoded, rt.token);
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, url_encode(wp.virt_destination), wp.virt_dirname_urlencoded, rt.token);
 }
 
 

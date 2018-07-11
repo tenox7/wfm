@@ -131,6 +131,8 @@ void access_check(char *access_string) {
     char pass[64]={0};
     char type[4]={0};
 
+    dbgprintf("access_check=%s\n", access_string);
+
     if(sscanf(access_string, "access-ip=%2s:%30s", type, ipaddr)==2) {
 
         if(ipaddr[0]=='*' || strcmp(cgiRemoteAddr, ipaddr)==0) {

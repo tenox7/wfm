@@ -89,7 +89,7 @@ void multiprompt_ui(char *m_action) {
         "    <P><CENTER>\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"action\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
-        "    <INPUT TYPE=\"HIDDEN\" NAME=\"rt.token\" VALUE=\"%s\">\n"
+        "    <INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"OK\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" Cancel \" NAME=\"noop\">\n"
         "    </CENTER><BR>\n"
@@ -156,7 +156,7 @@ void singleprompt_ui(char *m_action) {
         "    <P><CENTER>\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"action\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
-        "    <INPUT TYPE=\"HIDDEN\" NAME=\"rt.token\" VALUE=\"%s\">\n"
+        "    <INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"OK\">\n"
         "    <INPUT TYPE=\"SUBMIT\" VALUE=\" Cancel \" NAME=\"noop\">\n"
         "    </CENTER><BR>\n"
@@ -210,7 +210,7 @@ void error(char *msg, ...) {
             "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n"
             "<INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"noop\">\n"
             "<INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
-            "<INPUT TYPE=\"HIDDEN\" NAME=\"rt.token\" VALUE=\"%s\">\n"
+            "<INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
             "</FORM>\n</TD></TR>\n"
             "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
             "</TABLE>\n"
@@ -287,7 +287,7 @@ void about(void) {
         "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n"
         "<INPUT TYPE=\"SUBMIT\" VALUE=\" OK \" NAME=\"noop\">\n"
         "<INPUT TYPE=\"HIDDEN\" NAME=\"directory\" VALUE=\"%s\">\n"
-        "<INPUT TYPE=\"HIDDEN\" NAME=\"rt.token\" VALUE=\"%s\">\n"
+        "<INPUT TYPE=\"HIDDEN\" NAME=\"token\" VALUE=\"%s\">\n"
         "</FORM>\n</TD></TR>\n"
         "<TR><TD COLSPAN=3 BGCOLOR=\"#EEEEEE\">&nbsp;</TD></TR>\n"
         "</TABLE>\n"
@@ -345,7 +345,7 @@ void login_ui(void) {
         cgiScriptName, wp.virt_dirname, (getenv("HTTPS")) ? "SSL" : "Plaintext");
 
     if(rt.js>=2) fprintf(cgiOut,
-        "onClick=\"self.location='%s?directory=%s&amp;login=client&amp;rt.token=' + hex_md5('%s:' + hex_md5(document.wfm.username.value + ':' + document.wfm.password.value)); return false;\"",
+        "onClick=\"self.location='%s?directory=%s&amp;login=client&amp;token=' + hex_md5('%s:' + hex_md5(document.wfm.username.value + ':' + document.wfm.password.value)); return false;\"",
         cgiScriptName, wp.virt_dirname_urlencoded, cgiRemoteAddr);
 
     fputs(
@@ -482,7 +482,7 @@ void edit_ui(void) {
     "<INPUT TYPE=\"hidden\" NAME=\"action\" VALUE=\"edit_save\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"filename\" VALUE=\"%s\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"directory\" VALUE=\"%s\">\n"
-    "<INPUT TYPE=\"hidden\" NAME=\"rt.token\" VALUE=\"%s\">\n"
+    "<INPUT TYPE=\"hidden\" NAME=\"token\" VALUE=\"%s\">\n"
     "<INPUT TYPE=\"hidden\" NAME=\"backup\" VALUE=\"%s\">\n"
     "</FORM></BODY></HTML>\n",
     wp.virt_filename,  wp.virt_dirname, rt.token, backup);
