@@ -7,21 +7,17 @@ can be edited directly in the browser.
 An integrated GIT client can track and auto commit all file change operations
 in to a to a GIT repository.
 
-WFM is most commonly used as a web front end for an FTP server. However since you
+This app is most commonly used as a web front end for an FTP server. However since you
 can edit html and markdown documents over the web and there is GIT backed
 version control, you can think and use WFM as a small Content Management System (CMS).
-
-Unlike other similar appliactions, WFM is compatible with most modern and
-legacy web browsers dating back to Internet Explorer 1.5, Netscape 1.0 and
-Mosaic 3.0. It outputs W3C certified HTML 4.01. JavaScript is optional and
-only used for non-essential luxuries. Compatibility is tested using
-[BrowserStack](http://www.browserstack.com/).
 
 This program is written using portable C code and compiles natively
 for many flavors of Unix. It runs as a CGI application on most httpd servers
 and does not require PHP, Perl, Python or any other interpreted language. 
 It's very small and lightning fast. I runs on resource constrained embedded
-or vintage / historical systems.
+or vintage / historical systems. It outputs W3C certified HTML 4.01 for compatiblity
+with legacy browsers. JavaScript is optional and only used for non-essential luxuries.
+ Compatibility is tested using [BrowserStack](http://www.browserstack.com/).
 
 ![alt text](https://raw.githubusercontent.com/tenox7/wfm/master/screenshot.png "WFM Screenshot")
 
