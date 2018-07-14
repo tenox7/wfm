@@ -64,7 +64,7 @@
 #define VALIDCHRS "an ()[]{}-_.,!@#$%^&=+;"
 #define VALIDCHRS_DIR VALIDCHRS "/"
 
-#define SHM_SIZE 16
+//#define SHM_SIZE 16
 
 struct  wfm_paths {
     char virt_dirname[NAME_MAX];

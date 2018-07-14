@@ -70,9 +70,9 @@ void dirlist(void) {
     time_t now;
 
     time(&now);
-    upload_id=ftok(getenv("SCRIPT_FILENAME"), getpid()); 
-    if(upload_id<1)
-        upload_id=now; // holy shit
+//    upload_id=ftok(getenv("SCRIPT_FILENAME"), getpid()); 
+//    if(upload_id<1)
+//        upload_id=now; // holy shit
 
     cgiFormStringNoNewlines("highlight", highlight, sizeof(wp.virt_filename)-1); //TODO: urlencode ?
     cgiFormStringNoNewlines("sortby", sortby, 63);
@@ -119,7 +119,7 @@ void dirlist(void) {
         "    }\n"
         "}\n");
 
-    if(rt.js>=2) fprintf(cgiOut,
+/*    if(rt.js>=2) fprintf(cgiOut,
         "function xmlhttpPost(strURL) {\n"
         "    var xmlHttpReq = false;\n"
         "    var self = this;\n"
@@ -146,7 +146,7 @@ void dirlist(void) {
         "function start() {\n"
         "   setInterval('xmlhttpPost(\"%s?ea=upstat&upload_id=%d\");', 250);\n"
         "}\n",
-        cgiScriptName, upload_id);
+        cgiScriptName, upload_id);*/
 
     if(rt.js) fprintf(cgiOut,
         "//-->\n"
@@ -177,7 +177,7 @@ void dirlist(void) {
         "</HEAD>\n"
         "<BODY BGCOLOR=\"#FFFFFF\">\n"
         "<FORM ACTION=\"%s\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\" %s>\n",
-      FONT_SIZE, FONT_SIZE, rt.iconsurl, cfg.favicon, cgiScriptName, (rt.js>=2) ? "onsubmit=\"start()\"" : "");
+      FONT_SIZE, FONT_SIZE, rt.iconsurl, cfg.favicon, cgiScriptName, /*(rt.js>=2) ? "onsubmit=\"start()\"" :*/ "");
 
 
 

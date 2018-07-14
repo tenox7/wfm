@@ -35,7 +35,7 @@ int icon(void) {
 // Display upload status in SHM via key_id
 // Called by early action=upstat
 //
-void upload_status(void) {
+/*void upload_status(void) {
     int shm_key=-1;
     int shm_id=-1;
     char *shm_val=NULL;
@@ -61,7 +61,7 @@ void upload_status(void) {
         shmdt(shm_val);
 
     exit(0);        
-}
+}*/
 
 
 //
@@ -566,7 +566,7 @@ int cgiMain(void) {
     // early action - simple actions before cfg is read or access check performed (no authentication!)
     cgiFormStringNoNewlines("ea", ea, sizeof(ea));
     if(strcmp(ea, "icon")==0) icon();
-    if(strcmp(ea, "upstat")==0) upload_status();
+//    if(strcmp(ea, "upstat")==0) upload_status();
 
     // normal initialization
     tstart();
