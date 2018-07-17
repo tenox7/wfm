@@ -273,6 +273,9 @@ void about(void) {
             "OS: %s %s %s %s %s<BR>\n"
             "NAME_MAX: %d<BR>\n"
             "PATH_MAX: %d<BR>\n"
+#ifdef CGIMAXTEMPFILESIZE
+            "Max Temp File Size: "STRINGIFY(CGIMAXTEMPFILESIZE)" <BR>\n"
+#endif
             "User Agent: %s<BR>\n"
             "JavaScript Level: %d<BR>\n"
             "Change Control: %s (%s)<BR>\n"

@@ -31,6 +31,9 @@
         CSS_STYLE
 
 
+#define _STRINGIFY(s) #s
+#define STRINGIFY(s) _STRINGIFY(s)
+
 #define _FILE_OFFSET_BITS 64
 
 #ifdef __sun__
