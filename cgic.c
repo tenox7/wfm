@@ -759,6 +759,11 @@ cgiParseResultType afterNextBoundary(mpStreamPtr mpp, FILE *outf, char **outP,
 				match; just emit the character. */
 			BAPPEND(d[0]);
 		}	
+#ifdef CGIMAXTEMPFILESIZE
+		if(outLen >= CGIMAXTEMPFILESIZE) {
+			goto outOfMemory;
+		}
+#endif
 	}
 	/* Read trailing newline or -- EOF marker. A literal EOF here
 		would be an error in the input stream. */
