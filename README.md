@@ -1,14 +1,14 @@
 # WFM - Web File Manager
-WFM is a web file management application. It allows to perform regular
-file and folder operations such as upload, download, rename, delete files
-and organize directory tree structure using standard web browser. Text files
-can be edited directly in the browser. 
+WFM is a lightweight web based file management application. It allows to perform
+regular file and folder operations such as upload, download, rename, delete files
+and organize directory tree structure using standard web browser. Text, markup and
+markdown files can be edited directly in the browser. 
 
 An integrated GIT client can track and auto commit all file change operations
 in to a to a GIT repository.
 
 This app is most commonly used as a web front end for an FTP server. However since you
-can edit html and markdown documents over the web and there is GIT backed
+can edit html and markdown documents over the web and there is a GIT backed
 version control, you can think and use WFM as a small Content Management System (CMS).
 
 This program is written using portable C code and compiles natively
@@ -65,8 +65,8 @@ Below is a simple, self-explanatory configuration file example:
     # fast disk (eg. SSD), large cache or a small directory tree structure
     #recursive-du=true
 
-    # large file set makes move dialog display only reduced directory tree
-    # instead of all directories from the whole repository
+    # large file set makes the move dialog display only a reduced directory tree
+    # instead of a complete tree from the whole repository
     #large-file-set=true
 
     # favicon / application icon, must be one of the embedded/compiled icon files
@@ -83,6 +83,7 @@ Below is a simple, self-explanatory configuration file example:
     # names will be glued to it giving option to be opened directly with the
     # external link button without going through cgi routines
     #browser-url=http://x.x.x.x/files/
+    #browser-url=ftp://x.x.x.x/pub/
 
     # access lists 
     # acl format is access-type=level:check, one per line
@@ -105,7 +106,12 @@ Below is a simple, self-explanatory configuration file example:
 If you use mixed readonly and readwrite access then then in order to authenticate
 click on the lock sign on right side of the top status bar.
 
-For enterprise users LDAP/Active Directory is supported. Refer to [mod_authnz_ldap](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html) with basic / digest authentication.  To allow a specific LDAP group or DN use [Require ldap-group](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqgroup) or [Require ldap-dn](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqdn) and `access-htauth=:rw:*` in wfm.cfg.
+For enterprise users LDAP/Active Directory is supported. 
+Refer to [mod_authnz_ldap](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html) 
+with basic / digest authentication. To allow a specific LDAP group or DN use
+[Require ldap-group](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqgroup) 
+or [Require ldap-dn](https://httpd.apache.org/docs/2.4/mod/mod_authnz_ldap.html#reqdn) 
+and `access-htauth=:rw:*` in wfm.cfg.
 
 ## Copyrights and Credits
 Copyright (c) 1994-2018 by Antoni Sawicki  
