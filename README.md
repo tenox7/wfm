@@ -12,12 +12,12 @@ can edit html and markdown documents over the web and there is GIT backed
 version control, you can think and use WFM as a small Content Management System (CMS).
 
 This program is written using portable C code and compiles natively
-for many flavors of Unix. It runs as a CGI application on most httpd servers
-and does not require PHP, Perl, Python or any other interpreted language. 
-It's very small and lightning fast. I runs on resource constrained embedded
-or vintage / historical systems. It outputs W3C certified HTML 4.01 for compatiblity
-with legacy browsers. JavaScript is optional and only used for non-essential luxuries.
- Compatibility is tested using [BrowserStack](http://www.browserstack.com/).
+for many flavors of Unix. It runs as a cgi-bin application on most httpd servers
+and does not require PHP, Perl, Python or any other interpreted language. It's a single
+binary application with all icons embedded inside. It's very small and lightning fast.
+I runs on resource constrained embedded computers or legacy systems. For compatibility
+with older browsers it outputs certified HTML 4.01. JavaScript is completely optional
+and only used for non-essential luxuries. Tested using [BrowserStack](http://www.browserstack.com/).
 
 ![alt text](https://raw.githubusercontent.com/tenox7/wfm/master/screenshot.png "WFM Screenshot")
 
