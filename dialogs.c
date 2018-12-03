@@ -278,6 +278,7 @@ void about(void) {
 #endif
             "User Agent: %s<BR>\n"
             "JavaScript Level: %d<BR>\n"
+            "Auth: %d<BR>\n"
             "Change Control: %s (%s)<BR>\n"
             "&nbsp;<P>\n"
             "&nbsp;<P>\n"
@@ -297,7 +298,7 @@ void about(void) {
         "</TD></TR></TABLE>\n</BODY></HTML>\n",
         rt.iconsurl, cfg.tagline, VERSION, __DATE__, __TIME__, __VERSION__, 
         cgiServerSoftware, ut.sysname, ut.nodename, ut.release, ut.version, ut.machine, 
-        NAME_MAX, PATH_MAX, cgiUserAgent, rt.js,
+        NAME_MAX, PATH_MAX, cgiUserAgent, rt.js, rt.auth_method,
 #ifdef WFMGIT
         "Git"
 #else

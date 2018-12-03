@@ -140,8 +140,9 @@ void access_check(char *access_string) {
                 rt.access_level=PERM_RO;
             else if(strcmp(type, "rw")==0) 
                 rt.access_level=PERM_RW;
-        }
-
+                
+			rt.auth_method=AUTH_IP;
+    	}
     }
     else if(sscanf(access_string, "access-md5pw=%2[^':']:%30[^':']:%63s", type, user, pass)==3) {
         cfg.users_defined=1;
@@ -154,6 +155,7 @@ void access_check(char *access_string) {
                 rt.access_level=PERM_RW;
 
             rt.access_as_user=1;
+            rt.auth_method=AUTH_MD5;
             strncpy(rt.loggedinuser, user, sizeof(rt.loggedinuser));
         }
     }
@@ -167,6 +169,7 @@ void access_check(char *access_string) {
                 rt.access_level=PERM_RW;
 
             rt.access_as_user=1;
+            rt.auth_method=AUTH_HT;
             strncpy(rt.loggedinuser, getenv("REMOTE_USER"), sizeof(rt.loggedinuser));
         }
     }
@@ -478,6 +481,16 @@ void redirect(char *location, ...) {
     va_end(ap);
 
     cgiHeaderLocation(buff);
+ 	exit(0);
+}
+
+// 
+// Log off user from HTAUTH session
+//
+void logoff() {
+	cgiHeaderStatus(401, "Unauthorized");
+	fprintf(cgiOut, "You have been logged out.");
+	exit(0);
 }
 
 
@@ -564,9 +577,11 @@ int cgiMain(void) {
     char ea[8]={0};
 
     // early action - simple actions before cfg is read or access check performed (no authentication!)
+    // note that ea functions must exit()
     cgiFormStringNoNewlines("ea", ea, sizeof(ea));
     if(strcmp(ea, "icon")==0) icon();
 //    if(strcmp(ea, "upstat")==0) upload_status();
+	if(strcmp(ea, "logoff")==0) logoff();
 
     // normal initialization
     tstart();
