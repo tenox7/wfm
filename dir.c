@@ -1,8 +1,8 @@
 #include "wfm.h"
 
-char DIRIMG[256], AUPIMG[256], ADNIMG[256], GENIMG[256], NEWIMG[256], ZIPIMG[256];
-char IMGIMG[256], OFFIMG[256], PDFIMG[256];
-char TXTIMG[256], EXEIMG[256], MEDIMG[257], ISOIMG[256], LNKIMG[256];
+char ICO_DIR[256], ICO_AUP[256], ICO_ADN[256], ICO_GEN[256], ICO_NEW[256], ICO_ZIP[256];
+char ICO_IMG[256], ICO_OFF[256], ICO_PDF[256];
+char ICO_TXT[256], ICO_EXE[256], ICO_MED[257], ICO_ISO[256], ICO_LNK[256];
 regex_t reg_zip, reg_img, reg_pdf, reg_exe, reg_txt, reg_off, reg_med, reg_iso;
 
 char M_HR[]="<FONT COLOR=\"#000000\" STYLE=\"font-weight:bold;\">(Last Hour)";
@@ -23,20 +23,20 @@ char tHL_COLOR[]="FFD700";
 static const char *access_string[]={ "none", "readonly", "readwrite" };
 
 void dir_icoinita(void) {
-    snprintf(DIRIMG, sizeof(DIRIMG), "<IMG SRC=\"%sdir.gif\" ALT=\"Dir\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
-    snprintf(LNKIMG, sizeof(LNKIMG), "<IMG SRC=\"%slnk.gif\" ALT=\"Symlink\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
-    snprintf(AUPIMG, sizeof(AUPIMG), "<IMG SRC=\"%saup.gif\" ALT=\"Up\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
-    snprintf(ADNIMG, sizeof(ADNIMG), "<IMG SRC=\"%sadn.gif\" ALT=\"Down\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
-    snprintf(GENIMG, sizeof(GENIMG), "<IMG SRC=\"%sgen.gif\" ALT=\"Unknown\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(NEWIMG, sizeof(NEWIMG), "<IMG SRC=\"%sarr.gif\" ALT=\"New\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(ZIPIMG, sizeof(ZIPIMG), "<IMG SRC=\"%szip.gif\" ALT=\"Archive\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(IMGIMG, sizeof(IMGIMG), "<IMG SRC=\"%simg.gif\" ALT=\"Image\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(OFFIMG, sizeof(OFFIMG), "<IMG SRC=\"%soff.gif\" ALT=\"Office File\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(PDFIMG, sizeof(PDFIMG), "<IMG SRC=\"%spdf.gif\" ALT=\"PDF\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(TXTIMG, sizeof(TXTIMG), "<IMG SRC=\"%stxt.gif\" ALT=\"Text\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(EXEIMG, sizeof(EXEIMG), "<IMG SRC=\"%sexe.gif\" ALT=\"Exec\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(MEDIMG, sizeof(MEDIMG), "<IMG SRC=\"%smed.gif\" ALT=\"Multimedia\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
-    snprintf(ISOIMG, sizeof(ISOIMG), "<IMG SRC=\"%siso.gif\" ALT=\"Disk Image\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_DIR, sizeof(ICO_DIR), "<IMG SRC=\"%sdir.gif\" ALT=\"Dir\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
+    snprintf(ICO_LNK, sizeof(ICO_LNK), "<IMG SRC=\"%slnk.gif\" ALT=\"Symlink\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
+    snprintf(ICO_AUP, sizeof(ICO_AUP), "<IMG SRC=\"%saup.gif\" ALT=\"Up\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
+    snprintf(ICO_ADN, sizeof(ICO_ADN), "<IMG SRC=\"%sadn.gif\" ALT=\"Down\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
+    snprintf(ICO_GEN, sizeof(ICO_GEN), "<IMG SRC=\"%sgen.gif\" ALT=\"Unknown\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_NEW, sizeof(ICO_NEW), "<IMG SRC=\"%sarr.gif\" ALT=\"New\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_ZIP, sizeof(ICO_ZIP), "<IMG SRC=\"%szip.gif\" ALT=\"Archive\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_IMG, sizeof(ICO_IMG), "<IMG SRC=\"%simg.gif\" ALT=\"Image\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_OFF, sizeof(ICO_OFF), "<IMG SRC=\"%soff.gif\" ALT=\"Office File\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_PDF, sizeof(ICO_PDF), "<IMG SRC=\"%spdf.gif\" ALT=\"PDF\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_TXT, sizeof(ICO_TXT), "<IMG SRC=\"%stxt.gif\" ALT=\"Text\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_EXE, sizeof(ICO_EXE), "<IMG SRC=\"%sexe.gif\" ALT=\"Exec\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_MED, sizeof(ICO_MED), "<IMG SRC=\"%smed.gif\" ALT=\"Multimedia\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_ISO, sizeof(ICO_ISO), "<IMG SRC=\"%siso.gif\" ALT=\"Disk Image\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
 
     if(
         regcomp(&reg_zip, "\\.(zip|rar|tar|gz|tgz|z|arj|bz|tbz|7z|xz)$",            REG_EXTENDED | REG_ICASE)!=0 ||
@@ -308,26 +308,26 @@ void dirlist(void) {
     //
     if(strcmp(sortby, "size")==0) {
         snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rsize\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_ADN);
         snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "rsize")==0) {
         snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
-        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_AUP);
         snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "date")==0) {
         snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
         snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rdate\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_ADN);
     } else if(strcmp(sortby, "rdate")==0) {
         snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
         snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
-        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_AUP);
     } else if(strcmp(sortby, "name")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ADNIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=rname\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_ADN);
         snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
         snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else if(strcmp(sortby, "rname")==0) {
-        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, AUPIMG);
+        snprintf(namepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=name\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Filename</A>&nbsp;%s", cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_AUP);
         snprintf(sizepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=size\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Size</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
         snprintf(datepfx, 1024, "&nbsp;<A HREF=\"%s?directory=%s&amp;token=%s&amp;sortby=date\" STYLE=\"text-decoration: none; color:#FFFFFF;\">Modified</A>", cgiScriptName, wp.virt_dirname_urlencoded, rt.token);
     } else {
@@ -405,11 +405,11 @@ void dirlist(void) {
 
 
         if(strcmp(highlight, name)==0)  {
-            icon=NEWIMG;
+            icon=ICO_NEW;
             linecolor=tHIGH_COLOR;
         }
         else {
-            icon=DIRIMG;
+            icon=ICO_DIR;
             if(rt.js) {
                 linecolor=tNORMAL_COLOR;
             }
@@ -500,20 +500,20 @@ void dirlist(void) {
         else if(now-direntry[e].mtime < 365*24*3600) stime=M_YR;
         else                                         stime=M_OLD;
 
-             if(regexec(&reg_zip, name, 0, 0, 0)==0)    { icon=ZIPIMG; editable=0; }
-        else if(regexec(&reg_img, name, 0, 0, 0)==0)    { icon=IMGIMG; editable=0; }
-        else if(regexec(&reg_off, name, 0, 0, 0)==0)    { icon=OFFIMG; editable=0; }
-        else if(regexec(&reg_pdf, name, 0, 0, 0)==0)    { icon=PDFIMG; editable=0; }
-        else if(regexec(&reg_txt, name, 0, 0, 0)==0)    { icon=TXTIMG; editable=1; }
-        else if(regexec(&reg_exe, name, 0, 0, 0)==0)    { icon=EXEIMG; editable=0; }
-        else if(regexec(&reg_med, name, 0, 0, 0)==0)    { icon=MEDIMG; editable=0; }
-        else if(regexec(&reg_iso, name, 0, 0, 0)==0)    { icon=ISOIMG; editable=0; }
-        else                                            { icon=GENIMG; editable=0; }
+             if(regexec(&reg_zip, name, 0, 0, 0)==0)    { icon=ICO_ZIP; editable=0; }
+        else if(regexec(&reg_img, name, 0, 0, 0)==0)    { icon=ICO_IMG; editable=0; }
+        else if(regexec(&reg_off, name, 0, 0, 0)==0)    { icon=ICO_OFF; editable=0; }
+        else if(regexec(&reg_pdf, name, 0, 0, 0)==0)    { icon=ICO_PDF; editable=0; }
+        else if(regexec(&reg_txt, name, 0, 0, 0)==0)    { icon=ICO_TXT; editable=1; }
+        else if(regexec(&reg_exe, name, 0, 0, 0)==0)    { icon=ICO_EXE; editable=0; }
+        else if(regexec(&reg_med, name, 0, 0, 0)==0)    { icon=ICO_MED; editable=0; }
+        else if(regexec(&reg_iso, name, 0, 0, 0)==0)    { icon=ICO_ISO; editable=0; }
+        else                                            { icon=ICO_GEN; editable=0; }
 
         if(cfg.edit_any_file)                               { editable=1; }
 
         if(strcmp(highlight, name)==0)   { 
-            icon=NEWIMG; 
+            icon=ICO_NEW; 
             linecolor=tHIGH_COLOR;
         }
         else {
