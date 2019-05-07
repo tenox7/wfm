@@ -1,5 +1,6 @@
 #include "wfm.h"
 
+//char ICO_FAV[256];
 char ICO_DIR[256], ICO_AUP[256], ICO_ADN[256], ICO_GEN[256], ICO_NEW[256], ICO_ZIP[256];
 char ICO_IMG[256], ICO_OFF[256], ICO_PDF[256];
 char ICO_TXT[256], ICO_EXE[256], ICO_MED[257], ICO_ISO[256], ICO_LNK[256];
@@ -23,6 +24,7 @@ char tHL_COLOR[]="FFD700";
 static const char *access_string[]={ "none", "readonly", "readwrite" };
 
 void dir_icoinita(void) {
+    //snprintf(ICO_FAV, sizeof(ICO_FAV), "<IMG SRC=\"%s%s\" ALT=\"Favicon\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl, rt.favicon);
     snprintf(ICO_DIR, sizeof(ICO_DIR), "<IMG SRC=\"%sdir.gif\" ALT=\"Dir\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
     snprintf(ICO_LNK, sizeof(ICO_LNK), "<IMG SRC=\"%slnk.gif\" ALT=\"Symlink\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
     snprintf(ICO_AUP, sizeof(ICO_AUP), "<IMG SRC=\"%saup.gif\" ALT=\"Up\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
@@ -45,8 +47,8 @@ void dir_icoinita(void) {
         regcomp(&reg_iso, "\\.(iso|flp|img|nrg|dmg)$",                              REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_med, "\\.(mp3|mp4|vaw|mov|avi|ivr|mkv)$",                      REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_pdf, "\\.(pdf|ps|eps|ai)$",                                    REG_EXTENDED | REG_ICASE)!=0 ||
-        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|py|json|yaml|url)$", REG_EXTENDED | REG_ICASE)!=0 ||
-        regcomp(&reg_exe, "\\.(exe|com|pif)$",                                      REG_EXTENDED | REG_ICASE)!=0 
+        regcomp(&reg_exe, "\\.(exe|com|pif)$",                                      REG_EXTENDED | REG_ICASE)!=0 ||
+        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|md|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|conf|py|json|yaml|url|lnk|desktop)$", REG_EXTENDED | REG_ICASE)!=0
     ) error("Unable to compile regex.");
 
 }
