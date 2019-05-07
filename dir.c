@@ -205,6 +205,13 @@ void dirlist(void) {
             "<A HREF=\"%s?action=login&amp;directory=%s\">"
             "&nbsp;<IMG SRC=\"%s%s.gif\" ALIGN=\"MIDDLE\" BORDER=\"0\" ALT=\"Access\"></A>&nbsp;%s\n",  
             cgiScriptName, wp.virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level]);
+	else if(rt.auth_method==3)
+		fprintf(cgiOut,
+			"<A HREF=\"%s?ea=logoff\">"
+            "<IMG SRC=\"%s%s.gif\" BORDER=\"0\" ALIGN=\"MIDDLE\" ALT=\"Access\">"
+                "</A>&nbsp;%s&nbsp;<IMG SRC=\"%suser.gif\" ALIGN=\"MIDDLE\" ALT=\"User\">&nbsp;%s&nbsp;\n",
+            cgiScriptName, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level], rt.iconsurl, rt.loggedinuser);
+
     else
         fprintf(cgiOut, 
             "<A HREF=\"%s?directory=%s\"><IMG SRC=\"%s%s.gif\" BORDER=\"0\" ALIGN=\"MIDDLE\" ALT=\"Access\">"

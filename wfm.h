@@ -102,6 +102,7 @@ struct runtime_struct {
     char loggedinuser[64];
     int access_level;
     int access_as_user;
+	int auth_method;
     int js;
 } rt;
 
@@ -111,7 +112,7 @@ struct timeval mt;
 enum { FALSE, TRUE };
 enum { PERM_NO, PERM_RO, PERM_RW };
 enum { CHANGE, DELETE, MOVE };
-
+enum { AUTH_NONE, AUTH_IP, AUTH_MD5, AUTH_HT };
 
 typedef struct asdir_ {
     char name[1024];
