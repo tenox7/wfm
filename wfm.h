@@ -1,6 +1,7 @@
-#define VERSION "1.4.0"
+#define VERSION "1.4.1"
 #define COPYRIGHT "<!-- WFM Version " VERSION ", Mountain View, CA, " __DATE__ " [" __TIME__ "] -->\n" \
-                  "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n"
+                  "<!-- Copyright (c) 1994-2018 by Antoni Sawicki -->\n" \
+                  "<!-- Copyright (c) 2019 by Google LLC -->\n"
 
 #define FONT_SIZE "12px"
 
@@ -75,12 +76,12 @@ struct  wfm_paths {
     char virt_filename[NAME_MAX]; 
     char *virt_filename_urlencoded; 
     char virt_destination[NAME_MAX]; 
-    char virt_parent[NAME_MAX];
+    char virt_parent[1024];
     char *virt_parent_urlencoded;
-    char phys_dirname[PATH_MAX]; 
-    char phys_filename[PATH_MAX];
-    char phys_destination[PATH_MAX];
-    char final_destination[PATH_MAX];
+    char phys_dirname[2048]; 
+    char phys_filename[4096];
+    char phys_destination[4096];
+    char final_destination[8192];
 } wp;
 
 struct config_struct {
@@ -89,7 +90,7 @@ struct config_struct {
     int edit_any_file;
     int recursive_du;
     int largeset;
-    char homedir[1024];
+    char homedir[PATH_MAX];
     char homeurl[1024];
     char tagline[1024];
     char favicon[1024];
@@ -97,7 +98,7 @@ struct config_struct {
 
 struct runtime_struct {
     char token[256];
-    char iconsurl[1024];
+    char iconsurl[64];
     char loggedinuser[64];
     int access_level;
     int access_as_user;
@@ -113,7 +114,7 @@ enum { CHANGE, DELETE, MOVE };
 
 
 typedef struct asdir_ {
-    char name[NAME_MAX];
+    char name[1024];
     mode_t type;
     off_t size;
     time_t atime, mtime, rtime;

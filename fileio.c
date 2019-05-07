@@ -165,7 +165,7 @@ void edit_save(void) {
     int size=0;
     int tmpfd;
     char *buff;
-    char tempname[64]={0};
+    char tempname[4096]={0};
     //FILE *output;
     FILE *tempf;
 #ifndef WFMGIT
@@ -428,7 +428,7 @@ off_t du(char *pdir) {
 void re_dir_ui(char *vdir, int level) {
     struct dirent **direntry;
     struct stat fileinfo;
-    char child[sizeof(wp.virt_dirname)]={0};
+    char child[sizeof(wp.virt_dirname)+2]={0};
     char phy_child[sizeof(wp.phys_dirname)]={0};
     char re_phys_dirname[sizeof(wp.phys_dirname)]={0};
     int n;
@@ -448,8 +448,7 @@ void re_dir_ui(char *vdir, int level) {
         snprintf(phy_child, sizeof(phy_child), "%s/%s/%s", cfg.homedir, vdir, direntry[e]->d_name);
         if((direntry[e]->d_name[0]!='.') && (lstat(phy_child, &fileinfo)==0) && S_ISDIR(fileinfo.st_mode))  {
 
-
-            snprintf(child, sizeof(wp.virt_dirname), "%s/%s", vdir, direntry[e]->d_name); 
+            snprintf(child, sizeof(child), "%s/%s", vdir, direntry[e]->d_name); 
 
             fprintf(cgiOut, "<OPTION VALUE=\"%s\">", child);
 

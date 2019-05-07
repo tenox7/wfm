@@ -167,7 +167,7 @@ void access_check(char *access_string) {
                 rt.access_level=PERM_RW;
 
             rt.access_as_user=1;
-            strncpy(rt.loggedinuser, getenv("REMOTE_USER"), sizeof(rt.loggedinuser));
+            snprintf(rt.loggedinuser, sizeof(rt.loggedinuser), "%s", getenv("REMOTE_USER") );
         }
     }
 }
@@ -184,7 +184,7 @@ void checkfilename(char *inp_filename) {
     char *bname;
 
     if(inp_filename && strlen(inp_filename)) {
-        strncpy(temp_filename, inp_filename, sizeof(wp.virt_filename));
+        snprintf(temp_filename, sizeof(temp_filename), "%s", inp_filename);
     }
     else if(cgiFormFileName("filename", temp_filename, sizeof(wp.virt_filename)) == cgiFormSuccess) {
         
@@ -206,7 +206,7 @@ void checkfilename(char *inp_filename) {
         (void) *bname++;
 
     strip(bname, sizeof(wp.virt_filename), VALIDCHRS);
-    strncpy(wp.virt_filename, bname, sizeof(wp.virt_filename));
+    snprintf(wp.virt_filename, sizeof(wp.virt_filename), "%s", bname);
     wp.virt_filename_urlencoded=url_encode(wp.virt_filename);
     snprintf(wp.phys_filename, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_filename);
 
@@ -216,8 +216,9 @@ void checkfilename(char *inp_filename) {
     if(strstr(wp.phys_filename, "..")) error("Double dots in pfilename");
     if(strstr(wp.virt_filename, "..")) error("Double dots in vfilename");
 
-    strncpy(temp_dirname, wp.phys_filename, sizeof(wp.phys_filename));
-    if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) error("Basename path too short");
+    snprintf(temp_dirname, sizeof(temp_dirname), "%s", wp.phys_filename);
+    if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) 
+        error("Basename path too short");
 }
 
 //
@@ -232,9 +233,9 @@ void checkdestination(void) {
 
     cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths, rename does not
     if(absolute_destination)
-        snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", cfg.homedir, wp.virt_destination);
+        snprintf(wp.phys_destination, sizeof(wp.phys_destination), "%s/%s", cfg.homedir, wp.virt_destination);
     else
-        snprintf(wp.phys_destination, sizeof(wp.phys_filename), "%s/%s", wp.phys_dirname, wp.virt_destination);
+        snprintf(wp.phys_destination, sizeof(wp.phys_destination), "%s/%s", wp.phys_dirname, wp.virt_destination);
 
     if(strlen(wp.phys_destination)<1 || strlen(wp.phys_destination)>(sizeof(wp.phys_filename)-2)) error("Invalid pdestination lenght [%d]", strlen(wp.phys_destination));
     if(strlen(wp.virt_destination)<1 || strlen(wp.virt_destination)>(sizeof(wp.virt_filename)-2)) error("Invalid vdestination lenght [%d]", strlen(wp.virt_destination));
@@ -258,7 +259,7 @@ void checkdirectory(void) {
     wp.virt_dirname_urlencoded=url_encode(wp.virt_dirname);
 
     // parent
-    strncpy(temp, wp.virt_dirname, sizeof(wp.virt_dirname));
+    strncpy(temp, wp.virt_dirname, sizeof(temp));
     strncpy(wp.virt_parent, dirname(temp), sizeof(wp.virt_dirname));
     wp.virt_parent_urlencoded=url_encode(wp.virt_parent);
 
@@ -279,7 +280,7 @@ void checkdirectory(void) {
     if(strlen(real) > sizeof(wp.phys_dirname)-2)
         error("Resolved path too long");
 
-    strncpy(wp.phys_dirname, real, sizeof(wp.phys_dirname));
+    snprintf(wp.phys_dirname, sizeof(wp.phys_dirname), "%s", real);
     free(real);
 }
 
@@ -513,10 +514,10 @@ void cfgload(void) {
 
     while(fgets(cfgline, sizeof(cfgline), cfgfile)) {
         if((*cfgline==';')||(*cfgline=='/')||(*cfgline=='#')||(*cfgline=='\n')) continue;
-        else if(strncmp(cfgline, c_homedir, strlen(c_homedir))==0)              strncpy(cfg.homedir, cfgline+strlen(c_homedir), sizeof(cfg.homedir));
-        else if(strncmp(cfgline, c_homeurl, strlen(c_homeurl))==0)              strncpy(cfg.homeurl, cfgline+strlen(c_homeurl), sizeof(cfg.homeurl));
-        else if(strncmp(cfgline, c_tagline, strlen(c_tagline))==0)              strncpy(cfg.tagline, cfgline+strlen(c_tagline), sizeof(cfg.tagline));
-        else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              strncpy(cfg.favicon, cfgline+strlen(c_favicon), sizeof(cfg.favicon));
+        else if(strncmp(cfgline, c_homedir, strlen(c_homedir))==0)              snprintf(cfg.homedir, sizeof(cfg.homedir), "%s", cfgline+strlen(c_homedir));
+        else if(strncmp(cfgline, c_homeurl, strlen(c_homeurl))==0)              snprintf(cfg.homeurl, sizeof(cfg.homeurl), "%s", cfgline+strlen(c_homeurl));
+        else if(strncmp(cfgline, c_tagline, strlen(c_tagline))==0)              snprintf(cfg.tagline, sizeof(cfg.tagline), "%s", cfgline+strlen(c_tagline));
+        else if(strncmp(cfgline, c_favicon, strlen(c_favicon))==0)              snprintf(cfg.favicon, sizeof(cfg.favicon), "%s", cfgline+strlen(c_favicon));
         else if(strncmp(cfgline, c_editdef, strlen(c_editdef))==0)              cfg.edit_by_default=1;
         else if(strncmp(cfgline, c_editany, strlen(c_editany))==0)              cfg.edit_any_file=1;
         else if(strncmp(cfgline, c_largeset, strlen(c_largeset))==0)            cfg.largeset=1;
