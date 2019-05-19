@@ -608,28 +608,23 @@ void dirlist(void) {
                     "\n"
                     "<A HREF=\"%s?action=sendfile&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Download '%s'\">\n"
                     "<IMG SRC=\"%sdisk.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Download File\">\n"
-                    "</A>\n"
-                    "</TD>\n"
-                    "</TR>\n\n",
+                    "</A>\n",
                 cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
             else
                 fprintf(cgiOut, 
                     "\n"
                     "<A HREF=\"%s?action=edit&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Edit '%s'\">\n"
                     "<IMG SRC=\"%sedit.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Edit File\">\n"
-                    "</A>\n"
-                    "</TD>\n"
-                    "</TR>\n\n",
+                    "</A>\n",
                 cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
         }
-        else {
-            fprintf(cgiOut, 
-                "\n"
-                "&nbsp;\n"
-                "</TD>\n"
-                "</TR>\n\n"
-            );
-       }
+
+        fprintf(cgiOut, 
+            "\n"
+            "&nbsp;\n"
+            "</TD>\n"
+            "</TR>\n\n"
+        );
 
        totalsize+=size;
        n++;
