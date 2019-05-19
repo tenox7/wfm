@@ -11,6 +11,9 @@ This app was initially used as a web front end for an FTP server. However since 
 can edit html and markdown documents over the web and there is a GIT backed
 version control, you can think and use WFM as a small Content Management System (CMS).
 
+WFM can also be used as a personal cloud, for taking notes, managing files, bookmarks
+or as a front end of a NAS servers.
+
 This program is written using portable C code and compiles natively
 for many flavors of Unix. It runs as a cgi-bin application on most httpd servers
 and does not require PHP, Perl, Python or any other interpreted language. It's a single
@@ -24,10 +27,10 @@ and only used for non-essential luxuries. Tested using [BrowserStack](http://www
 ## History
 WFM begun its life around 1994 as a Perl CGI script for CERN httpd
 server to allow uploading and managing customer logs by field support
-engineers over the web and as a front end to FTP server. Later rewritten in
+engineers over the web and as a front end to FTP servers. Later rewritten in
 C language, when CGIC library and Apache httpd were released. Up to 2015 WFM
-has been a closed source commercial application, supported by a few companies.
-WFM is now released as open source.
+has been a closed source commercial application, used for lighweight document
+management and supported by a few companies. WFM is now released as open source.
 
 
 ## Installation
