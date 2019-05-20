@@ -118,7 +118,7 @@ and `access-htauth=:rw:*` in wfm.cfg.
 
 ## Copyrights and Credits
 Copyright (c) 1994-2018 by Antoni Sawicki  
-Copyright (c) 2018-2019 by Google LLC
+Copyright (c) 2018-2019 by Google LLC  
 Copyright (c) 1996-2011 by Thomas Boutell and Boutell.Com, Inc.  
 Copyright (c) 2002 by Aladdin Enterprises  
 Copyright (c) 1999-2009 by Paul Johnston  
