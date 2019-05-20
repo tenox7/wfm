@@ -2,40 +2,11 @@
 
 #include "wfm.h"
 
-/*
-// Debug dump vars
-//void debugdumpvars(void) {
-
-    cgiHeaderContentType("text/plain");
-
-    printf(
-        "virt_dirname=%s\n"
-        "wp.phys_dirname=%s\n"
-        "wp.virt_filename=%s\n"
-        "wp.phys_filename=%s\n"
-        "wp.virt_destination=%s\n"
-        "wp.phys_destination=%s\n"
-  //      "wp.final_destination=%s\n"
-        "virt_parent=%s\n",
-        virt_dirname,
-        wp.phys_dirname,
-        wp.virt_filename,
-        wp.phys_filename,
-        wp.virt_destination,
-        wp.phys_destination,
-    //    wp.final_destination,
-        virt_parent
-   );
-
-    exit(1);
-}
-*/
-
 //
 // Send file to client browser 
-// Called by cgiMain action=sendfile
+// Called by cgiMain action=save
 //
-void sendfile(void) {
+void save(void) {
     char buff[1024]={0};
     FILE *in;
     int rd=0, tot=0, size=0, pos=0, blk=0;
@@ -247,6 +218,105 @@ void edit_save(void) {
 
     redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
 }
+
+
+//
+// Go To URL called by action=goto_url
+//
+// TODO: Support for webloc and other formats
+//
+void goto_url(void) {
+    FILE *in;
+    const char urlstr[] = "[InternetShortcut]";
+    const char dskstr[] = "[Desktop Entry]";
+    const char xmlstr[] = "<?xml version";
+    char chkbuf[64];
+    int found=0;
+    char *buff;
+
+    checkfilename(NULL);
+
+    // check if file is a link
+    in=fopen(wp.phys_filename, "rb");
+    if(!in)
+        error("Unable to open file.<BR>%s", strerror(errno));
+
+    //rd=fread(chkbuf, sizeof(chkbuf), 1, in);
+    
+    if(!fgets(chkbuf, sizeof(chkbuf), in))
+        error("Unable to read or not a link file<BR>%s<BR>", wp.virt_filename);
+
+    if(
+        strncmp(chkbuf, urlstr, strlen(urlstr))!=0 && 
+        strncmp(chkbuf, dskstr, strlen(dskstr))!=0 &&
+        strncmp(chkbuf, xmlstr, strlen(xmlstr))!=0 
+        )
+        error("Not a URL file");
+
+    // process link by looking for url
+    buff=calloc(1024, 1);
+    
+    while(fgets(buff, 1024, in)) {
+        if(strncasecmp(buff, "URL=", 4)==0) {
+            buff+=4;
+            found=1;
+            break;
+        }
+        else if(strncasecmp(buff, "RL=", 3)==0) {
+            buff+=3;
+            found=1;
+            break;
+        }
+    }    
+
+    fclose(in);
+
+    if(!found)
+        error("No URL spec found in file<BR>", wp.virt_filename);
+
+    redirect("%s", buff);
+}
+
+
+//
+// Create a new new URL shortcut file
+// Called by cgiMain action=mkurl
+// TODO: Support webloc, desktop and other file format
+//
+void mkurl(void) {
+    FILE *output;
+    struct stat sb;
+    regex_t reg_url;
+
+    checkfilename(NULL);
+
+    regcomp(&reg_url, "\\.url$", REG_EXTENDED | REG_ICASE);
+
+    if(regexec(&reg_url, wp.phys_filename, 0, 0, 0)!=0) 
+        snprintf(wp.final_destination, sizeof(wp.final_destination), "%s.url", wp.phys_filename);
+    else
+        snprintf(wp.final_destination, sizeof(wp.final_destination), "%s", wp.phys_filename);
+
+    if(stat(wp.final_destination, &sb)==0)
+        error("File %s already exists.<BR>[%s]", wp.virt_filename, strerror(errno));
+
+    output=fopen(wp.final_destination, "w"); 
+
+    if(!output) 
+        error("Unable to create file %s.<BR>%s", wp.virt_filename, strerror(errno));
+
+    cgiFormStringNoNewlines("destination", wp.virt_destination, sizeof(wp.virt_destination));
+
+    fprintf(output, "[InternetShortcut]\r\nURL=%s\r\n", wp.virt_destination);
+
+    fclose(output);
+
+    wfm_commit(CHANGE, NULL);
+
+    redirect("%s?highlight=%s&directory=%s&token=%s", cgiScriptName, wp.virt_filename_urlencoded, wp.virt_dirname_urlencoded, rt.token);
+
+}
+
 
 //
 // Recursively Delete Folders - Internal Routine

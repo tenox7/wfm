@@ -231,7 +231,7 @@ void checkfilename(char *inp_filename) {
 void checkdestination(void) {
     int absolute_destination;
     
-    cgiFormStringNoNewlines("destination", wp.virt_destination, sizeof(wp.virt_filename));
+    cgiFormStringNoNewlines("destination", wp.virt_destination, sizeof(wp.virt_destination));
     strip(wp.virt_destination, sizeof(wp.virt_filename), VALIDCHRS_DIR);
 
     cgiFormInteger("absdst", &absolute_destination, 0);  // move operation relies on absolute paths, rename does not
@@ -596,7 +596,7 @@ int cgiMain(void) {
     else if(cgiFormSubmitClicked("multi_move_prompt")==cgiFormSuccess     && rt.access_level >= PERM_RO)         multiprompt_ui("move");
     else if(cgiFormSubmitClicked("multi_move_prompt.x")==cgiFormSuccess   && rt.access_level >= PERM_RO)         multiprompt_ui("move");
     else if(cgiFormSubmitClicked("upload")==cgiFormSuccess                && rt.access_level >= PERM_RW)         receivefile();
-    else if(strcmp(action, "sendfile")==0                                 && rt.access_level >= PERM_RO)         sendfile();
+    else if(strcmp(action, "save")==0                                     && rt.access_level >= PERM_RO)         save();
     else if(strcmp(action, "delete")==0                                   && rt.access_level >= PERM_RW)         delete();
     else if(strcmp(action, "delete_prompt")==0                            && rt.access_level >= PERM_RW)         multiprompt_ui("delete");
     else if(strcmp(action, "move_prompt")==0                              && rt.access_level >= PERM_RW)         multiprompt_ui("move");
@@ -608,6 +608,9 @@ int cgiMain(void) {
     else if(strcmp(action, "mkfile_prompt")==0                            && rt.access_level >= PERM_RW)         singleprompt_ui("mkfile");
     else if(strcmp(action, "mkdir")==0                                    && rt.access_level >= PERM_RW)         newdir();
     else if(strcmp(action, "mkdir_prompt")==0                             && rt.access_level >= PERM_RW)         singleprompt_ui("mkdir");
+    else if(strcmp(action, "mkurl")==0                                    && rt.access_level >= PERM_RW)         mkurl();
+    else if(strcmp(action, "mkurl_prompt")==0                             && rt.access_level >= PERM_RW)         singleprompt_ui("mkurl");
+    else if(strcmp(action, "goto_url")==0                                 && rt.access_level >= PERM_RO)         goto_url();
     else if(strcmp(action, "about")==0                                    && rt.access_level >= PERM_RO)         about();
     else if(strcmp(action, "login")==0      )                                                                    login();
     else if(                                                                 rt.access_level >= PERM_RO)         dirlist();

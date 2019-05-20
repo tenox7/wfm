@@ -150,6 +150,14 @@ void singleprompt_ui(char *m_action) {
         "    &nbsp;<BR>Enter name of the new directory:<P>\n"
         "    <INPUT TYPE=\"TEXT\" ID=\"inp1\" NAME=\"filename\" SIZE=\"40\" VALUE=\"\">\n");
 
+    else if(strcmp(m_action, "mkurl")==0)
+        fprintf(cgiOut,
+        "    &nbsp;<BR>Name of the shortcut file:<P>\n"
+        "    <INPUT TYPE=\"TEXT\" ID=\"inp1\" NAME=\"filename\" SIZE=\"40\" VALUE=\"\">\n"
+        "    <P>\n"
+        "    &nbsp;<BR>The shortcut URL:<P>\n"
+        "    <INPUT TYPE=\"TEXT\" ID=\"inp2\" NAME=\"destination\" SIZE=\"40\" VALUE=\"\">\n");
+
     fprintf(cgiOut,
         "   </TD></TR>\n"
         "   <TR><TD COLSPAN=2>\n"

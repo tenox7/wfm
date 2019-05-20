@@ -3,8 +3,8 @@
 //char ICO_FAV[256];
 char ICO_DIR[256], ICO_AUP[256], ICO_ADN[256], ICO_GEN[256], ICO_NEW[256], ICO_ZIP[256];
 char ICO_IMG[256], ICO_OFF[256], ICO_PDF[256];
-char ICO_TXT[256], ICO_EXE[256], ICO_MED[257], ICO_ISO[256], ICO_LNK[256];
-regex_t reg_zip, reg_img, reg_pdf, reg_exe, reg_txt, reg_off, reg_med, reg_iso;
+char ICO_TXT[256], ICO_EXE[256], ICO_MED[257], ICO_ISO[256], ICO_LNK[256], ICO_DSK[256], ICO_EDT[256];
+regex_t reg_zip, reg_img, reg_pdf, reg_exe, reg_txt, reg_off, reg_med, reg_iso, reg_lnk;
 
 char M_HR[]="<FONT COLOR=\"#000000\" STYLE=\"font-weight:bold;\">(Last Hour)";
 char M_DAY[]="<FONT COLOR=\"#505050\" STYLE=\"font-weight:bold;\">(Last Day)";
@@ -26,7 +26,7 @@ static const char *access_string[]={ "none", "readonly", "readwrite" };
 void dir_icoinita(void) {
     //snprintf(ICO_FAV, sizeof(ICO_FAV), "<IMG SRC=\"%s%s\" ALT=\"Favicon\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl, rt.favicon);
     snprintf(ICO_DIR, sizeof(ICO_DIR), "<IMG SRC=\"%sdir.gif\" ALT=\"Dir\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
-    snprintf(ICO_LNK, sizeof(ICO_LNK), "<IMG SRC=\"%slnk.gif\" ALT=\"Symlink\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
+    snprintf(ICO_LNK, sizeof(ICO_LNK), "<IMG SRC=\"%sext.gif\" ALT=\"Link/Shortcut\" ALIGN=\"MIDDLE\" BORDER=\"0\">", rt.iconsurl);
     snprintf(ICO_AUP, sizeof(ICO_AUP), "<IMG SRC=\"%saup.gif\" ALT=\"Up\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
     snprintf(ICO_ADN, sizeof(ICO_ADN), "<IMG SRC=\"%sadn.gif\" ALT=\"Down\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"7\" HEIGHT=\"4\">", rt.iconsurl);
     snprintf(ICO_GEN, sizeof(ICO_GEN), "<IMG SRC=\"%sgen.gif\" ALT=\"Unknown\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
@@ -39,6 +39,8 @@ void dir_icoinita(void) {
     snprintf(ICO_EXE, sizeof(ICO_EXE), "<IMG SRC=\"%sexe.gif\" ALT=\"Exec\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
     snprintf(ICO_MED, sizeof(ICO_MED), "<IMG SRC=\"%smed.gif\" ALT=\"Multimedia\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
     snprintf(ICO_ISO, sizeof(ICO_ISO), "<IMG SRC=\"%siso.gif\" ALT=\"Disk Image\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_DSK, sizeof(ICO_DSK), "<IMG SRC=\"%sdisk.gif\" ALT=\"Save\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
+    snprintf(ICO_EDT, sizeof(ICO_EDT), "<IMG SRC=\"%sedit.gif\" ALT=\"Edit\" ALIGN=\"MIDDLE\" BORDER=\"0\" WIDTH=\"16\" HEIGHT=\"16\">", rt.iconsurl);
 
     if(
         regcomp(&reg_zip, "\\.(zip|rar|tar|gz|tgz|z|arj|bz|tbz|7z|xz)$",            REG_EXTENDED | REG_ICASE)!=0 ||
@@ -48,7 +50,8 @@ void dir_icoinita(void) {
         regcomp(&reg_med, "\\.(mp3|mp4|vaw|mov|avi|ivr|mkv)$",                      REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_pdf, "\\.(pdf|ps|eps|ai)$",                                    REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_exe, "\\.(exe|com|pif)$",                                      REG_EXTENDED | REG_ICASE)!=0 ||
-        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|md|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|conf|py|json|yaml|url|lnk|desktop)$", REG_EXTENDED | REG_ICASE)!=0
+        regcomp(&reg_lnk, "\\.(url|lnk|desktop|shortcut|webloc)$",                  REG_EXTENDED | REG_ICASE)!=0 ||
+        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|md|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|conf|py|json|yaml)$", REG_EXTENDED | REG_ICASE)!=0
     ) error("Unable to compile regex.");
 
 }
@@ -65,9 +68,9 @@ void dirlist(void) {
     char rtime[64], mtime[64], atime[64];
     char *stime;
     char sortby[64]={0};
-    char *name, *name_urlencoded, *icon, *linecolor;
-	int nentr=0, e=0, n=1;
-    int editable;
+    char *name, *name_urlencoded, *icon, *linecolor, *action, *raction, *ricon, *laction, *licon;
+    int nentr=0, e=0, n=1;
+    int editable, is_link;
     int upload_id=0;
     time_t now;
 
@@ -205,9 +208,9 @@ void dirlist(void) {
             "<A HREF=\"%s?action=login&amp;directory=%s\">"
             "&nbsp;<IMG SRC=\"%s%s.gif\" ALIGN=\"MIDDLE\" BORDER=\"0\" ALT=\"Access\"></A>&nbsp;%s\n",  
             cgiScriptName, wp.virt_dirname_urlencoded, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level]);
-	else if(rt.auth_method==3)
-		fprintf(cgiOut,
-			"<A HREF=\"%s?ea=logoff\">"
+    else if(rt.auth_method==3)
+        fprintf(cgiOut,
+            "<A HREF=\"%s?ea=logoff\">"
             "<IMG SRC=\"%s%s.gif\" BORDER=\"0\" ALIGN=\"MIDDLE\" ALT=\"Access\">"
                 "</A>&nbsp;%s&nbsp;<IMG SRC=\"%suser.gif\" ALIGN=\"MIDDLE\" ALT=\"User\">&nbsp;%s&nbsp;\n",
             cgiScriptName, rt.iconsurl, access_string[rt.access_level], access_string[rt.access_level], rt.iconsurl, rt.loggedinuser);
@@ -297,6 +300,14 @@ void dirlist(void) {
                 "</TD>\n",
                 cgiScriptName, wp.virt_dirname_urlencoded, rt.token, rt.iconsurl);
 
+    fprintf(cgiOut,                                 
+                "<!-- NEWURL -->\n"
+                "<TD NOWRAP   BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"
+                     "<A HREF=\"%s?action=mkurl_prompt&amp;directory=%s&amp;token=%s\">"
+                            "%s&nbsp;New URL"
+                     "</A>\n"
+                "</TD>\n",
+                cgiScriptName, wp.virt_dirname_urlencoded, rt.token, ICO_LNK);
 
                 
     fprintf(cgiOut,                 
@@ -509,15 +520,16 @@ void dirlist(void) {
         else if(now-direntry[e].mtime < 365*24*3600) stime=M_YR;
         else                                         stime=M_OLD;
 
-             if(regexec(&reg_zip, name, 0, 0, 0)==0)    { icon=ICO_ZIP; editable=0; }
-        else if(regexec(&reg_img, name, 0, 0, 0)==0)    { icon=ICO_IMG; editable=0; }
-        else if(regexec(&reg_off, name, 0, 0, 0)==0)    { icon=ICO_OFF; editable=0; }
-        else if(regexec(&reg_pdf, name, 0, 0, 0)==0)    { icon=ICO_PDF; editable=0; }
-        else if(regexec(&reg_txt, name, 0, 0, 0)==0)    { icon=ICO_TXT; editable=1; }
-        else if(regexec(&reg_exe, name, 0, 0, 0)==0)    { icon=ICO_EXE; editable=0; }
-        else if(regexec(&reg_med, name, 0, 0, 0)==0)    { icon=ICO_MED; editable=0; }
-        else if(regexec(&reg_iso, name, 0, 0, 0)==0)    { icon=ICO_ISO; editable=0; }
-        else                                            { icon=ICO_GEN; editable=0; }
+             if(regexec(&reg_zip, name, 0, 0, 0)==0)    { icon=ICO_ZIP; editable=0; is_link=0; }
+        else if(regexec(&reg_img, name, 0, 0, 0)==0)    { icon=ICO_IMG; editable=0; is_link=0; }
+        else if(regexec(&reg_off, name, 0, 0, 0)==0)    { icon=ICO_OFF; editable=0; is_link=0; }
+        else if(regexec(&reg_pdf, name, 0, 0, 0)==0)    { icon=ICO_PDF; editable=0; is_link=0; }
+        else if(regexec(&reg_txt, name, 0, 0, 0)==0)    { icon=ICO_TXT; editable=1; is_link=0; }
+        else if(regexec(&reg_exe, name, 0, 0, 0)==0)    { icon=ICO_EXE; editable=0; is_link=0; }
+        else if(regexec(&reg_med, name, 0, 0, 0)==0)    { icon=ICO_MED; editable=0; is_link=0; }
+        else if(regexec(&reg_iso, name, 0, 0, 0)==0)    { icon=ICO_ISO; editable=0; is_link=0; }
+        else if(regexec(&reg_lnk, name, 0, 0, 0)==0)    { icon=ICO_LNK; editable=1; is_link=1; }
+        else                                            { icon=ICO_GEN; editable=0; is_link=0; }
 
         if(cfg.edit_any_file)                               { editable=1; }
 
@@ -537,6 +549,27 @@ void dirlist(void) {
             }
         }
 
+    // default action
+    if(cfg.edit_by_default && editable) {
+        action="edit";
+        raction="save";
+        ricon=ICO_DSK;
+        laction="goto_url";
+        licon=ICO_LNK;
+    } else if(is_link) {
+        action="goto_url";
+        raction="save";
+        ricon=ICO_DSK;
+        laction="edit";
+        licon=ICO_EDT;
+    } else {
+        action="save";
+        raction="edit";
+        ricon=ICO_EDT;
+        laction="";
+        licon="";
+    }
+
         // filename 
         fprintf(cgiOut, 
             "<!-- File Entry -->\n");
@@ -548,10 +581,11 @@ void dirlist(void) {
             fprintf(cgiOut, "onMouseOver=\"this.bgColor='#%s';\" onMouseOut=\"this.bgColor='#%s';\"",
             tHL_COLOR, linecolor);
 
+        // default action
         fprintf(cgiOut,
             ">\n<TD NOWRAP  ALIGN=\"LEFT\"><INPUT TYPE=\"CHECKBOX\" NAME=\"multiselect_filename\" STYLE=\"border: none;\" VALUE=\"%s\">"
-            "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Open '%s'\">%s %s</A></TD>\n",
-        name, cgiScriptName, (cfg.edit_by_default && editable) ? "edit" : "sendfile", wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, icon, name);
+            "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"%s '%s'\">%s %s</A></TD>\n",
+        name, cgiScriptName, action, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, action, name, icon, name);
 
 
         // size / date
@@ -576,7 +610,7 @@ void dirlist(void) {
         // move
         fprintf(cgiOut, 
             "\n"
-            "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move '%s'\">"
+            "<A HREF=\"%s?action=move_prompt&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Move %s\">"
             "<IMG SRC=\"%smove.gif\" BORDER=0 WIDTH=16 HEIGHT=16  ALT=\"Move '%s'\">\n"
             "</A>\n",
             cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name,  rt.iconsurl, name);
@@ -590,34 +624,33 @@ void dirlist(void) {
             "</A>\n",
             cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
+        // edit for text files..
+        if(editable) 
+            fprintf(cgiOut, 
+                "\n"
+                "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"%s %s\">\n"
+                "%s\n"
+                "</A>\n",
+            cgiScriptName, raction, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, raction, name, ricon);
 
-        // view
-        if(strlen(cfg.homeurl)>4)
+        // links
+        if(is_link) 
+            fprintf(cgiOut, 
+                "\n"
+                "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"%s %s\">\n"
+                "%s\n"
+                "</A>\n",
+            cgiScriptName, laction, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, laction, name, licon);
+
+        // view via external link
+        if(strlen(cfg.homeurl)>4 && !is_link)
             fprintf(cgiOut, 
                 "\n"
                 "<A HREF=\"%s%s%s/%s\" TITLE=\"Preview '%s' In Browser\">\n"
-                "<IMG SRC=\"%sext.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Preview '%s' In Browser\" >\n"
+                "%s\n"
                 "</A>\n", 
-            cfg.homeurl, (wp.virt_dirname[0]!='/') ? "/" : "", (strcmp(wp.virt_dirname, "/")==0) ? "" : wp.virt_dirname, name, name, rt.iconsurl,  name);
+            cfg.homeurl, (wp.virt_dirname[0]!='/') ? "/" : "", (strcmp(wp.virt_dirname, "/")==0) ? "" : wp.virt_dirname, name, name, ICO_LNK);
 
-        
-        // edit for text files..
-        if(editable) {
-            if(cfg.edit_by_default) 
-                fprintf(cgiOut, 
-                    "\n"
-                    "<A HREF=\"%s?action=sendfile&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Download '%s'\">\n"
-                    "<IMG SRC=\"%sdisk.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Download File\">\n"
-                    "</A>\n",
-                cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
-            else
-                fprintf(cgiOut, 
-                    "\n"
-                    "<A HREF=\"%s?action=edit&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"Edit '%s'\">\n"
-                    "<IMG SRC=\"%sedit.gif\" BORDER=0 WIDTH=16 HEIGHT=16 ALT=\"Edit File\">\n"
-                    "</A>\n",
-                cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
-        }
 
         fprintf(cgiOut, 
             "\n"
