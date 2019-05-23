@@ -221,60 +221,40 @@ void edit_save(void) {
 
 
 //
-// Go To URL called by action=goto_url
-//
-// TODO: Support for webloc and other formats
+// Go To URL - Process .url / .desktop / .webloc / etc files
+// Called by action=goto_url
 //
 void goto_url(void) {
     FILE *in;
-    const char urlstr[] = "[InternetShortcut]";
-    const char dskstr[] = "[Desktop Entry]";
-    const char xmlstr[] = "<?xml version";
-    char chkbuf[64];
-    int found=0;
-    char *buff;
+    char buff[1024]={0};
+    regex_t r_is, r_de, r_wl, r_wb;
+    regmatch_t m[2];
 
     checkfilename(NULL);
 
-    // check if file is a link
+    if(regcomp(&r_is, "\\[InternetShortcut\\].*URL=([[:print:]]+)", REG_EXTENDED | REG_ICASE)!=0 ||
+       regcomp(&r_de, "\\[[Desktop Entry\\].*URL=([[:print:]]+)", REG_EXTENDED | REG_ICASE)!=0 ||
+       regcomp(&r_wl, "xml version.*<key>URL</key>.*<string>(.+)</string>", REG_EXTENDED | REG_ICASE)!=0 ||
+       regcomp(&r_wb, ".*bplist.*URL_.*([[:print:]]+).*", REG_EXTENDED | REG_ICASE)!=0)
+        error("Unable to compile regex.");
+
     in=fopen(wp.phys_filename, "rb");
     if(!in)
         error("Unable to open file.<BR>%s", strerror(errno));
 
-    //rd=fread(chkbuf, sizeof(chkbuf), 1, in);
-    
-    if(!fgets(chkbuf, sizeof(chkbuf), in))
-        error("Unable to read or not a link file<BR>%s<BR>", wp.virt_filename);
-
-    if(
-        strncmp(chkbuf, urlstr, strlen(urlstr))!=0 && 
-        strncmp(chkbuf, dskstr, strlen(dskstr))!=0 &&
-        strncmp(chkbuf, xmlstr, strlen(xmlstr))!=0 
-        )
-        error("Not a URL file");
-
-    // process link by looking for url
-    buff=calloc(1024, 1);
-    
-    while(fgets(buff, 1024, in)) {
-        if(strncasecmp(buff, "URL=", 4)==0) {
-            buff+=4;
-            found=1;
-            break;
-        }
-        else if(strncasecmp(buff, "RL=", 3)==0) {
-            buff+=3;
-            found=1;
-            break;
-        }
-    }    
-
+    fread(buff, sizeof(buff), 1, in);
     fclose(in);
 
-    if(!found)
-        error("No URL spec found in file<BR>", wp.virt_filename);
+    if(regexec(&r_is, buff, 2, m, 0) &&
+       regexec(&r_de, buff, 2, m, 0) &&
+       regexec(&r_wl, buff, 2, m, 0) &&
+       regexec(&r_wb, buff, 2, m, 0) )
+    error("No URL spec found in file<BR>%s", wp.virt_filename);
 
-    redirect("%s", buff);
+    if(m[1].rm_eo-m[1].rm_so > sizeof(buff)-1)
+        error("Regex match too long");
+
+    redirect("%.*s", m[1].rm_eo-m[1].rm_so, buff+m[1].rm_so);
 }
 
 
