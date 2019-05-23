@@ -528,7 +528,7 @@ void dirlist(void) {
         else if(regexec(&reg_exe, name, 0, 0, 0)==0)    { icon=ICO_EXE; editable=0; is_link=0; }
         else if(regexec(&reg_med, name, 0, 0, 0)==0)    { icon=ICO_MED; editable=0; is_link=0; }
         else if(regexec(&reg_iso, name, 0, 0, 0)==0)    { icon=ICO_ISO; editable=0; is_link=0; }
-        else if(regexec(&reg_lnk, name, 0, 0, 0)==0)    { icon=ICO_LNK; editable=1; is_link=1; }
+        else if(regexec(&reg_lnk, name, 0, 0, 0)==0)    { icon=ICO_LNK; editable=0; is_link=1; }
         else                                            { icon=ICO_GEN; editable=0; is_link=0; }
 
         if(cfg.edit_any_file)                               { editable=1; }
@@ -625,7 +625,7 @@ void dirlist(void) {
             cgiScriptName, wp.virt_dirname_urlencoded, name_urlencoded, rt.token, name, rt.iconsurl);
 
         // edit for text files..
-        if(editable) 
+        if(editable||is_link) 
             fprintf(cgiOut, 
                 "\n"
                 "<A HREF=\"%s?action=%s&amp;directory=%s&amp;filename=%s&amp;token=%s\" TITLE=\"%s %s\">\n"
