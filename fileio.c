@@ -235,7 +235,7 @@ void goto_url(void) {
     if(regcomp(&r_is, "\\[InternetShortcut\\].*URL=([[:print:]]+)", REG_EXTENDED | REG_ICASE)!=0 ||
        regcomp(&r_de, "\\[[Desktop Entry\\].*URL=([[:print:]]+)", REG_EXTENDED | REG_ICASE)!=0 ||
        regcomp(&r_wl, "xml version.*<key>URL</key>.*<string>(.+)</string>", REG_EXTENDED | REG_ICASE)!=0 ||
-       regcomp(&r_wb, ".*bplist.*URL_.*([[:print:]]+).*", REG_EXTENDED | REG_ICASE)!=0)
+       regcomp(&r_wb, ".*bplist.*URL_[^[:print:]].([[:print:]]+)", REG_EXTENDED | REG_ICASE)!=0)
         error("Unable to compile regex.");
 
     in=fopen(wp.phys_filename, "rb");
