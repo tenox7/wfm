@@ -51,7 +51,7 @@ void dir_icoinita(void) {
         regcomp(&reg_pdf, "\\.(pdf|ps|eps|ai)$",                                    REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_exe, "\\.(exe|com|pif)$",                                      REG_EXTENDED | REG_ICASE)!=0 ||
         regcomp(&reg_lnk, "\\.(url|lnk|desktop|shortcut|webloc)$",                  REG_EXTENDED | REG_ICASE)!=0 ||
-        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|md|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|log|bak|cfg|conf|py|json|yaml)$", REG_EXTENDED | REG_ICASE)!=0
+        regcomp(&reg_txt, "\\.(txt|asc|nfo|me|md|log|htm|html|shtml|js|jsp|php|xml|dtd|css|bas|c|h|cpp|cmd|bat|sh|ksh|awk|reg|bak|cfg|conf|py|json|yaml)$", REG_EXTENDED | REG_ICASE)!=0
     ) error("Unable to compile regex.");
 
 }
