@@ -39,8 +39,8 @@ void wfm_git_commit(char *msg) {
     char username[1024]={0};
     char email[1024]={0};
 
-    snprintf(username, sizeof(username), "%s %s", basename(cgiScriptName), (strlen(loggedinuser)) ? loggedinuser:"(none)");
-    snprintf(email, sizeof(email), "%s@%s.wfm", (strlen(loggedinuser)) ? loggedinuser:"(none)", cgiRemoteAddr);
+    snprintf(username, sizeof(username), "%s %s", basename(cgiScriptName), (strlen(rt.loggedinuser)) ? rt.loggedinuser:"(none)");
+    snprintf(email, sizeof(email), "%s@%s.wfm", (strlen(rt.loggedinuser)) ? rt.loggedinuser:"(none)", cgiRemoteAddr);
 
     git_signature_now(&sig, username, email);        
     
@@ -70,11 +70,11 @@ void wfm_git_commit(char *msg) {
 int wfm_commit(int op, char *fname) {
 #ifdef WFMGIT
     int ret;
-    char repodir[sizeof(HOMEDIR)+10]={0};
+    char repodir[sizeof(cfg.homedir)+10]={0};
     char msg[1024];
-    char stage_filename_buf[1024]={0};
+    char stage_filename_buf[8192]={0};
     char *stage_filename=stage_filename_buf;
-    char stage_newname_buf[1024]={0};
+    char stage_newname_buf[8192]={0};
     char *stage_newname=stage_newname_buf;
     char *opstr[]={ "Change", "Delete", "Move" };
 
@@ -83,22 +83,22 @@ int wfm_commit(int op, char *fname) {
 
     git_libgit2_init();
 
-    snprintf(repodir, sizeof(repodir), "%s/.git", HOMEDIR);
+    snprintf(repodir, sizeof(repodir), "%s/.git", cfg.homedir);
     ret=git_repository_open(&repo, repodir);                
     if(ret)
         return ret;
 
     if(fname && strlen(fname)) 
-        strncpy(stage_filename_buf, fname, sizeof(stage_filename_buf));
+        strncpy(stage_filename_buf, fname, sizeof(stage_filename_buf)-1);
     else
-        strncpy(stage_filename_buf, phys_filename, sizeof(stage_filename_buf));
-    stage_filename+=strlen(HOMEDIR);
+        strncpy(stage_filename_buf, wp.phys_filename, sizeof(stage_filename_buf));
+    stage_filename+=strlen(cfg.homedir);
     while(*stage_filename=='/')
         stage_filename++;
 
     if(op==MOVE) {
-        strncpy(stage_newname_buf, final_destination, sizeof(stage_newname_buf));
-        stage_newname+=strlen(HOMEDIR);
+        strncpy(stage_newname_buf, wp.final_destination, sizeof(stage_newname_buf));
+        stage_newname+=strlen(cfg.homedir);
         while(*stage_newname=='/')
             stage_newname++;
     }
@@ -114,7 +114,7 @@ int wfm_commit(int op, char *fname) {
         (op==MOVE) ? " => " : "",
         (op==MOVE) ? stage_newname : "",
         basename(cgiScriptName),
-        (strlen(loggedinuser)) ? loggedinuser:"(none)",
+        (strlen(rt.loggedinuser)) ? rt.loggedinuser:"(none)",
         cgiRemoteAddr
     );
 
@@ -140,11 +140,11 @@ int wfm_commit(int op, char *fname) {
 int repo_check() {
     int ret=1;
 #ifdef WFMGIT
-    char repodir[sizeof(HOMEDIR)+10]={0};
+    char repodir[sizeof(cfg.homedir)+10]={0};
 
 	git_libgit2_init();
 
-    snprintf(repodir, sizeof(repodir), "%s/.git", HOMEDIR);
+    snprintf(repodir, sizeof(repodir), "%s/.git", cfg.homedir);
     ret=git_repository_open(&repo, repodir);                
     if(ret==0)
         git_repository_free(repo);
