@@ -545,6 +545,10 @@ void cfgload(void) {
     if(strlen(cfg.tagline)>2) cfg.tagline[strlen(cfg.tagline)-1]='\0';
     if(strlen(cfg.favicon)>2) cfg.favicon[strlen(cfg.favicon)-1]='\0';
     
+    // remove trailing slash from homedir (causes problems with basename checks)
+    if(cfg.homedir[strlen(cfg.homedir)-1] == '/')
+        cfg.homedir[strlen(cfg.homedir)-1] = '\0';
+
     // do checks
     if(strlen(cfg.homedir) < 4)
         error("Home directory not defined.");
