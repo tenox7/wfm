@@ -221,7 +221,7 @@ void checkfilename(char *inp_filename) {
 
     snprintf(temp_dirname, sizeof(temp_dirname), "%s", wp.phys_filename);
     if(strlen(dirname(temp_dirname)) < strlen(cfg.homedir)) 
-        error("Basename path too short");
+        error("Requested path basename ('%s') does not start with the homedir string ('%s'), assuming access is not allowed.");
 }
 
 //
