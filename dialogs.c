@@ -451,6 +451,7 @@ void edit_ui(void) {
     fprintf(cgiOut,
     "<STYLE TYPE=\"text/css\"><!-- \n"
         "html, body, table, textarea, form { box-sizing: border-box; width:100%%; height:100%%; margin:0px; padding:0px; } \n"
+        "textarea { padding: 4px; } \n"
     "--></STYLE>\n"
     "</HEAD>\n"
     "<BODY>\n"
@@ -477,7 +478,7 @@ void edit_ui(void) {
          "</TR>\n"
          "<TR STYLE=\"height:99%%;\">\n"
             "<TD COLSPAN=2 ALIGN=\"CENTER\" VALIGN=\"MIDDLE\" STYLE=\"height:100%%;\">\n"
-                 "<TEXTAREA COLS=\"120\" ROWS=\"24\" NAME=\"content\" STYLE=\"resize:none;\">");
+                 "<TEXTAREA COLS=\"120\" ROWS=\"24\" NAME=\"content\" SPELLCHECK=\"false\" STYLE=\"resize:none;\">");
 
 
     cgiHtmlEscapeData(buff, size);
