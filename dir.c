@@ -124,7 +124,8 @@ void dirlist(void) {
         "    }\n"
         "}\n");
 
-/*    if(rt.js>=2) fprintf(cgiOut,
+/*    this code is for fancy upload status via ajax call to cgic counterpart
+        if(rt.js>=2) fprintf(cgiOut,
         "function xmlhttpPost(strURL) {\n"
         "    var xmlHttpReq = false;\n"
         "    var self = this;\n"
