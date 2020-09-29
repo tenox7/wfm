@@ -525,7 +525,7 @@ int re_dir_up(char *vdir) {
     char tmp[sizeof(wp.virt_dirname)]={0};
 
     strcpy(tmp, vdir);
-    len=strsplit(tmp, &dirs, "/.");
+    len=strsplit(tmp, &dirs, "/");
     for(n=0; n<len; n++) {
         fprintf(cgiOut, "<OPTION VALUE=\"/");
         
