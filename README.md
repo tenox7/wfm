@@ -5,7 +5,7 @@ and organize directory tree structure using standard web browser. Text, markup a
 markdown files can be edited directly in the browser. 
 
 An integrated GIT client can track and auto commit all file change operations
-in to a to a GIT repository.
+into a GIT repository.
 
 This app was initially used as a web front end for an FTP server. However since you
 can edit html and markdown documents over the web and there is a GIT backed
