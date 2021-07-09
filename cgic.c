@@ -1873,6 +1873,7 @@ void cgiHeaderCookieSetString(char *name, char *value, int secondsToLive,
 }
 
 void cgiHeaderLocation(char *redirectUrl) {
+	fprintf(cgiOut, "Status: 303 Redirecting\r\n"); // neccesary on some servers, eg litespeed
 	fprintf(cgiOut, "Location: %s\r\n\r\n", redirectUrl);
 }
 
