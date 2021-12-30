@@ -10,7 +10,8 @@
 // * docker support (no chroot) - mount dir as / ?
 // * drivers for different storage, like cloud/smb/ftp
 // * html charset, currently US-ASCII ?!
-// * generate icons on fly with encoding/gid at least for favicon?
+// * generate icons on fly with encoding/gid
+//   also for input type=image, or  least for favicon?
 
 package main
 
@@ -21,6 +22,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -30,14 +32,13 @@ var (
 	base = flag.String("base_dir", "", "Base directory path")
 )
 
-func header(w http.ResponseWriter) {
+func header(w http.ResponseWriter, dir string) {
 	w.Header().Set("Content-Type", "text/html")
-	// TODO: icon, title, form
 	w.Write([]byte(
 		"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\"http://www.w3.org/TR/html4/loose.dtd\">\n" +
 			"<HTML LANG=\"en\">\n" +
 			"<HEAD>\n" +
-			"<TITLE>WRP</TITLE>\n" +
+			"<TITLE>WFM " + dir + "</TITLE>\n" +
 			"<STYLE TYPE=\"text/css\">\n" +
 			"<!--\n" +
 			"A:link {text-decoration: none; color:#0000CE; } \n" +
@@ -59,15 +60,23 @@ func header(w http.ResponseWriter) {
 			"</HEAD>\n" +
 			"<BODY BGCOLOR=\"#FFFFFF\">\n" +
 			"<FORM ACTION=\"/\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n" +
-			"<INPUT TYPE=\"hidden\" NAME=\"dir\" VALUE=\"/\">\n",
+			"<INPUT TYPE=\"hidden\" NAME=\"dir\" VALUE=\"" + dir + "\">\n",
 	))
 }
 
 func listFiles(w http.ResponseWriter, r *http.Request) {
-	header(w)
-	// TODO: directory spec
+	r.ParseMultipartForm(10 << 20)
+	dir := filepath.Clean(r.FormValue("dir"))
+	if r.FormValue("home") != "" {
+		dir = "/"
+	}
+	if r.FormValue("up") != "" {
+		dir = filepath.Dir(dir)
+	}
+	log.Printf("req from=%q uri=%q reqdir=%q dir=%q", r.RemoteAddr, r.RequestURI, r.FormValue("dir"), dir)
+	header(w, dir)
 
-	d, err := ioutil.ReadDir("/")
+	d, err := ioutil.ReadDir(dir)
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v\n", err)
 		log.Printf("Error: %v", err)
@@ -79,14 +88,14 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"+
 			"<TR>\n"+
 			"<TD NOWRAP  WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"+
-			"&nbsp;&Xi; Web File Manager / \n"+
+			"&nbsp;&Xi; WFM %v \n"+
 			"<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"+
 			"&nbsp;&nbsp;%s&nbsp;"+
 			"<A HREF=\"/?a=about&amp;dir=%s&amp;\">&nbsp;v%s&nbsp;</A>"+
 			"</TD>\n"+
 			"</TR>\n"+
 			"</TABLE>\n",
-		r.RemoteAddr, "/", "2.0",
+		dir, r.RemoteAddr, dir, "2.0",
 	)
 
 	// Toolbar
@@ -94,7 +103,7 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"+
 			"<TR>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"home\" VALUE=\"&uArr; Up\">\n"+
+			"<INPUT TYPE=\"SUBMIT\" NAME=\"up\" VALUE=\"&uArr; Up\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
 			"<INPUT TYPE=\"SUBMIT\" NAME=\"home\" VALUE=\"&equiv; Home\">\n"+
@@ -103,16 +112,16 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 			"<INPUT TYPE=\"SUBMIT\" NAME=\"refresh\" VALUE=\"&prop; Refresh\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"multi_delete_prompt\" VALUE=\"&otimes; Delete\">\n"+
+			"<INPUT TYPE=\"SUBMIT\" NAME=\"mdelp\" VALUE=\"&otimes; Delete\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"multi_move_prompt\" VALUE=\"&ang; Move\">\n"+
+			"<INPUT TYPE=\"SUBMIT\"  NAME=\"mmovp\" VALUE=\"&ang; Move\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"new_dir_prompt\" VALUE=\"&lowast; New Folder\">\n"+
+			"<INPUT TYPE=\"SUBMIT\"  NAME=\"ndirp\" VALUE=\"&lowast; New Folder\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"new_file_prompt\" VALUE=\"&oplus; New File\">\n"+
+			"<INPUT TYPE=\"SUBMIT\"  NAME=\"nfilep\" VALUE=\"&oplus; New File\">\n"+
 			"</TD>\n"+
 			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
 			"<INPUT TYPE=\"file\" NAME=\"filename\">&nbsp;\n"+
@@ -148,11 +157,12 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		if !f.IsDir() {
 			continue
 		}
-		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&there4; %v&frasl;</TD>"+
+		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&there4; <A HREF=\"/?dir=%v\">%v&frasl;</A></TD>"+
 			"<TD NOWRAP ALIGN=\"right\">%v</TD>"+
 			"<TD NOWRAP ALIGN=\"right\">%s</TD>"+
 			"<TD NOWRAP ALIGN=\"right\">&hellip; &ang; &otimes; &crarr;</TD>"+
 			"</TR>\n",
+			html.EscapeString(dir+"/"+f.Name()),
 			html.EscapeString(f.Name()),
 			f.Size(),
 			f.ModTime().Format(time.ANSIC),
@@ -174,6 +184,7 @@ func main() {
 	log.Printf("Starting WFM on %q for directory %q", *addr, *base)
 
 	http.HandleFunc("/", listFiles)
+	http.HandleFunc("/favicon.ico", http.NotFound)
 	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal(err)
