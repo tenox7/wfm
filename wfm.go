@@ -1,7 +1,8 @@
 // Web File Manager
 //
 // TODO:
-// * dirlist with sorting
+// * dilist sorting
+// * dirlist alternate line colors
 // * file routines
 // * authentication
 // * setuid/setgid
@@ -12,6 +13,7 @@
 // * html charset, currently US-ASCII ?!
 // * generate icons on fly with encoding/gid
 //   also for input type=image, or  least for favicon?
+// time/date format as flag?
 
 package main
 
@@ -25,6 +27,8 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -157,15 +161,32 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		if !f.IsDir() {
 			continue
 		}
-		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&there4; <A HREF=\"/?dir=%v\">%v&frasl;</A></TD>"+
-			"<TD NOWRAP ALIGN=\"right\">%v</TD>"+
-			"<TD NOWRAP ALIGN=\"right\">%s</TD>"+
+		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&raquo; <A HREF=\"/?dir=%v\">%v&frasl;</A></TD>"+
+			"<TD NOWRAP ALIGN=\"right\"></TD>"+
+			"<TD NOWRAP ALIGN=\"right\">(%s) %s</TD>"+
 			"<TD NOWRAP ALIGN=\"right\">&hellip; &ang; &otimes; &crarr;</TD>"+
 			"</TR>\n",
 			html.EscapeString(dir+"/"+f.Name()),
 			html.EscapeString(f.Name()),
-			f.Size(),
-			f.ModTime().Format(time.ANSIC),
+			humanize.Time(f.ModTime()),
+			f.ModTime().Format(time.Stamp),
+		)
+	}
+
+	// List Files
+	for _, f := range d {
+		if f.IsDir() {
+			continue
+		}
+		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&bull; %v</A></TD>"+
+			"<TD NOWRAP ALIGN=\"right\">%v</TD>"+
+			"<TD NOWRAP ALIGN=\"right\">(%s) %s</TD>"+
+			"<TD NOWRAP ALIGN=\"right\">&hellip; &ang; &otimes; &crarr;</TD>"+
+			"</TR>\n",
+			html.EscapeString(f.Name()),
+			humanize.Bytes(uint64(f.Size())),
+			humanize.Time(f.ModTime()),
+			f.ModTime().Format(time.Stamp),
 		)
 	}
 
