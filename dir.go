@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"sort"
 	"time"
 
@@ -50,19 +49,7 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 	}
 }
 
-func listFiles(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(10 << 20)
-	dir := filepath.Clean(r.FormValue("dir"))
-	if r.FormValue("home") != "" {
-		dir = "/"
-	}
-	if r.FormValue("up") != "" {
-		dir = filepath.Dir(dir)
-	}
-	if dir == "" {
-		dir = "/"
-	}
-	log.Printf("req from=%q uri=%q reqdir=%q dir=%q", r.RemoteAddr, r.RequestURI, r.FormValue("dir"), dir)
+func listFiles(w http.ResponseWriter, dir, sort string) {
 	header(w, dir)
 
 	d, err := ioutil.ReadDir(dir)
@@ -72,21 +59,20 @@ func listFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sl := []string{}
-	sortFiles(d, &sl, r.FormValue("sort"))
+	sortFiles(d, &sl, sort)
 
 	// Topbar
 	fmt.Fprintf(w,
 		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"+
 			"<TR>\n"+
 			"<TD NOWRAP  WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"+
-			"&nbsp;&Xi; WFM %v \n"+
+			"&nbsp;%v\n"+
 			"<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"+
-			"&nbsp;&nbsp;%s&nbsp;"+
-			"<A HREF=\"/?a=about&amp;dir=%s&amp;\">&nbsp;v%s&nbsp;</A>"+
+			"<A HREF=\"/?a=about&amp;dir=%s&amp;\">&nbsp;WFM v%s&nbsp;</A>"+
 			"</TD>\n"+
 			"</TR>\n"+
 			"</TABLE>\n",
-		dir, r.RemoteAddr, dir, "2.0",
+		dir, dir, "2.0",
 	)
 
 	// Toolbar

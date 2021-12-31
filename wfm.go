@@ -21,6 +21,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"path/filepath"
 	"syscall"
 )
 
@@ -36,8 +37,7 @@ func header(w http.ResponseWriter, dir string) {
 			"<HTML LANG=\"en\">\n" +
 			"<HEAD>\n" +
 			"<TITLE>WFM " + dir + "</TITLE>\n" +
-			"<STYLE TYPE=\"text/css\">\n" +
-			"<!--\n" +
+			"<STYLE TYPE=\"text/css\">\n<!--\n" +
 			"A:link {text-decoration: none; color:#0000CE; } \n" +
 			"A:visited {text-decoration: none; color:#0000CE; } \n" +
 			"A:active {text-decoration: none; color:#FF0000; } \n" +
@@ -47,8 +47,7 @@ func header(w http.ResponseWriter, dir string) {
 			"input { border-color:#000000; border-style:none; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }\n" +
 			".hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }\n" +
 			".hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }\n" +
-			"-->\n" +
-			"</STYLE>\n" +
+			"-->\n</STYLE>\n" +
 			"<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;charset=US-ASCII\">\n" +
 			"<META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en-US\">\n" +
 			"<META HTTP-EQUIV=\"google\" CONTENT=\"notranslate\">\n" +
@@ -59,6 +58,27 @@ func header(w http.ResponseWriter, dir string) {
 			"<FORM ACTION=\"/\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n" +
 			"<INPUT TYPE=\"hidden\" NAME=\"dir\" VALUE=\"" + dir + "\">\n",
 	))
+}
+
+func wrp(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(10 << 20)
+	dir := filepath.Clean(r.FormValue("dir"))
+	if r.FormValue("home") != "" {
+		dir = "/"
+	}
+	if r.FormValue("up") != "" {
+		dir = filepath.Dir(dir)
+	}
+	if dir == "" {
+		dir = "/"
+	}
+	log.Printf("req from=%q uri=%q", r.RemoteAddr, r.RequestURI)
+
+	switch r.FormValue("fn") {
+	default:
+		listFiles(w, dir, r.FormValue("sort"))
+		return
+	}
 }
 
 func main() {
@@ -72,7 +92,7 @@ func main() {
 	}
 	log.Printf("Starting WFM on %q for directory %q", *addr, *base)
 
-	http.HandleFunc("/", listFiles)
+	http.HandleFunc("/", wrp)
 	http.HandleFunc("/favicon.ico", http.NotFound)
 	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
