@@ -13,44 +13,9 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func sortFiles(f []os.FileInfo, l *[]string, by string) {
-	switch by {
-	case "nd":
-		sort.Slice(f, func(i, j int) bool {
-			return f[i].Name() > f[j].Name()
-		})
-		*l = []string{"na", "&Delta;Name", "sa", "Size", "ta", "Time"}
-
-	case "sa":
-		sort.Slice(f, func(i, j int) bool {
-			return f[i].Size() < f[j].Size()
-		})
-		*l = []string{"na", "Name", "sd", "&nabla;Size", "ta", "Time"}
-	case "sd":
-		sort.Slice(f, func(i, j int) bool {
-			return f[i].Size() > f[j].Size()
-		})
-		*l = []string{"na", "Name", "sa", "&Delta;Size", "ta", "Time"}
-
-	case "ta":
-		sort.Slice(f, func(i, j int) bool {
-			return f[i].ModTime().Before(f[j].ModTime())
-		})
-		*l = []string{"na", "Name", "sa", "Size", "td", "&nabla;Time"}
-	case "td":
-		sort.Slice(f, func(i, j int) bool {
-			return f[i].ModTime().After(f[j].ModTime())
-		})
-		*l = []string{"na", "Name", "sa", "Size", "ta", "&Delta;Time"}
-
-	default:
-		*l = []string{"nd", "&nabla;Name", "sa", "Size", "ta", "Time"}
-		return
-	}
-}
-
 func listFiles(w http.ResponseWriter, dir, sort string) {
-	header(w, dir)
+	eDir := html.EscapeString(dir)
+	header(w, eDir)
 
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
@@ -62,88 +27,88 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	sortFiles(d, &sl, sort)
 
 	// Topbar
-	fmt.Fprintf(w,
-		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"+
-			"<TR>\n"+
-			"<TD NOWRAP  WIDTH=\"100%%\" BGCOLOR=\"#0072c6\" VALIGN=\"MIDDLE\" ALIGN=\"LEFT\" STYLE=\"color:#FFFFFF; font-weight:bold;\">\n"+
-			"&nbsp;%v\n"+
-			"<TD NOWRAP  BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" STYLE=\"color:#000000; font-weight:bold;  white-space:nowrap\">\n"+
-			"<A HREF=\"/?a=about&amp;dir=%s&amp;\">&nbsp;WFM v%s&nbsp;</A>"+
-			"</TD>\n"+
-			"</TR>\n"+
-			"</TABLE>\n",
-		dir, dir, "2.0",
-	)
+	w.Write([]byte(`
+	<TABLE WIDTH="100" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+		<TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
+			&nbsp;` + eDir + `
+		</TD>
+		<TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; font-weight:bold; white-space:nowrap">
+			<A HREF="/?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
+		</TD>
+	</TR></TABLE>
+	`))
 
 	// Toolbar
-	fmt.Fprintf(w,
-		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=\"0\" CELLSPACING=\"0\" BORDER=\"0\" STYLE=\"height:28px;\">\n"+
-			"<TR>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"up\" VALUE=\"&uarr; Up\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"home\" VALUE=\"&equiv; Home\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"refresh\" VALUE=\"&prop; Refresh\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\" NAME=\"mdelp\" VALUE=\"&otimes; Delete\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"mmovp\" VALUE=\"&ang; Move\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"ndirp\" VALUE=\"&lowast; New Folder\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"nfilep\" VALUE=\"&oplus; New File\">\n"+
-			"</TD>\n"+
-			"<TD NOWRAP BGCOLOR=\"#F1F1F1\" VALIGN=\"MIDDLE\" ALIGN=\"CENTER\">\n"+
-			"<INPUT TYPE=\"file\" NAME=\"filename\">&nbsp;\n"+
-			"<INPUT TYPE=\"SUBMIT\"  NAME=\"upload\" VALUE=\"&Theta; Upload\">\n"+
-			"</TD>\n"+
+	w.Write([]byte(`
+	<INPUT TYPE="HIDDEN" NAME="sort" VALUE="` + sort + `">
+	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&prop; Refresh">
+	</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+	<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&lowast; New Folder">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="nfilep" VALUE="&oplus; New File">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&oplus; New Bookmark">
+	</TD>
+	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="FILE" NAME="filename">&nbsp;
+		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload">
+	</TD>
+	</TR></TABLE>
+	`))
 
-			"</TR></TABLE>\n")
-
-	// Sortby Header
-	w.Write([]byte(
-		"<TABLE WIDTH=\"100%%\" BGCOLOR=\"#FFFFFF\" CELLPADDING=0 CELLSPACING=0 BORDER=0>\n" +
-			"<TR BGCOLOR=\"#FFFFFF\" >\n" +
-			"<TD NOWRAP  ALIGN=\"left\" WIDTH=\"50%%\" BGCOLOR=\"#A0A0A0\">\n" +
-			"<A HREF=\"/?dir=" + dir + "&sort=" + sl[0] + "\"><FONT COLOR=\"#FFFFFF\">" + sl[1] + "</FONT></A>\n" +
-			"</TD>\n" +
-			"<TD NOWRAP  ALIGN=\"right\" BGCOLOR=\"#A0A0A0\">\n" +
-			"<A HREF=\"/?dir=" + dir + "&sort=" + sl[2] + "\"><FONT COLOR=\"#FFFFFF\">" + sl[3] + "</FONT></A>\n" +
-			"</TD>\n" +
-			"<TD NOWRAP  ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n" +
-			"<A HREF=\"/?dir=" + dir + "&sort=" + sl[4] + "\"><FONT COLOR=\"#FFFFFF\">" + sl[5] + "</FONT></A>\n" +
-			"</TD>\n" +
-			"<TD NOWRAP  ALIGN=\"right\"  BGCOLOR=\"#A0A0A0\">\n" +
-			"&nbsp;\n" +
-			"</TD>\n" +
-			"<TD NOWRAP  ALIGN=\"left\"  BGCOLOR=\"#A0A0A0\">\n" +
-			"&nbsp;\n" +
-			"</TD>\n" +
-			"</TR>\n",
-	))
+	// Sortby and File List Header
+	w.Write([]byte(`
+	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0"><TR>
+	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
+		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+	</TD>
+	<TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
+		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+	</TD>
+	<TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
+		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+	</TD>
+	<TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
+		&nbsp;
+	</TD>
+	<TD NOWRAP ALIGN="left" BGCOLOR="#A0A0A0">
+		&nbsp;
+	</TD>
+	</TR>
+	`))
 
 	// List Directories First
 	for _, f := range d {
 		if !f.IsDir() {
 			continue
 		}
-		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&raquo; <A HREF=\"/?dir=%v\">%v&frasl;</A></TD>"+
-			"<TD NOWRAP ALIGN=\"right\"></TD>"+
-			"<TD NOWRAP ALIGN=\"right\">(%s) %s</TD>"+
-			"<TD NOWRAP ALIGN=\"right\">&hellip; &ang; &otimes; &crarr;</TD>"+
-			"</TR>\n",
-			html.EscapeString(dir+"/"+f.Name()),
-			html.EscapeString(f.Name()),
-			humanize.Time(f.ModTime()),
-			f.ModTime().Format(time.Stamp),
-		)
+		fE := html.EscapeString(f.Name())
+		w.Write([]byte(`
+		<TR><TD NOWRAP ALIGN="left">&raquo;
+		<A HREF="/?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `&frasl;</A>
+		</TD>
+		<TD NOWRAP></TD>
+		<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
+		<TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
+		</TR>
+		`))
 	}
 
 	// List Files
@@ -151,17 +116,61 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		if f.IsDir() {
 			continue
 		}
-		fmt.Fprintf(w, "<TR><TD NOWRAP  ALIGN=\"LEFT\">&bull; %v</A></TD>"+
-			"<TD NOWRAP ALIGN=\"right\">%v</TD>"+
-			"<TD NOWRAP ALIGN=\"right\">(%s) %s</TD>"+
-			"<TD NOWRAP ALIGN=\"right\">&hellip; &ang; &otimes; &crarr;</TD>"+
-			"</TR>\n",
-			html.EscapeString(f.Name()),
-			humanize.Bytes(uint64(f.Size())),
-			humanize.Time(f.ModTime()),
-			f.ModTime().Format(time.Stamp),
-		)
+		fE := html.EscapeString(f.Name())
+		w.Write([]byte(`
+		<TR><TD NOWRAP ALIGN="LEFT">&bull; ` + fE + `</A></TD>
+		<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
+		<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
+		<TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
+		</TR>
+		`))
 	}
 
-	fmt.Fprintf(w, "</FORM></TABLE></BODY></HTML>\n")
+	w.Write([]byte(`
+	</TABLE></FORM>
+	</BODY></HTML>
+	`))
+}
+
+func sortFiles(f []os.FileInfo, l *[]string, by string) {
+	switch by {
+	// size
+	case "sa":
+		sort.Slice(f, func(i, j int) bool {
+			return f[i].Size() < f[j].Size()
+		})
+		*l = []string{"na", "Name", "sd", "&nabla;Size", "ta", "Time"}
+		return
+	case "sd":
+		sort.Slice(f, func(i, j int) bool {
+			return f[i].Size() > f[j].Size()
+		})
+		*l = []string{"na", "Name", "sa", "&Delta;Size", "ta", "Time"}
+		return
+
+	// time
+	case "ta":
+		sort.Slice(f, func(i, j int) bool {
+			return f[i].ModTime().Before(f[j].ModTime())
+		})
+		*l = []string{"na", "Name", "sa", "Size", "td", "&nabla;Time"}
+		return
+	case "td":
+		sort.Slice(f, func(i, j int) bool {
+			return f[i].ModTime().After(f[j].ModTime())
+		})
+		*l = []string{"na", "Name", "sa", "Size", "ta", "&Delta;Time"}
+		return
+
+	// name
+	case "nd":
+		sort.Slice(f, func(i, j int) bool {
+			return f[i].Name() > f[j].Name()
+		})
+		*l = []string{"na", "&Delta;Name", "sa", "Size", "ta", "Time"}
+		return
+	default:
+		*l = []string{"nd", "&nabla;Name", "sa", "Size", "ta", "Time"}
+		return
+	}
 }

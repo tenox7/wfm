@@ -1,7 +1,6 @@
 // Web File Manager
 //
 // TODO:
-// * dilist sorting
 // * dirlist alternate line colors
 // * file routines
 // * authentication
@@ -30,34 +29,34 @@ var (
 	base = flag.String("base_dir", "", "Base directory path")
 )
 
-func header(w http.ResponseWriter, dir string) {
+func header(w http.ResponseWriter, eDir string) {
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(
-		"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n\"http://www.w3.org/TR/html4/loose.dtd\">\n" +
-			"<HTML LANG=\"en\">\n" +
-			"<HEAD>\n" +
-			"<TITLE>WFM " + dir + "</TITLE>\n" +
-			"<STYLE TYPE=\"text/css\">\n<!--\n" +
-			"A:link {text-decoration: none; color:#0000CE; } \n" +
-			"A:visited {text-decoration: none; color:#0000CE; } \n" +
-			"A:active {text-decoration: none; color:#FF0000; } \n" +
-			"A:hover {text-decoration: none; color:#FF0000; } \n" +
-			"html, body, table { width:100%%; margin:0px; padding:0px; border:none; } \n" +
-			"td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:2px; border:none; } \n" +
-			"input { border-color:#000000; border-style:none; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }\n" +
-			".hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }\n" +
-			".hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }\n" +
-			"-->\n</STYLE>\n" +
-			"<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html;charset=US-ASCII\">\n" +
-			"<META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en-US\">\n" +
-			"<META HTTP-EQUIV=\"google\" CONTENT=\"notranslate\">\n" +
-			"<META NAME=\"viewport\" CONTENT=\"width=device-width\">\n" +
-			/*"<LINK REL=\"icon\" TYPE=\"image/gif\" HREF=\"ICONGOESHERE\">\n" +*/
-			"</HEAD>\n" +
-			"<BODY BGCOLOR=\"#FFFFFF\">\n" +
-			"<FORM ACTION=\"/\" METHOD=\"POST\" ENCTYPE=\"multipart/form-data\">\n" +
-			"<INPUT TYPE=\"hidden\" NAME=\"dir\" VALUE=\"" + dir + "\">\n",
-	))
+	w.Write([]byte(`
+	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	<HTML LANG="en">
+	<HEAD>
+	<TITLE>WFM ` + eDir + `</TITLE>
+	<STYLE TYPE="text/css"><!--
+			A:link {text-decoration: none; color:#0000CE; }
+			A:visited {text-decoration: none; color:#0000CE; }
+			A:active {text-decoration: none; color:#FF0000; }
+			A:hover {text-decoration: none; color:#FF0000; }
+			html, body, table { width:100%; margin:0px; padding:0px; border:none; }
+			td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:2px; border:none; }
+			input { border-color:#000000; border-style:none; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
+			.hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }
+			.hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }
+	--></STYLE>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=US-ASCII">
+	<META HTTP-EQUIV="Content-Language" CONTENT="en-US">
+	<META HTTP-EQUIV="google" CONTENT="notranslate">
+	<META NAME="viewport" CONTENT="width=device-width">
+	<!-- <LINK REL="icon" TYPE="image/gif" HREF="ICONGOESHERE"> -->
+	</HEAD>
+	<BODY BGCOLOR="#FFFFFF">
+	<FORM ACTION="/" METHOD="POST" ENCTYPE="multipart/form-data">
+	<INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
+	`))
 }
 
 func wrp(w http.ResponseWriter, r *http.Request) {
