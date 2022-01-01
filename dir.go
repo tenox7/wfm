@@ -22,7 +22,9 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	}
 	sl := []string{}
 	sortFiles(d, &sl, sort)
+	toolbars(w, eDir, sort, sl)
 
+	// file disposition
 	var fd string
 	switch *disp {
 	case "edit":
@@ -33,75 +35,6 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		fd = "di"
 	}
 
-	// Topbar
-	w.Write([]byte(`
-	<TABLE WIDTH="100" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
-		<TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
-			&nbsp;` + eDir + `
-		</TD>
-		<TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; font-weight:bold; white-space:nowrap">
-			<A HREF="/?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
-		</TD>
-	</TR></TABLE>
-	`))
-
-	// Toolbar
-	w.Write([]byte(`
-	<INPUT TYPE="HIDDEN" NAME="sort" VALUE="` + sort + `">
-	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh">
-	</TD>
-		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-	<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&copy; New Folder">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="nfilep" VALUE="&oplus; New File">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&loz; New Bookmark">
-	</TD>
-	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="FILE" NAME="filename">&nbsp;
-		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload">
-	</TD>
-	</TR></TABLE>
-	`))
-
-	// Sortby and File List Header
-	w.Write([]byte(`
-	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
-	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
-	</TD>
-	<TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
-	</TD>
-	<TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
-		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
-	</TD>
-	<TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
-		&nbsp;
-	</TD>
-	<TD NOWRAP ALIGN="left" BGCOLOR="#A0A0A0">
-		&nbsp;
-	</TD>
-	</TR>
-	`))
-
-	// List Entries
 	r := 0
 
 	// List Directories First
@@ -153,6 +86,77 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	</TABLE></FORM>
 	</BODY></HTML>
 	`))
+}
+
+func toolbars(w http.ResponseWriter, eDir, sort string, sl []string) {
+	// Topbar
+	w.Write([]byte(`
+		<TABLE WIDTH="100" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+			<TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
+				&nbsp;` + eDir + `
+			</TD>
+			<TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; font-weight:bold; white-space:nowrap">
+				<A HREF="/?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
+			</TD>
+		</TR></TABLE>
+		`))
+
+	// Toolbar
+	w.Write([]byte(`
+		<INPUT TYPE="HIDDEN" NAME="sort" VALUE="` + sort + `">
+		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh">
+		</TD>
+			<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&copy; New Folder">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="nfilep" VALUE="&oplus; New File">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&loz; New Bookmark">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="FILE" NAME="filename">&nbsp;
+			<INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload">
+		</TD>
+		</TR></TABLE>
+		`))
+
+	// Sortby and File List Header
+	w.Write([]byte(`
+		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
+		<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
+			<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+		</TD>
+		<TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
+			<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+		</TD>
+		<TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
+			<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+		</TD>
+		<TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
+			&nbsp;
+		</TD>
+		<TD NOWRAP ALIGN="left" BGCOLOR="#A0A0A0">
+			&nbsp;
+		</TD>
+		</TR>
+		`))
+
 }
 
 func sortFiles(f []os.FileInfo, l *[]string, by string) {
