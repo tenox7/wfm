@@ -29,7 +29,6 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		fd = "ed"
 	case "save":
 		fd = "dn"
-	case "open":
 	default:
 		fd = "di"
 	}
