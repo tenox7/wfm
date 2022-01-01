@@ -23,6 +23,17 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	sl := []string{}
 	sortFiles(d, &sl, sort)
 
+	var fd string
+	switch *disp {
+	case "edit":
+		fd = "ed"
+	case "save":
+		fd = "dn"
+	case "open":
+	default:
+		fd = "di"
+	}
+
 	// Topbar
 	w.Write([]byte(`
 	<TABLE WIDTH="100" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
@@ -130,7 +141,8 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		r++
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
-		<TD NOWRAP ALIGN="LEFT">&bull; ` + fE + `</A></TD>
+		<TD NOWRAP ALIGN="LEFT">&bull;
+		<A HREF="/?fn=` + fd + `&fi=` + eDir + "/" + fE + `">` + fE + `</A></TD>
 		<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 		<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 		<TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
