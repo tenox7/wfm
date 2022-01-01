@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"html"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"sort"
@@ -19,8 +17,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
-		fmt.Fprintf(w, "Error: %v\n", err)
-		log.Printf("Error: %v", err)
+		htErr(w, "Unable to read directory", err)
 		return
 	}
 	sl := []string{}

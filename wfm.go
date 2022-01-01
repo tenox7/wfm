@@ -21,6 +21,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -59,6 +60,12 @@ func header(w http.ResponseWriter, eDir string) {
 	<FORM ACTION="/" METHOD="POST" ENCTYPE="multipart/form-data">
 	<INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
 	`))
+}
+
+func htErr(w http.ResponseWriter, msg string, err error) {
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintln(w, msg, ":", err)
+	log.Print(msg, err)
 }
 
 func wrp(w http.ResponseWriter, r *http.Request) {
