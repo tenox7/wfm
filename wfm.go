@@ -1,8 +1,8 @@
 // Web File Manager
 //
 // TODO:
-// * dirlist alternate line colors
 // * file routines
+// * checkboxes for files
 // * authentication
 // * setuid/setgid
 // * https/certbot
@@ -12,7 +12,10 @@
 // * html charset, currently US-ASCII ?!
 // * generate icons on fly with encoding/gid
 //   also for input type=image, or  least for favicon?
-// time/date format as flag?
+// * time/date format as flag?
+// * webdav server
+// * ftp server?
+// * html as template
 
 package main
 
@@ -40,12 +43,11 @@ func header(w http.ResponseWriter, eDir string) {
 			A:link {text-decoration: none; color:#0000CE; }
 			A:visited {text-decoration: none; color:#0000CE; }
 			A:active {text-decoration: none; color:#FF0000; }
-			A:hover {text-decoration: none; color:#FF0000; }
+			A:hover {text-decoration: none; background-color: #FF8000; color: #FFFFFF; }
 			html, body, table { width:100%; margin:0px; padding:0px; border:none; }
 			td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:2px; border:none; }
 			input { border-color:#000000; border-style:none; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
-			.hovout { border: none; padding: 0px; background-color: transparent; color: #0000CE; }
-			.hovin  { border: none; padding: 0px; background-color: transparent; color: #FF0000; }
+			.thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
 	--></STYLE>
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=US-ASCII">
 	<META HTTP-EQUIV="Content-Language" CONTENT="en-US">

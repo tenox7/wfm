@@ -49,7 +49,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home">
 	</TD>
 	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&prop; Refresh">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh">
 	</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
 	<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete">
@@ -58,13 +58,13 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move">
 	</TD>
 	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&lowast; New Folder">
+		<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&copy; New Folder">
 	</TD>
 	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
 		<INPUT TYPE="SUBMIT" NAME="nfilep" VALUE="&oplus; New File">
 	</TD>
 	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&oplus; New Bookmark">
+		<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&loz; New Bookmark">
 	</TD>
 	<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
 		<INPUT TYPE="FILE" NAME="filename">&nbsp;
@@ -75,7 +75,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 
 	// Sortby and File List Header
 	w.Write([]byte(`
-	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0"><TR>
+	<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
 	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
 		<A HREF="/?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
 	</TD>
@@ -94,14 +94,23 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	</TR>
 	`))
 
+	// List Entries
+	r := 0
+
 	// List Directories First
 	for _, f := range d {
 		if !f.IsDir() {
 			continue
 		}
+		if r%2 == 0 {
+			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+		} else {
+			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+		}
+		r++
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
-		<TR><TD NOWRAP ALIGN="left">&raquo;
+		<TD NOWRAP ALIGN="left">&raquo;
 		<A HREF="/?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `&frasl;</A>
 		</TD>
 		<TD NOWRAP></TD>
@@ -116,9 +125,15 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		if f.IsDir() {
 			continue
 		}
+		if r%2 == 0 {
+			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+		} else {
+			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+		}
+		r++
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
-		<TR><TD NOWRAP ALIGN="LEFT">&bull; ` + fE + `</A></TD>
+		<TD NOWRAP ALIGN="LEFT">&bull; ` + fE + `</A></TD>
 		<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 		<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 		<TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
