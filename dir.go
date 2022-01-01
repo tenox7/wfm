@@ -42,6 +42,9 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		if !f.IsDir() {
 			continue
 		}
+		if !*sdot && f.Name()[0:1] == "." {
+			continue
+		}
 		if r%2 == 0 {
 			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
 		} else {
@@ -63,6 +66,9 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	// List Files
 	for _, f := range d {
 		if f.IsDir() {
+			continue
+		}
+		if !*sdot && f.Name()[0:1] == "." {
 			continue
 		}
 		if r%2 == 0 {

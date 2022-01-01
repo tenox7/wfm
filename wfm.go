@@ -35,6 +35,7 @@ var (
 	addr = flag.String("addr", ":8080", "Listen address and port")
 	base = flag.String("base_dir", "", "Base directory path")
 	disp = flag.String("disp", "open", "default disposition when you click on a file: open|save|edit")
+	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 )
 
 func wrp(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +47,7 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("up") != "" {
 		dir = filepath.Dir(dir)
 	}
-	if dir == "" {
+	if dir == "" || dir == "." {
 		dir = "/"
 	}
 	log.Printf("req from=%q uri=%q", r.RemoteAddr, r.RequestURI)
