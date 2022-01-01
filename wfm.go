@@ -2,6 +2,7 @@
 //
 // TODO:
 // * file routines
+// * symlink support?
 // * checkboxes for files
 // * authentication
 // * setuid/setgid
@@ -10,6 +11,7 @@
 // * docker support (no chroot) - mount dir as / ?
 // * drivers for different storage, like cloud/smb/ftp
 // * html charset, currently US-ASCII ?!
+// * better unicode icons? test on old browsers
 // * generate icons on fly with encoding/gid
 //   also for input type=image, or  least for favicon?
 // * time/date format as flag?

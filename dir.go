@@ -12,9 +12,6 @@ import (
 )
 
 func listFiles(w http.ResponseWriter, dir, sort string) {
-	eDir := html.EscapeString(dir)
-	header(w, eDir)
-
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -22,6 +19,9 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	}
 	sl := []string{}
 	sortFiles(d, &sl, sort)
+
+	eDir := html.EscapeString(dir)
+	header(w, eDir)
 	toolbars(w, eDir, sort, sl)
 
 	// file disposition
