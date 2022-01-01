@@ -26,14 +26,17 @@ import (
 	"html"
 	"log"
 	"net/http"
+	"os/user"
 	"path"
 	"path/filepath"
+	"strconv"
 	"syscall"
 )
 
 var (
 	addr = flag.String("addr", ":8080", "Listen address and port")
-	base = flag.String("base_dir", "", "Base directory path")
+	chdr = flag.String("chroot", "", "Path to cheroot to")
+	susr = flag.String("setuid", "", "User to setuid to")
 	disp = flag.String("disp", "open", "default disposition when you click on a file: open|save|edit")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 )
@@ -64,20 +67,52 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func chroot(dir string) {
+	err := syscall.Chroot(dir)
+	if err != nil {
+		log.Fatal("chroot", err)
+	}
+	log.Printf("Chroot to %q", dir)
+}
+
+func setuid(usr string) {
+	u, err := user.Lookup(usr)
+	if err != nil {
+		log.Fatal("unable to find user", err)
+	}
+	gi, err := strconv.Atoi(u.Gid)
+	if err != nil {
+		log.Fatal("convert gid", err)
+
+	}
+	err = syscall.Setgid(gi)
+	if err != nil {
+		log.Fatal("setgid", err)
+	}
+	ui, err := strconv.Atoi(u.Uid)
+	if err != nil {
+		log.Fatal("convert uid", err)
+	}
+	err = syscall.Setuid(ui)
+	if err != nil {
+		log.Fatal("setuid", err)
+	}
+	log.Printf("Setuid as %q", usr)
+}
+
 func main() {
 	flag.Parse()
-	var err error
-	if *base != "" {
-		err = syscall.Chroot(*base)
-		if err != nil {
-			log.Fatal(err)
-		}
+	if *chdr != "" {
+		chroot(*chdr)
 	}
-	log.Printf("Starting WFM on %q for directory %q", *addr, *base)
+	if *susr != "" {
+		setuid(*susr)
+	}
 
 	http.HandleFunc("/", wrp)
 	http.HandleFunc("/favicon.ico", http.NotFound)
-	err = http.ListenAndServe(*addr, nil)
+	log.Printf("Listening on %q", *addr)
+	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
