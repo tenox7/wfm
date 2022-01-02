@@ -68,5 +68,5 @@ func mkdir(w http.ResponseWriter, r *http.Request, dir, newd, sort string) {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&amp;sort="+sort, http.StatusSeeOther)
+	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&sort="+sort, http.StatusSeeOther)
 }

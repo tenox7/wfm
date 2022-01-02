@@ -21,8 +21,8 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	sortFiles(d, &sl, sort)
 
 	eDir := html.EscapeString(dir)
-	header(w, eDir)
-	toolbars(w, eDir, sort, sl)
+	header(w, eDir, sort)
+	toolbars(w, eDir, sl)
 
 	// file disposition
 	var fd string
@@ -92,7 +92,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	footer(w)
 }
 
-func toolbars(w http.ResponseWriter, eDir, sort string, sl []string) {
+func toolbars(w http.ResponseWriter, eDir string, sl []string) {
 	// Topbar
 	w.Write([]byte(`
 		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
@@ -107,7 +107,6 @@ func toolbars(w http.ResponseWriter, eDir, sort string, sl []string) {
 
 	// Toolbar
 	w.Write([]byte(`
-		<INPUT TYPE="HIDDEN" NAME="sort" VALUE="` + sort + `">
 		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
 			<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up" CLASS="nb">

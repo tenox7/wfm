@@ -12,7 +12,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	log.Print(msg, err)
 }
 
-func header(w http.ResponseWriter, eDir string) {
+func header(w http.ResponseWriter, eDir, sort string) {
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(`
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -40,6 +40,7 @@ func header(w http.ResponseWriter, eDir string) {
 	<BODY BGCOLOR="#FFFFFF">
 	<FORM ACTION="/" METHOD="POST" ENCTYPE="multipart/form-data">
 	<INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
+	<INPUT TYPE="hidden" NAME="sort" VALUE="` + sort + `">
 	`))
 }
 

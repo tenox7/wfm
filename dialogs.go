@@ -3,7 +3,7 @@ package main
 import "net/http"
 
 func prompt(w http.ResponseWriter, eDir, sort, action string) {
-	header(w, eDir)
+	header(w, eDir, sort)
 
 	w.Write([]byte(`
 	<TABLE WIDTH="100%" HEIGHT="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
