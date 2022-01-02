@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"html"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -53,4 +55,18 @@ func fileDisp(w http.ResponseWriter, fp, disp string) {
 		wb.Write(bu[:n])
 	}
 	wb.Flush()
+}
+
+func mkdir(w http.ResponseWriter, r *http.Request, dir, newd string) {
+	if newd == "" {
+		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
+		return
+	}
+	err := os.Mkdir(dir+"/"+newd, 0755)
+	if err != nil {
+		htErr(w, "mkdir", err)
+		log.Printf("mkdir error: %v", err)
+		return
+	}
+	http.Redirect(w, r, "/?dir="+html.EscapeString(dir), http.StatusSeeOther)
 }

@@ -88,20 +88,18 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		`))
 	}
 
-	w.Write([]byte(`
-	</TABLE></FORM>
-	</BODY></HTML>
-	`))
+	w.Write([]byte(`</TABLE>`))
+	footer(w)
 }
 
 func toolbars(w http.ResponseWriter, eDir, sort string, sl []string) {
 	// Topbar
 	w.Write([]byte(`
-		<TABLE WIDTH="100" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
 			<TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
 				&nbsp;` + eDir + `
 			</TD>
-			<TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; font-weight:bold; white-space:nowrap">
+			<TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
 				<A HREF="/?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
 			</TD>
 		</TR></TABLE>
@@ -112,32 +110,32 @@ func toolbars(w http.ResponseWriter, eDir, sort string, sl []string) {
 		<INPUT TYPE="HIDDEN" NAME="sort" VALUE="` + sort + `">
 		<TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up">
+			<INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home">
+			<INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh">
+			<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh" CLASS="nb">
 		</TD>
-			<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete">
-		</TD>
-		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move">
+			<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER" >
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="ndirp" VALUE="&copy; New Folder">
+			<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="nfilep" VALUE="&oplus; New File">
+			<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="&copy; New Folder" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="SUBMIT" NAME="nlinkp" VALUE="&loz; New Bookmark">
+			<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="&oplus; New File" CLASS="nb">
 		</TD>
 		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-			<INPUT TYPE="FILE" NAME="filename">&nbsp;
-			<INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload">
+			<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="&loz; New Bookmark" CLASS="nb">
+		</TD>
+		<TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+			<INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
+			<INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload" CLASS="nb">
 		</TD>
 		</TR></TABLE>
 		`))

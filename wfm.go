@@ -4,6 +4,7 @@
 // * file routines
 // * symlink support?
 // * checkboxes for files
+// * favicon
 // * authentication
 // * setuid/setgid
 // * https/certbot
@@ -43,27 +44,41 @@ var (
 
 func wrp(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
+	log.Printf("req from=%q uri=%q form=%v", r.RemoteAddr, r.RequestURI, r.Form)
+
 	dir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
+	if dir == "" || dir == "." {
+		dir = "/"
+	}
+
+	// toolbar buttons
+	if r.FormValue("mkd") != "" {
+		prompt(w, html.EscapeString(dir), r.FormValue("sort"), "mkdir")
+		return
+	}
 	if r.FormValue("home") != "" {
 		dir = "/"
 	}
 	if r.FormValue("up") != "" {
 		dir = filepath.Dir(dir)
 	}
-	if dir == "" || dir == "." {
-		dir = "/"
-	}
-	log.Printf("req from=%q uri=%q", r.RemoteAddr, r.RequestURI)
 
+	// cancel
+	if r.FormValue("cancel") != "" {
+		r.Form.Set("fn", "")
+	}
+
+	// form action
 	switch r.FormValue("fn") {
 	case "di":
 		fileDisp(w, html.UnescapeString(r.FormValue("fi")), "inline")
 	case "dn":
 		f := html.UnescapeString(r.FormValue("fi"))
 		fileDisp(w, f, "attachment; filename=\""+path.Base(f)+"\"")
+	case "mkdir":
+		mkdir(w, r, dir, html.UnescapeString(r.FormValue("newd")))
 	default:
 		listFiles(w, dir, r.FormValue("sort"))
-		return
 	}
 }
 
