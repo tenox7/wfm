@@ -57,6 +57,10 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		prompt(w, html.EscapeString(dir), sort, "mkdir")
 		return
 	}
+	if r.FormValue("mkf") != "" {
+		prompt(w, html.EscapeString(dir), sort, "mkfile")
+		return
+	}
 	if r.FormValue("home") != "" {
 		dir = "/"
 	}
@@ -78,6 +82,8 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		fileDisp(w, f, "attachment; filename=\""+path.Base(f)+"\"")
 	case "mkdir":
 		mkdir(w, r, dir, html.UnescapeString(r.FormValue("newd")), sort)
+	case "mkfile":
+		mkfile(w, r, dir, html.UnescapeString(r.FormValue("newf")), sort)
 	default:
 		listFiles(w, dir, sort)
 	}

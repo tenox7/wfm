@@ -70,3 +70,18 @@ func mkdir(w http.ResponseWriter, r *http.Request, dir, newd, sort string) {
 	}
 	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&sort="+sort, http.StatusSeeOther)
 }
+
+func mkfile(w http.ResponseWriter, r *http.Request, dir, newf, sort string) {
+	if newf == "" {
+		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
+		return
+	}
+	f, err := os.OpenFile(dir+"/"+newf, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	if err != nil {
+		htErr(w, "mkfile", err)
+		log.Printf("mkfile error: %v", err)
+		return
+	}
+	f.Close()
+	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&sort="+sort, http.StatusSeeOther)
+}

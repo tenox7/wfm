@@ -19,6 +19,11 @@ func prompt(w http.ResponseWriter, eDir, sort, action string) {
         &nbsp;<BR>Enter name for the new directory:<P>
         <INPUT TYPE="TEXT" NAME="newd" SIZE="40" VALUE="">		
 		`))
+	case "mkfile":
+		w.Write([]byte(`
+        &nbsp;<BR>Enter name for the new file:<P>
+        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="">		
+		`))
 	}
 
 	w.Write([]byte(`
