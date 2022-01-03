@@ -62,6 +62,10 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		prompt(w, html.EscapeString(dir), sort, "mkfile")
 		return
 	}
+	if r.FormValue("mkb") != "" {
+		prompt(w, html.EscapeString(dir), sort, "mkurl")
+		return
+	}
 	if r.FormValue("home") != "" {
 		dir = "/"
 	}
@@ -85,6 +89,8 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
 	case "mkfile":
 		mkfile(w, dir, html.UnescapeString(r.FormValue("newf")), sort)
+	case "mkurl":
+		mkurl(w, dir, html.UnescapeString(r.FormValue("newu")), r.FormValue("url"), sort)
 	default:
 		listFiles(w, dir, sort)
 	}

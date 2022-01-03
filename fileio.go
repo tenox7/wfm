@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
 )
@@ -82,6 +83,26 @@ func mkfile(w http.ResponseWriter, dir, newf, sort string) {
 		log.Printf("mkfile error: %v", err)
 		return
 	}
+	f.Close()
+	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+}
+
+func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
+	if newu == "" {
+		htErr(w, "mkurl", fmt.Errorf("url file name is empty"))
+		return
+	}
+	if !strings.HasSuffix(newu, ".url") {
+		newu = newu + ".url"
+	}
+	f, err := os.OpenFile(dir+"/"+newu, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	if err != nil {
+		htErr(w, "mkfile", err)
+		log.Printf("mkfile error: %v", err)
+		return
+	}
+	// TODO(tenox): add upport for webloc, desktop and other formats
+	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", url)
 	f.Close()
 	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }

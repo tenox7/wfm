@@ -24,6 +24,13 @@ func prompt(w http.ResponseWriter, eDir, sort, action string) {
         &nbsp;<BR>Enter name for the new file:<P>
         <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="">
         `))
+	case "mkurl":
+		w.Write([]byte(`
+        &nbsp;<BR>Enter name for the new url file:<P>
+        <INPUT TYPE="TEXT" NAME="newu" SIZE="40" VALUE="">
+        &nbsp;<BR>Destination URL:<P>
+        <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
+        `))
 	}
 
 	w.Write([]byte(`
