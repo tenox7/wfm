@@ -49,3 +49,15 @@ func footer(w http.ResponseWriter) {
     </FORM></BODY></HTML>
     `))
 }
+
+func redirect(w http.ResponseWriter, url string) {
+	w.Header().Set("Location", url)
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(302)
+
+	w.Write([]byte(`
+    <HTML><BODY>
+    <A HREF="` + url + `">Go here...</A>
+    </BODY></HTML>
+    `))
+}

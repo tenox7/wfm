@@ -2,6 +2,7 @@
 //
 // TODO:
 // * file routines
+// * multi file routines
 // * symlink support?
 // * checkboxes for files
 // * favicon
@@ -81,9 +82,9 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		f := html.UnescapeString(r.FormValue("fi"))
 		fileDisp(w, f, "attachment; filename=\""+path.Base(f)+"\"")
 	case "mkdir":
-		mkdir(w, r, dir, html.UnescapeString(r.FormValue("newd")), sort)
+		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
 	case "mkfile":
-		mkfile(w, r, dir, html.UnescapeString(r.FormValue("newf")), sort)
+		mkfile(w, dir, html.UnescapeString(r.FormValue("newf")), sort)
 	default:
 		listFiles(w, dir, sort)
 	}

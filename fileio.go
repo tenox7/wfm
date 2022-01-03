@@ -57,7 +57,7 @@ func fileDisp(w http.ResponseWriter, fp, disp string) {
 	wb.Flush()
 }
 
-func mkdir(w http.ResponseWriter, r *http.Request, dir, newd, sort string) {
+func mkdir(w http.ResponseWriter, dir, newd, sort string) {
 	if newd == "" {
 		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
@@ -68,10 +68,10 @@ func mkdir(w http.ResponseWriter, r *http.Request, dir, newd, sort string) {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&sort="+sort, http.StatusSeeOther)
+	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
-func mkfile(w http.ResponseWriter, r *http.Request, dir, newf, sort string) {
+func mkfile(w http.ResponseWriter, dir, newf, sort string) {
 	if newf == "" {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
 		return
@@ -83,5 +83,5 @@ func mkfile(w http.ResponseWriter, r *http.Request, dir, newf, sort string) {
 		return
 	}
 	f.Close()
-	http.Redirect(w, r, "/?dir="+html.EscapeString(dir)+"&sort="+sort, http.StatusSeeOther)
+	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
