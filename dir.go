@@ -72,7 +72,9 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
         <A HREF="` + *wpfx + `?fn=disp&fp=` + eDir + "/" + fE + `">` + fE + `</A></TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-        <TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
+        <TD NOWRAP ALIGN="right">
+        <A HREF="` + *wpfx + `?fn=down&fp=` + eDir + "/" + fE + `">&nabla;</A>
+        &hellip; &ang; &otimes; &crarr;</TD>
         </TR>
         `))
 	}
