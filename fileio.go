@@ -14,6 +14,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/kdomanski/iso9660"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
 )
@@ -27,7 +28,9 @@ func dispFile(w http.ResponseWriter, fp string) {
 		gourl(w, fp)
 
 	case "zip":
-		archList(w, fp)
+		readZip(w, fp)
+	case "iso":
+		readIso(w, fp)
 
 	default:
 		dispInline(w, fp)
@@ -181,18 +184,53 @@ func gourl(w http.ResponseWriter, fp string) {
 	redirect(w, url)
 }
 
-func archList(w http.ResponseWriter, fp string) {
-	// TODO: add graphical/table view reader instead of text dump
-	if strings.HasSuffix(strings.ToLower(fp), ".zip") {
-		z, err := zip.OpenReader(fp)
+func readZip(w http.ResponseWriter, fp string) {
+	z, err := zip.OpenReader(fp)
+	if err != nil {
+		htErr(w, "unzip", err)
+		return
+	}
+	defer z.Close()
+	w.Header().Set("Content-Type", "text/plain")
+	for _, f := range z.File {
+		fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
+	}
+}
+
+func readIso(w http.ResponseWriter, fp string) {
+	// TODO: recursive file list
+	f, err := os.Open(fp)
+	if err != nil {
+		htErr(w, "isoread", err)
+		return
+	}
+	defer f.Close()
+	i, err := iso9660.OpenImage(f)
+	if err != nil {
+		htErr(w, "isoread", err)
+		return
+	}
+	r, err := i.RootDir()
+	if err != nil {
+		htErr(w, "isoread", err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	if r.IsDir() {
+		cld, err := r.GetChildren()
 		if err != nil {
-			htErr(w, "unzip", err)
+			htErr(w, "isoread", err)
 			return
 		}
-		defer z.Close()
-		w.Header().Set("Content-Type", "text/plain")
-		for _, f := range z.File {
-			fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
+
+		for _, c := range cld {
+			if c.IsDir() {
+				fmt.Fprintf(w, "%v  [dir]\n", c.Name())
+				continue
+			}
+			fmt.Fprintf(w, "%v  %v\n", c.Name(), humanize.Bytes(uint64(c.Size())))
 		}
+	} else {
+		fmt.Fprintf(w, "%v  %v\n", r.Name(), r.Size())
 	}
 }

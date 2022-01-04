@@ -20,6 +20,8 @@
 // * webdav server
 // * ftp server?
 // * html as template
+// * archive files in main view / graphical/table form
+// * support for different filesystems, S3, SMB, archive files
 
 package main
 
