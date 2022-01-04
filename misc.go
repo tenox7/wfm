@@ -38,7 +38,7 @@ func header(w http.ResponseWriter, eDir, sort string) {
     <!-- <LINK REL="icon" TYPE="image/gif" HREF="ICONGOESHERE"> -->
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
-    <FORM ACTION="/" METHOD="POST" ENCTYPE="multipart/form-data">
+    <FORM ACTION="` + *wpfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
     <INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
     <INPUT TYPE="hidden" NAME="sort" VALUE="` + sort + `">
     `))

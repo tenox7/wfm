@@ -43,7 +43,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">&raquo;
-        <A HREF="/?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `&frasl;</A>
+        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `&frasl;</A>
         </TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
@@ -69,7 +69,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">&bull;
-        <A HREF="/?fn=disp&fi=` + eDir + "/" + fE + `">` + fE + `</A></TD>
+        <A HREF="` + *wpfx + `?fn=disp&fi=` + eDir + "/" + fE + `">` + fE + `</A></TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
@@ -89,7 +89,7 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
                 &nbsp;` + eDir + `
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-                <A HREF="/?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
+                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
             </TD>
         </TR></TABLE>
         `))
@@ -132,13 +132,13 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
         <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-            <A HREF="/?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="/?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
-            <A HREF="/?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
         </TD>
         <TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
             &nbsp;

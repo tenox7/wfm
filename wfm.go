@@ -41,6 +41,9 @@ var (
 	chdr = flag.String("chroot", "", "Path to cheroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
+	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
+	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
+	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
 )
 
 func wrp(w http.ResponseWriter, r *http.Request) {
@@ -135,8 +138,11 @@ func main() {
 		setuid(*susr)
 	}
 
-	http.HandleFunc("/", wrp)
+	http.HandleFunc(*wpfx, wrp)
 	http.HandleFunc("/favicon.ico", http.NotFound)
+	if *dpfx != "" && *ddir != "" {
+		http.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
+	}
 	log.Printf("Listening on %q", *addr)
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
