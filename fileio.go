@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"bufio"
 	"fmt"
 	"html"
@@ -169,4 +170,20 @@ func gourl(w http.ResponseWriter, fp string) {
 	}
 	log.Print("Redirecting to: ", url)
 	redirect(w, url)
+}
+
+func archList(w http.ResponseWriter, fp string) {
+	// TODO: add graphical/table view reader instead of text dump
+	if strings.HasSuffix(strings.ToLower(fp), ".zip") {
+		z, err := zip.OpenReader(fp)
+		if err != nil {
+			htErr(w, "unzip", err)
+			return
+		}
+		defer z.Close()
+		w.Header().Set("Content-Type", "text/plain")
+		for _, f := range z.File {
+			fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
+		}
+	}
 }
