@@ -158,13 +158,13 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Size() < f[j].Size()
 		})
-		*l = []string{"na", "Name", "sd", "&nabla;Size", "ta", "Time"}
+		*l = []string{"na", "Name", "sd", "&nabla;Size", "ta", "Time Modified"}
 		return
 	case "sd":
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Size() > f[j].Size()
 		})
-		*l = []string{"na", "Name", "sa", "&Delta;Size", "ta", "Time"}
+		*l = []string{"na", "Name", "sa", "&Delta;Size", "ta", "Time Modified"}
 		return
 
 	// time
@@ -172,13 +172,13 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].ModTime().Before(f[j].ModTime())
 		})
-		*l = []string{"na", "Name", "sa", "Size", "td", "&nabla;Time"}
+		*l = []string{"na", "Name", "sa", "Size", "td", "&nabla;Time Modified"}
 		return
 	case "td":
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].ModTime().After(f[j].ModTime())
 		})
-		*l = []string{"na", "Name", "sa", "Size", "ta", "&Delta;Time"}
+		*l = []string{"na", "Name", "sa", "Size", "ta", "&Delta;Time Modified"}
 		return
 
 	// name
@@ -186,10 +186,10 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Name() > f[j].Name()
 		})
-		*l = []string{"na", "&Delta;Name", "sa", "Size", "ta", "Time"}
+		*l = []string{"na", "&Delta;Name", "sa", "Size", "ta", "Time Modified"}
 		return
 	default:
-		*l = []string{"nd", "&nabla;Name", "sa", "Size", "ta", "Time"}
+		*l = []string{"nd", "&nabla;Name", "sa", "Size", "ta", "Time Modified"}
 		return
 	}
 }
