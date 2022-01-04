@@ -29,7 +29,6 @@ import (
 	"log"
 	"net/http"
 	"os/user"
-	"path"
 	"path/filepath"
 	"strconv"
 	"syscall"
@@ -39,7 +38,6 @@ var (
 	addr = flag.String("addr", ":8080", "Listen address and port")
 	chdr = flag.String("chroot", "", "Path to cheroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
-	disp = flag.String("disp", "open", "default disposition when you click on a file: open|save|edit")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 )
 
@@ -80,11 +78,8 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 
 	// form action
 	switch r.FormValue("fn") {
-	case "di":
-		fileDisp(w, html.UnescapeString(r.FormValue("fi")), "inline")
-	case "dn":
-		f := html.UnescapeString(r.FormValue("fi"))
-		fileDisp(w, f, "attachment; filename=\""+path.Base(f)+"\"")
+	case "disp":
+		dispFile(w, html.UnescapeString(r.FormValue("fi")))
 	case "mkdir":
 		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
 	case "mkfile":

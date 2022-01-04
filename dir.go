@@ -24,17 +24,6 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	header(w, eDir, sort)
 	toolbars(w, eDir, sl)
 
-	// file disposition
-	var fd string
-	switch *disp {
-	case "edit":
-		fd = "ed"
-	case "save":
-		fd = "dn"
-	default:
-		fd = "di"
-	}
-
 	r := 0
 
 	// List Directories First
@@ -80,7 +69,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">&bull;
-        <A HREF="/?fn=` + fd + `&fi=` + eDir + "/" + fE + `">` + fE + `</A></TD>
+        <A HREF="/?fn=disp&fi=` + eDir + "/" + fE + `">` + fE + `</A></TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
