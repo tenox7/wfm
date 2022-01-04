@@ -84,7 +84,9 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	// form action
 	switch r.FormValue("fn") {
 	case "disp":
-		dispFile(w, html.UnescapeString(r.FormValue("fi")))
+		dispFile(w, html.UnescapeString(r.FormValue("fp")))
+	case "down":
+		downFile(w, html.UnescapeString(r.FormValue("fp")))
 	case "mkdir":
 		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
 	case "mkfile":

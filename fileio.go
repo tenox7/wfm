@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -38,6 +39,18 @@ func dispFile(w http.ResponseWriter, fp string) {
 
 }
 
+func downFile(w http.ResponseWriter, fp string) {
+	f, err := os.Stat(fp)
+	if err != nil {
+		htErr(w, "Unable to get file attributes", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(fp)+"\";")
+	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
+	streamFile(w, fp)
+}
+
 func dispInline(w http.ResponseWriter, fp string) {
 	f, err := os.Stat(fp)
 	if err != nil {
@@ -55,7 +68,6 @@ func dispInline(w http.ResponseWriter, fp string) {
 		htErr(w, "Unable to determine file type", err)
 		return
 	}
-
 	fi.Close()
 
 	w.Header().Set("Content-Type", mt.String())
