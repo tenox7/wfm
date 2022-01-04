@@ -12,21 +12,30 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gabriel-vasile/mimetype"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
 )
 
 func dispFile(w http.ResponseWriter, fp string) {
-	// first see if there is an internal handler for a file type
-	if strings.HasSuffix(strings.ToLower(fp), ".url") ||
-		strings.HasSuffix(strings.ToLower(fp), ".desktop") ||
-		strings.HasSuffix(strings.ToLower(fp), ".webloc") {
+	s := strings.Split(strings.ToLower(fp), ".")
+	switch s[len(s)-1] {
+	case "url":
+	case "desktop":
+	case "webloc":
 		gourl(w, fp)
-		return
+
+	case "zip":
+		archList(w, fp)
+
+	default:
+		dispInline(w, fp)
 	}
 
-	// for everything else disposition inline
+}
+
+func dispInline(w http.ResponseWriter, fp string) {
 	f, err := os.Stat(fp)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
