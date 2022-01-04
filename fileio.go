@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -80,6 +81,7 @@ func streamFile(w http.ResponseWriter, fp string) {
 	fi, err := os.Open(fp)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
+		log.Printf("unable to read file: %v", err)
 		return
 	}
 	defer fi.Close()
@@ -92,6 +94,7 @@ func streamFile(w http.ResponseWriter, fp string) {
 		n, err := rb.Read(bu)
 		if err != nil && err != io.EOF {
 			htErr(w, "Unable to read file", err)
+			log.Printf("unable to read file: %v", err)
 			return
 		}
 		if n == 0 {
@@ -100,6 +103,37 @@ func streamFile(w http.ResponseWriter, fp string) {
 		wb.Write(bu[:n])
 	}
 	wb.Flush()
+}
+
+func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader, f multipart.File) {
+	defer f.Close()
+
+	o, err := os.OpenFile(dir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		htErr(w, "unable to write file", err)
+		log.Printf("unable to write file: %v", err)
+		return
+	}
+	defer o.Close()
+	rb := bufio.NewReader(f)
+	wb := bufio.NewWriter(o)
+	bu := make([]byte, 1<<20)
+
+	for {
+		n, err := rb.Read(bu)
+		if err != nil && err != io.EOF {
+			htErr(w, "Unable to write file", err)
+			log.Printf("unable to write file: %v", err)
+			return
+		}
+		if n == 0 {
+			break
+		}
+		wb.Write(bu[:n])
+	}
+	wb.Flush()
+	log.Printf("Uploaded Dir=%v File=%v Size=%v", dir, h.Filename, h.Size)
+	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
 func mkdir(w http.ResponseWriter, dir, newd, sort string) {

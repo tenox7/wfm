@@ -2,20 +2,18 @@
 //
 // TODO:
 // * file routines
-// * multi file routines
+// * checkboxes, multi file routines
 // * symlink support?
-// * checkboxes for files
-// * favicon
 // * authentication
+// * favicon
 // * setuid/setgid
 // * https/certbot
 // * git client
 // * docker support (no chroot) - mount dir as / ?
-// * drivers for different storage, like cloud/smb/ftp
 // * html charset, currently US-ASCII ?!
 // * better unicode icons? test on old browsers
 // * generate icons on fly with encoding/gid
-//   also for input type=image, or  least for favicon?
+//   also for input type=image, or least for favicon?
 // * time/date format as flag?
 // * webdav server
 // * ftp server?
@@ -67,6 +65,15 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.FormValue("mkb") != "" {
 		prompt(w, html.EscapeString(dir), sort, "mkurl")
+		return
+	}
+	if r.FormValue("upload") != "" {
+		f, h, err := r.FormFile("filename")
+		if err != nil {
+			htErr(w, "upload", err)
+			return
+		}
+		uploadFile(w, dir, sort, h, f)
 		return
 	}
 	if r.FormValue("home") != "" {
