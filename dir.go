@@ -125,7 +125,7 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
-            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Theta; Upload" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Delta; Upload" CLASS="nb">
         </TD>
         </TR></TABLE>
         `))
