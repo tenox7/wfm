@@ -27,6 +27,7 @@ import (
 	"flag"
 	"html"
 	"log"
+	"net"
 	"net/http"
 	"os/user"
 	"path/filepath"
@@ -105,46 +106,54 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func chroot(dir string) {
-	err := syscall.Chroot(dir)
-	if err != nil {
-		log.Fatal("chroot", err)
-	}
-	log.Printf("Chroot to %q", dir)
-}
-
-func setuid(usr string) {
+func userId(usr string) (int, int, error) {
 	u, err := user.Lookup(usr)
 	if err != nil {
-		log.Fatal("unable to find user", err)
-	}
-	gi, err := strconv.Atoi(u.Gid)
-	if err != nil {
-		log.Fatal("convert gid", err)
-
-	}
-	err = syscall.Setgid(gi)
-	if err != nil {
-		log.Fatal("setgid", err)
+		return 0, 0, err
 	}
 	ui, err := strconv.Atoi(u.Uid)
 	if err != nil {
-		log.Fatal("convert uid", err)
+		return 0, 0, err
+	}
+	gi, err := strconv.Atoi(u.Gid)
+	if err != nil {
+		return 0, 0, err
+	}
+	return ui, gi, nil
+}
+
+func setUid(ui, gi int) error {
+	if ui == 0 || gi == 0 {
+		return nil
+	}
+	err := syscall.Setgid(gi)
+	if err != nil {
+		return err
 	}
 	err = syscall.Setuid(ui)
 	if err != nil {
-		log.Fatal("setuid", err)
+		return err
 	}
-	log.Printf("Setuid as %q", usr)
+	return nil
 }
 
 func main() {
+	var err error
 	flag.Parse()
-	if *chdr != "" {
-		chroot(*chdr)
-	}
+
+	var suid, sgid int
 	if *susr != "" {
-		setuid(*susr)
+		suid, sgid, err = userId(*susr)
+		if err != nil {
+			log.Fatal("unable to find setuid user", err)
+		}
+	}
+	if *chdr != "" {
+		err := syscall.Chroot(*chdr)
+		if err != nil {
+			log.Fatal("chroot", err)
+		}
+		log.Printf("Chroot to %q", *chdr)
 	}
 
 	http.HandleFunc(*wpfx, wrp)
@@ -152,8 +161,20 @@ func main() {
 	if *dpfx != "" && *ddir != "" {
 		http.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
 	}
+
+	l, err := net.Listen("tcp", *addr)
+	if err != nil {
+		log.Fatalf("unable to listen on %v: %v", *addr, err)
+	}
 	log.Printf("Listening on %q", *addr)
-	err := http.ListenAndServe(*addr, nil)
+
+	err = setUid(suid, sgid)
+	if err != nil {
+		log.Fatalf("unable to suid for %v: %v", *susr, err)
+	}
+	log.Printf("Setuid as %q ID=%d", *susr, suid)
+
+	err = http.Serve(l, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
