@@ -132,7 +132,11 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 }
 
 func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
-	ioutil.WriteFile(fp, []byte(data), 0644)
+	err := ioutil.WriteFile(fp, []byte(data), 0644)
+	if err != nil {
+		log.Printf("unable to save text edit file: %v", err)
+		htErr(w, "unable to save text edit file: %v", err)
+	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", dir, fp, len(data))
 	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
