@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# wfm freebsd rc file
+# copy to /usr/local/etc/rc.d/wfm
+# Add the following lines to /etc/rc.conf.local or /etc/rc.conf
+# to enable this service:
+#
+# PROVIDE: wfm
+#
+# wfm_enable (bool):      Set to NO by default.
+#                         Set it to YES to enable wfm.
+# wfm_args (flags):       Check WFM manual for flags. Example:
+# wfm_args="-logfile=/var/log/wfm.log -chroot=/home/ftp -setuid=ftp -addr=0.0.0.0:80"
+
+. /etc/rc.subr
+
+name=wfm
+rcvar=wfm_enable
+
+load_rc_config $name
+
+: ${wfm_enable:="NO"}
+
+pidfile="/var/run/wfm.pid"
+procname="/usr/local/sbin/wfm"
+command="/usr/sbin/daemon"
+command_args="-f -p ${pidfile} ${procname} ${wfm_args}"
+
+start_precmd=wfm_startprecmd
+
+wfm_startprecmd()
+{
+        if [ ! -e ${pidfile} ]; then
+                install /dev/null ${pidfile};
+        fi
+}
+
+run_rc_command "$1"
