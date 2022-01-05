@@ -95,6 +95,8 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		dispFile(w, html.UnescapeString(r.FormValue("fp")))
 	case "down":
 		downFile(w, html.UnescapeString(r.FormValue("fp")))
+	case "edit":
+		editText(w, html.UnescapeString(r.FormValue("fp")), sort)
 	case "mkdir":
 		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
 	case "mkfile":
@@ -134,6 +136,7 @@ func setUid(ui, gi int) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Setuid ID=%d", ui)
 	return nil
 }
 
@@ -172,7 +175,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to suid for %v: %v", *susr, err)
 	}
-	log.Printf("Setuid as %q ID=%d", *susr, suid)
 
 	err = http.Serve(l, nil)
 	if err != nil {

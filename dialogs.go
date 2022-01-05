@@ -1,6 +1,13 @@
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"html"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"path/filepath"
+)
 
 func prompt(w http.ResponseWriter, eDir, sort, action string) {
 	header(w, eDir, sort)
@@ -46,5 +53,38 @@ func prompt(w http.ResponseWriter, eDir, sort, action string) {
     </TD></TR></TABLE>
     `))
 
+	footer(w)
+}
+
+func editText(w http.ResponseWriter, fp, sort string) {
+	fi, err := os.Stat(fp)
+	if err != nil {
+		htErr(w, "Unable to get file attributes", err)
+		return
+	}
+	if fi.Size() > 5<<20 {
+		htErr(w, "edit", fmt.Errorf("the file is too large for editing"))
+		return
+	}
+	f, err := ioutil.ReadFile(fp)
+	if err != nil {
+		htErr(w, "Unable to read file", err)
+		return
+	}
+	header(w, html.EscapeString(filepath.Dir(fp)), sort)
+	w.Write([]byte(`
+    <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
+    <TR STYLE="height:1%;">
+    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(fp)) + `</TD>
+    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT"></TD>
+    </TR>
+    <TR STYLE="height:99%;">
+    <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
+    <TEXTAREA NAME="edit" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%; ">
+` + html.EscapeString(string(f)) + `</TEXTAREA><P>
+    <INPUT TYPE="submit" VALUE="save" STYLE="float: left;">
+	<INPUT TYPE="submit" value="cancel" STYLE="float: left; margin-left: 10px">
+    </TD></TR></TABLE>
+    `))
 	footer(w)
 }

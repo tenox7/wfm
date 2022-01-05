@@ -24,7 +24,7 @@ func header(w http.ResponseWriter, eDir, sort string) {
             A:visited {text-decoration: none; color:#0000CE; }
             A:active {text-decoration: none; color:#FF0000; }
             A:hover {text-decoration: none; background-color: #FF8000; color: #FFFFFF; }
-            html, body, table { margin:0px; padding:0px; border:none; }
+            html, body, table { margin:0px; padding:0px; border:none;  }
             td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:2px; border:none; }
             input { border-color:#000000; border-style:solid; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
             .thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
