@@ -18,10 +18,9 @@ import (
 
 func dispFile(w http.ResponseWriter, fp string) {
 	s := strings.Split(strings.ToLower(fp), ".")
+	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
 	switch s[len(s)-1] {
-	case "url":
-	case "desktop":
-	case "webloc":
+	case "url", "desktop", "webloc":
 		gourl(w, fp)
 
 	case "zip":
@@ -32,7 +31,6 @@ func dispFile(w http.ResponseWriter, fp string) {
 	default:
 		dispInline(w, fp)
 	}
-
 }
 
 func downFile(w http.ResponseWriter, fp string) {
