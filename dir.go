@@ -92,7 +92,7 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
                 &nbsp;` + eDir + `
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;WFM v2.0&nbsp;</A>
+                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;WFM v` + vers + `&nbsp;</A>
             </TD>
         </TR></TABLE>
         `))

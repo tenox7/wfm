@@ -3,18 +3,19 @@
 // TODO:
 // * file routines
 // * checkboxes, multi file routines
-// * symlink support?
+// * better symlink support
 // * authentication
 // * favicon
-// * setuid/setgid
 // * https/certbot
 // * git client
+// * file locking
 // * docker support (no chroot) - mount dir as / ?
+// * modern browser detection
+// * fancy unicode icons
 // * html charset, currently US-ASCII ?!
 // * better unicode icons? test on old browsers
 // * generate icons on fly with encoding/gid
 //   also for input type=image, or least for favicon?
-// * time/date format as flag?
 // * webdav server
 // * ftp server?
 // * html as template
@@ -36,6 +37,7 @@ import (
 )
 
 var (
+	vers = "2.0.1"
 	addr = flag.String("addr", ":8080", "Listen address and port")
 	chdr = flag.String("chroot", "", "Path to cheroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
