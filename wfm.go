@@ -30,6 +30,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/user"
 	"path/filepath"
 	"strconv"
@@ -38,8 +39,8 @@ import (
 
 var (
 	vers = "2.0.1"
-	addr = flag.String("addr", ":8080", "Listen address and port")
-	chdr = flag.String("chroot", "", "Path to cheroot to")
+	addr = flag.String("addr", "127.0.0.1:8080", "Listen address and port")
+	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
@@ -142,7 +143,6 @@ func setUid(ui, gi int) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Setuid ID=%d", ui)
 	return nil
 }
 
@@ -181,6 +181,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to suid for %v: %v", *susr, err)
 	}
+	if os.Getuid() == 0 {
+		log.Fatal("you probably dont want to run wfm as root")
+	}
+	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	err = http.Serve(l, nil)
 	if err != nil {
