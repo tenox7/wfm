@@ -44,6 +44,7 @@ func downFile(w http.ResponseWriter, fp string) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(fp)+"\";")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
+	w.Header().Set("Cache-Control", "no-store")
 	streamFile(w, fp)
 }
 
@@ -69,6 +70,7 @@ func dispInline(w http.ResponseWriter, fp string) {
 	w.Header().Set("Content-Type", mt.String())
 	w.Header().Set("Content-Disposition", "inline")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
+	w.Header().Set("Cache-Control", "no-store")
 	streamFile(w, fp)
 }
 

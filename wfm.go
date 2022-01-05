@@ -2,7 +2,6 @@
 //
 // TODO:
 // * file routines
-// * disable cache / Cache-Control: no-cache
 // * checkboxes, multi file routines
 // * symlink support?
 // * authentication
