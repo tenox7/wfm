@@ -68,7 +68,7 @@ func readZip(w http.ResponseWriter, fp string) {
 	}
 	defer z.Close()
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Cache-Control", *cctl)
 	for _, f := range z.File {
 		fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
 	}
@@ -93,7 +93,7 @@ func readIso(w http.ResponseWriter, fp string) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Cache-Control", *cctl)
 	if r.IsDir() {
 		cld, err := r.GetChildren()
 		if err != nil {

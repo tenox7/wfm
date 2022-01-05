@@ -8,14 +8,14 @@ import (
 
 func htErr(w http.ResponseWriter, msg string, err error) {
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Cache-Control", *cctl)
 	fmt.Fprintln(w, msg, ":", err)
 	log.Print(msg, err)
 }
 
 func header(w http.ResponseWriter, eDir, sort string) {
 	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Cache-Control", *cctl)
 	w.Write([]byte(`
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
     <HTML LANG="en">
@@ -55,7 +55,7 @@ func footer(w http.ResponseWriter) {
 func redirect(w http.ResponseWriter, url string) {
 	w.Header().Set("Location", url)
 	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Cache-Control", *cctl)
 	w.WriteHeader(302)
 
 	w.Write([]byte(`

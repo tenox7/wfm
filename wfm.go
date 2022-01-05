@@ -45,6 +45,7 @@ var (
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
 	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
+	cctl = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 )
 
 func wrp(w http.ResponseWriter, r *http.Request) {
