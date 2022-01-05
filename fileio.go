@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -127,6 +128,12 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 	}
 	wb.Flush()
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", dir, h.Filename, h.Size)
+	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+}
+
+func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
+	ioutil.WriteFile(fp, []byte(data), 0644)
+	log.Printf("Saved Text Dir=%v File=%v Size=%v", dir, fp, len(data))
 	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 

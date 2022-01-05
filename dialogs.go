@@ -62,7 +62,7 @@ func editText(w http.ResponseWriter, fp, sort string) {
 		htErr(w, "Unable to get file attributes", err)
 		return
 	}
-	if fi.Size() > 5<<20 {
+	if fi.Size() > 1<<20 {
 		htErr(w, "edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
@@ -80,9 +80,10 @@ func editText(w http.ResponseWriter, fp, sort string) {
     </TR>
     <TR STYLE="height:99%;">
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
-    <TEXTAREA NAME="edit" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
-    <INPUT TYPE="submit" VALUE="save" STYLE="float: left;">
-	<INPUT TYPE="submit" value="cancel" STYLE="float: left; margin-left: 10px">
+    <TEXTAREA NAME="text" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
+    <INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" STYLE="float: left;">
+	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel" STYLE="float: left; margin-left: 10px">
+    <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(fp) + `">
     </TD></TR></TABLE>
     `))
 	footer(w)

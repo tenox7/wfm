@@ -110,10 +110,10 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
             <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="Refresh" CLASS="nb">
         </TD>
             <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER" >
-        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="Delete" CLASS="nb">
+        <INPUT TYPE="SUBMIT" DISABLED NAME="mdelp" VALUE="Delete" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="Move" CLASS="nb">
+            <INPUT TYPE="SUBMIT" DISABLED NAME="mmovp" VALUE="Move" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="New Folder" CLASS="nb">

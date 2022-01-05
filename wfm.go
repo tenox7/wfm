@@ -2,6 +2,7 @@
 //
 // TODO:
 // * file routines
+// * disable cache / Cache-Control: no-cache
 // * checkboxes, multi file routines
 // * symlink support?
 // * authentication
@@ -77,6 +78,12 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		uploadFile(w, dir, sort, h, f)
 		return
 	}
+	if r.FormValue("save") != "" {
+		saveText(w, dir, sort, html.UnescapeString(r.FormValue("fp")), r.FormValue("text"))
+		return
+	}
+
+	// these fall through to directory listing
 	if r.FormValue("home") != "" {
 		dir = "/"
 	}
