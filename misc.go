@@ -10,7 +10,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", *cctl)
 	fmt.Fprintln(w, msg, ":", err)
-	log.Print(msg, err)
+	log.Printf("error: %v : %v", msg, err)
 }
 
 func header(w http.ResponseWriter, eDir, sort string) {

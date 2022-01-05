@@ -106,7 +106,6 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 	o, err := os.OpenFile(dir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "unable to write file", err)
-		log.Printf("unable to write file: %v", err)
 		return
 	}
 	defer o.Close()
@@ -118,7 +117,6 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 		n, err := rb.Read(bu)
 		if err != nil && err != io.EOF {
 			htErr(w, "Unable to write file", err)
-			log.Printf("unable to write file: %v", err)
 			return
 		}
 		if n == 0 {
@@ -134,7 +132,6 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
 	err := ioutil.WriteFile(fp, []byte(data), 0644)
 	if err != nil {
-		log.Printf("unable to save text edit file: %v", err)
 		htErr(w, "unable to save text edit file: %v", err)
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", dir, fp, len(data))
@@ -163,7 +160,6 @@ func mkfile(w http.ResponseWriter, dir, newf, sort string) {
 	f, err := os.OpenFile(dir+"/"+newf, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
-		log.Printf("mkfile error: %v", err)
 		return
 	}
 	f.Close()
@@ -181,7 +177,6 @@ func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
 	f, err := os.OpenFile(dir+"/"+newu, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
-		log.Printf("mkfile error: %v", err)
 		return
 	}
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
