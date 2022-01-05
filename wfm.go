@@ -42,6 +42,7 @@ var (
 	addr = flag.String("addr", "127.0.0.1:8080", "Listen address and port")
 	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
+	logf = flag.String("logfile", "", "Log file name, default standard output")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
@@ -149,6 +150,16 @@ func setUid(ui, gi int) error {
 func main() {
 	var err error
 	flag.Parse()
+
+	if *logf != "" {
+		lf, err := os.OpenFile(*logf, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer lf.Close()
+		log.SetOutput(lf)
+	}
+	log.Print("WFM Starting up")
 
 	var suid, sgid int
 	if *susr != "" {
