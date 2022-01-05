@@ -80,8 +80,7 @@ func editText(w http.ResponseWriter, fp, sort string) {
     </TR>
     <TR STYLE="height:99%;">
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
-    <TEXTAREA NAME="edit" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%; ">
-` + html.EscapeString(string(f)) + `</TEXTAREA><P>
+    <TEXTAREA NAME="edit" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
     <INPUT TYPE="submit" VALUE="save" STYLE="float: left;">
 	<INPUT TYPE="submit" value="cancel" STYLE="float: left; margin-left: 10px">
     </TD></TR></TABLE>
