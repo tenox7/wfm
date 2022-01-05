@@ -42,12 +42,12 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		r++
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
-        <TD NOWRAP ALIGN="left">&raquo;
-        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `&frasl;</A>
+        <TD NOWRAP ALIGN="left">
+        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + fE + `/</A>
         </TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-        <TD NOWRAP ALIGN="right">&hellip; &ang; &otimes; &crarr;</TD>
+        <TD NOWRAP ALIGN="right"></TD>
         </TR>
         `))
 	}
@@ -68,14 +68,13 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 		r++
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
-        <TD NOWRAP ALIGN="LEFT">&bull;
-        <A HREF="` + *wpfx + `?fn=disp&fp=` + eDir + "/" + fE + `">` + fE + `</A></TD>
+        <TD NOWRAP ALIGN="LEFT">
+        <A HREF="` + *wpfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + fE + `</A></TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wpfx + `?fn=down&fp=` + eDir + "/" + fE + `">&nabla;</A>
-        &hellip; &ang; &otimes;
-        <A HREF="` + *wpfx + `?fn=edit&fp=` + eDir + "/" + fE + `">&crarr;</A>
+        <A HREF="` + *wpfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `">[dn]</A>&nbsp;
+        <A HREF="` + *wpfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `">[ed]</A>
         </TD>
         </TR>
         `))
@@ -93,7 +92,7 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
                 &nbsp;` + eDir + `
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;">&nbsp;WFM v2.0&nbsp;</A>
+                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;WFM v2.0&nbsp;</A>
             </TD>
         </TR></TABLE>
         `))
@@ -102,32 +101,32 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="up" VALUE="&and; Up" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="up" VALUE="Up" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="home" VALUE="&equiv; Home" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="home" VALUE="Home" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="&reg; Refresh" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="Refresh" CLASS="nb">
         </TD>
             <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER" >
-        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="&otimes; Delete" CLASS="nb">
+        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="Delete" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="&ang; Move" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="Move" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="&copy; New Folder" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="New Folder" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="&oplus; New File" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="New File" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="&loz; New Bookmark" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="New Bookmark" CLASS="nb">
         </TD>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
-            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="&Delta; Upload" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="Upload" CLASS="nb">
         </TD>
         </TR></TABLE>
         `))
@@ -162,13 +161,13 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Size() < f[j].Size()
 		})
-		*l = []string{"na", "Name", "sd", "&nabla;Size", "ta", "Time Modified"}
+		*l = []string{"na", "Name", "sd", "v Size", "ta", "Time Modified"}
 		return
 	case "sd":
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Size() > f[j].Size()
 		})
-		*l = []string{"na", "Name", "sa", "&Delta;Size", "ta", "Time Modified"}
+		*l = []string{"na", "Name", "sa", "^ Size", "ta", "Time Modified"}
 		return
 
 	// time
@@ -176,13 +175,13 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].ModTime().Before(f[j].ModTime())
 		})
-		*l = []string{"na", "Name", "sa", "Size", "td", "&nabla;Time Modified"}
+		*l = []string{"na", "Name", "sa", "Size", "td", "v Time Modified"}
 		return
 	case "td":
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].ModTime().After(f[j].ModTime())
 		})
-		*l = []string{"na", "Name", "sa", "Size", "ta", "&Delta;Time Modified"}
+		*l = []string{"na", "Name", "sa", "Size", "ta", "^ Time Modified"}
 		return
 
 	// name
@@ -190,10 +189,10 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 		sort.Slice(f, func(i, j int) bool {
 			return f[i].Name() > f[j].Name()
 		})
-		*l = []string{"na", "&Delta;Name", "sa", "Size", "ta", "Time Modified"}
+		*l = []string{"na", "^ Name", "sa", "Size", "ta", "Time Modified"}
 		return
 	default:
-		*l = []string{"nd", "&nabla;Name", "sa", "Size", "ta", "Time Modified"}
+		*l = []string{"nd", "v Name", "sa", "Size", "ta", "Time Modified"}
 		return
 	}
 }
