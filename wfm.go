@@ -59,19 +59,17 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 	sort := r.FormValue("sort")
 
 	// toolbar buttons
-	if r.FormValue("mkd") != "" {
+	switch {
+	case r.FormValue("mkd") != "":
 		prompt(w, html.EscapeString(dir), sort, "mkdir")
 		return
-	}
-	if r.FormValue("mkf") != "" {
+	case r.FormValue("mkf") != "":
 		prompt(w, html.EscapeString(dir), sort, "mkfile")
 		return
-	}
-	if r.FormValue("mkb") != "" {
+	case r.FormValue("mkb") != "":
 		prompt(w, html.EscapeString(dir), sort, "mkurl")
 		return
-	}
-	if r.FormValue("upload") != "" {
+	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
 		if err != nil {
 			htErr(w, "upload", err)
@@ -79,8 +77,7 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		}
 		uploadFile(w, dir, sort, h, f)
 		return
-	}
-	if r.FormValue("save") != "" {
+	case r.FormValue("save") != "":
 		saveText(w, dir, sort, html.UnescapeString(r.FormValue("fp")), r.FormValue("text"))
 		return
 	}
