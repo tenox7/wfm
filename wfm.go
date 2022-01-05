@@ -52,7 +52,7 @@ var (
 
 func wrp(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
-	log.Printf("req from=%q uri=%q form=%v", r.RemoteAddr, r.RequestURI, r.Form)
+	log.Printf("req from=%q uri=%q form=%#v", r.RemoteAddr, r.RequestURI, r.Form)
 
 	dir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
 	if dir == "" || dir == "." {
