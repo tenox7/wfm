@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"crypto/subtle"
 	"fmt"
 	"log"
 	"net/http"
@@ -63,4 +65,30 @@ func redirect(w http.ResponseWriter, url string) {
     <A HREF="` + url + `">Go here...</A>
     </BODY></HTML>
     `))
+}
+
+func auth(w http.ResponseWriter, r *http.Request) string {
+	if len(users) == 0 {
+		return "n/a"
+	}
+	var s string
+	u, p, ok := r.BasicAuth()
+	if !ok {
+		goto unauth
+	}
+	for _, usr := range users {
+		if subtle.ConstantTimeCompare([]byte(u), []byte(usr.User)) != 1 {
+			continue
+		}
+
+		s = fmt.Sprintf("%x", sha256.Sum256([]byte(usr.Salt+p)))
+		if subtle.ConstantTimeCompare([]byte(s), []byte(usr.Hash)) == 1 {
+			return u
+		}
+	}
+unauth:
+	w.Header().Set("WWW-Authenticate", "Basic realm=\"wfm\"")
+	log.Printf("auth error remote=%v user=%v", r.RemoteAddr, u)
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	return ""
 }

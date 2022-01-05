@@ -5,6 +5,7 @@
 // * checkboxes, multi file routines
 // * better symlink support
 // * authentication
+// * rate limiter with bad auth punishment
 // * favicon
 // * https/certbot
 // * git client
@@ -25,8 +26,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"html"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -43,16 +46,23 @@ var (
 	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
 	logf = flag.String("logfile", "", "Log file name, default standard output")
+	pwdf = flag.String("passwd", "", "wfm password file")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
 	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
 	cctl = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+
+	users = []struct{ User, Salt, Hash string }{}
 )
 
 func wrp(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
-	log.Printf("req from=%q uri=%q form=%#v", r.RemoteAddr, r.RequestURI, r.Form)
+	user := auth(w, r)
+	if user == "" {
+		return
+	}
+	log.Printf("req from=%q user=%q uri=%q form=%#v", r.RemoteAddr, user, r.RequestURI, r.Form)
 
 	dir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
 	if dir == "" || dir == "." {
@@ -151,6 +161,7 @@ func main() {
 	var err error
 	flag.Parse()
 
+	// redirect log to file if needed
 	if *logf != "" {
 		lf, err := os.OpenFile(*logf, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
@@ -161,6 +172,20 @@ func main() {
 	}
 	log.Print("WFM Starting up")
 
+	// read password database before chroot
+	if *pwdf != "" {
+		pwd, err := ioutil.ReadFile(*pwdf)
+		if err != nil {
+			log.Fatal("unable to read password file: ", err)
+		}
+		err = json.Unmarshal(pwd, &users)
+		if err != nil {
+			log.Fatal("unable to parse password file: ", err)
+		}
+		log.Printf("Loaded %q (%d users)", *pwdf, len(users))
+	}
+
+	// find uid/gid for setuid before chroot
 	var suid, sgid int
 	if *susr != "" {
 		suid, sgid, err = userId(*susr)
@@ -168,6 +193,8 @@ func main() {
 			log.Fatal("unable to find setuid user", err)
 		}
 	}
+
+	// chroot
 	if *chdr != "" {
 		err := syscall.Chroot(*chdr)
 		if err != nil {
@@ -176,18 +203,21 @@ func main() {
 		log.Printf("Chroot to %q", *chdr)
 	}
 
+	// http handlers
 	http.HandleFunc(*wpfx, wrp)
 	http.HandleFunc("/favicon.ico", http.NotFound)
 	if *dpfx != "" && *ddir != "" {
 		http.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
 	}
 
+	// listen/bind to port before setuid
 	l, err := net.Listen("tcp", *addr)
 	if err != nil {
 		log.Fatalf("unable to listen on %v: %v", *addr, err)
 	}
 	log.Printf("Listening on %q", *addr)
 
+	// setuid now
 	err = setUid(suid, sgid)
 	if err != nil {
 		log.Fatalf("unable to suid for %v: %v", *susr, err)
@@ -197,6 +227,7 @@ func main() {
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
+	// serve http as setuid user
 	err = http.Serve(l, nil)
 	if err != nil {
 		log.Fatal(err)
