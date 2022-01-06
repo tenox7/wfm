@@ -92,3 +92,7 @@ unauth:
 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	return ""
 }
+
+func logout(w http.ResponseWriter) {
+	http.Error(w, "Logged out", http.StatusUnauthorized)
+}

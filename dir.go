@@ -11,7 +11,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func listFiles(w http.ResponseWriter, dir, sort string) {
+func listFiles(w http.ResponseWriter, dir, sort, user string) {
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -22,7 +22,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 
 	eDir := html.EscapeString(dir)
 	header(w, eDir, sort)
-	toolbars(w, eDir, sl)
+	toolbars(w, eDir, user, sl)
 
 	r := 0
 
@@ -84,7 +84,7 @@ func listFiles(w http.ResponseWriter, dir, sort string) {
 	footer(w)
 }
 
-func toolbars(w http.ResponseWriter, eDir string, sl []string) {
+func toolbars(w http.ResponseWriter, eDir, user string, sl []string) {
 	// Topbar
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
@@ -92,6 +92,7 @@ func toolbars(w http.ResponseWriter, eDir string, sl []string) {
                 &nbsp;` + eDir + `
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
+				<A HREF="` + *wpfx + `?fn=logout">User: ` + user + `</A>
                 <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;WFM v` + vers + `&nbsp;</A>
             </TD>
         </TR></TABLE>

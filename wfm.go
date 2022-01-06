@@ -121,8 +121,10 @@ func wrp(w http.ResponseWriter, r *http.Request) {
 		mkfile(w, dir, html.UnescapeString(r.FormValue("newf")), sort)
 	case "mkurl":
 		mkurl(w, dir, html.UnescapeString(r.FormValue("newu")), r.FormValue("url"), sort)
+	case "logout":
+		logout(w)
 	default:
-		listFiles(w, dir, sort)
+		listFiles(w, dir, sort, user)
 	}
 }
 
