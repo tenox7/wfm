@@ -4,7 +4,7 @@
 // * file routines
 // * checkboxes, multi file routines
 // * better symlink support
-// * authentication
+// * two factor auth
 // * rate limiter with bad auth punishment
 // * favicon
 // * https/certbot
@@ -26,6 +26,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"html"
@@ -38,25 +39,30 @@ import (
 	"path/filepath"
 	"strconv"
 	"syscall"
+
+	"golang.org/x/crypto/acme/autocert"
 )
 
 var (
 	vers = "2.0.1"
-	addr = flag.String("addr", "127.0.0.1:8080", "Listen address and port")
+	addr = flag.String("addr", "127.0.0.1:8080", "Listen address and port for wfm")
 	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
 	logf = flag.String("logfile", "", "Log file name, default standard output")
-	pwdf = flag.String("passwd", "", "wfm password file")
+	pwdf = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
 	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
 	cctl = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+	adir = flag.String("acm_dir", "", "autocert temp directory, eg: /var/tmp")
+	ahwh = flag.String("acm_host", "", "autocert allowed host name, eg: www.example.org")
+	aadr = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 
 	users = []struct{ User, Salt, Hash string }{}
 )
 
-func wrp(w http.ResponseWriter, r *http.Request) {
+func wfm(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
 	user := auth(w, r)
 	if user == "" {
@@ -196,6 +202,23 @@ func main() {
 		}
 	}
 
+	// http handlers / mux
+	mux := http.NewServeMux()
+	mux.HandleFunc(*wpfx, wfm)
+	mux.HandleFunc("/favicon.ico", http.NotFound)
+	if *dpfx != "" && *ddir != "" {
+		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
+	}
+
+	// run autocert manager before chroot
+	acm := autocert.Manager{}
+	if *addr != "" && *adir != "" && *ahwh != "" {
+		acm.Prompt = autocert.AcceptTOS
+		acm.Cache = autocert.DirCache(*adir)
+		acm.HostPolicy = autocert.HostWhitelist(*ahwh)
+		go http.ListenAndServe(*aadr, acm.HTTPHandler(nil))
+	}
+
 	// chroot
 	if *chdr != "" {
 		err := syscall.Chroot(*chdr)
@@ -203,13 +226,6 @@ func main() {
 			log.Fatal("chroot", err)
 		}
 		log.Printf("Chroot to %q", *chdr)
-	}
-
-	// http handlers
-	http.HandleFunc(*wpfx, wrp)
-	http.HandleFunc("/favicon.ico", http.NotFound)
-	if *dpfx != "" && *ddir != "" {
-		http.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
 	}
 
 	// listen/bind to port before setuid
@@ -229,8 +245,21 @@ func main() {
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
-	// serve http as setuid user
-	err = http.Serve(l, nil)
+	// serve http(s) as setuid user
+	if *addr != "" && *adir != "" && *ahwh != "" {
+		https := &http.Server{
+			Addr:    *addr,
+			Handler: mux,
+			TLSConfig: &tls.Config{
+				GetCertificate: acm.GetCertificate,
+			},
+		}
+		log.Printf("Starting HTTPS TLS Server")
+		err = https.ServeTLS(l, "", "")
+	} else {
+		log.Printf("Starting HTTP Server")
+		err = http.Serve(l, mux)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
