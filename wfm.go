@@ -148,7 +148,7 @@ func main() {
 
 	// http handlers / mux
 	mux := http.NewServeMux()
-	mux.HandleFunc(*wpfx, wfm)
+	mux.HandleFunc(*wpfx, wfmMain)
 	mux.HandleFunc("/favicon.ico", http.NotFound)
 	if *dpfx != "" && *ddir != "" {
 		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
