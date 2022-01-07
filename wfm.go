@@ -52,6 +52,7 @@ type multiString []string
 var (
 	vers = "2.0.1"
 	addr = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: 0.0.0.0:443")
+	adde = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: 0.0.0.0:8081")
 	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
 	root = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
@@ -265,6 +266,9 @@ func main() {
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	// serve http(s) as setuid user
+	if *adde != "" {
+		go http.ListenAndServe(*adde, mux)
+	}
 	if *addr != "" && *adir != "" && len(ahwl) > 0 {
 		https := &http.Server{
 			Addr:      *addr,
