@@ -5,13 +5,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
 	"github.com/dustin/go-humanize"
 )
 
-func listFiles(w http.ResponseWriter, dir, sort, user string) {
+func listFiles(w http.ResponseWriter, udir, sort, user string) {
+	dir := filepath.Clean(udir)
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -47,7 +49,9 @@ func listFiles(w http.ResponseWriter, dir, sort, user string) {
         </TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-        <TD NOWRAP ALIGN="right"></TD>
+        <TD NOWRAP ALIGN="right">
+        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">[re]</A>&nbsp;
+		</TD>
         </TR>
         `))
 	}
