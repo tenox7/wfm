@@ -9,7 +9,8 @@ import (
 	"path/filepath"
 )
 
-func prompt(w http.ResponseWriter, eDir, sort, action string) {
+func prompt(w http.ResponseWriter, dir, file, sort, action string) {
+	eDir := html.EscapeString(dir)
 	header(w, eDir, sort)
 
 	w.Write([]byte(`
@@ -37,6 +38,12 @@ func prompt(w http.ResponseWriter, eDir, sort, action string) {
         <INPUT TYPE="TEXT" NAME="newu" SIZE="40" VALUE="">
         &nbsp;<BR>Destination URL:<P>
         <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
+        `))
+	case "rename":
+		w.Write([]byte(`
+        &nbsp;<BR>Enter new name for the file:<P>
+        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + html.EscapeString(file) + `">
+        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + html.EscapeString(file) + `">
         `))
 	}
 

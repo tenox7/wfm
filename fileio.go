@@ -130,7 +130,7 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 }
 
 func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
-	err := ioutil.WriteFile(fp, []byte(data), 0644)
+	err := ioutil.WriteFile(filepath.Clean(html.UnescapeString(fp)), []byte(html.UnescapeString(data)), 0644)
 	if err != nil {
 		htErr(w, "unable to save text edit file: %v", err)
 	}
@@ -182,5 +182,21 @@ func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", url)
 	f.Close()
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+}
+
+func renFile(w http.ResponseWriter, dir, oldf, newf, sort string) {
+	if oldf == "" || newf == "" {
+		htErr(w, "rename", fmt.Errorf("filename is empty"))
+		return
+	}
+	err := os.Rename(
+		dir+"/"+filepath.Base(html.UnescapeString(oldf)),
+		dir+"/"+filepath.Base(html.UnescapeString(newf)),
+	)
+	if err != nil {
+		htErr(w, "rename", err)
+		return
+	}
 	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }

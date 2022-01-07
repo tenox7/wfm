@@ -73,8 +73,9 @@ func listFiles(w http.ResponseWriter, dir, sort, user string) {
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wpfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `">[dn]</A>&nbsp;
-        <A HREF="` + *wpfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `">[ed]</A>
+        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">[re]</A>&nbsp;
+        <A HREF="` + *wpfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">[dn]</A>&nbsp;
+        <A HREF="` + *wpfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">[ed]</A>
         </TD>
         </TR>
         `))

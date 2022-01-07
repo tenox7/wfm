@@ -2,6 +2,7 @@
 //
 // TODO:
 // * file routines
+// * audit / standardise escape/unescape
 // * checkboxes, multi file routines
 // * better symlink support
 // * two factor auth
@@ -81,18 +82,18 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	if dir == "" || dir == "." {
 		dir = "/"
 	}
-	sort := r.FormValue("sort")
+	sort := html.EscapeString(r.FormValue("sort"))
 
 	// toolbar buttons
 	switch {
 	case r.FormValue("mkd") != "":
-		prompt(w, html.EscapeString(dir), sort, "mkdir")
+		prompt(w, dir, "", sort, "mkdir")
 		return
 	case r.FormValue("mkf") != "":
-		prompt(w, html.EscapeString(dir), sort, "mkfile")
+		prompt(w, dir, "", sort, "mkfile")
 		return
 	case r.FormValue("mkb") != "":
-		prompt(w, html.EscapeString(dir), sort, "mkurl")
+		prompt(w, dir, "", sort, "mkurl")
 		return
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
@@ -103,7 +104,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		uploadFile(w, dir, sort, h, f)
 		return
 	case r.FormValue("save") != "":
-		saveText(w, dir, sort, html.UnescapeString(r.FormValue("fp")), r.FormValue("text"))
+		saveText(w, dir, sort, filepath.Clean(html.UnescapeString(r.FormValue("fp"))), html.UnescapeString(r.FormValue("text")))
 		return
 	}
 
@@ -134,6 +135,10 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		mkfile(w, dir, html.UnescapeString(r.FormValue("newf")), sort)
 	case "mkurl":
 		mkurl(w, dir, html.UnescapeString(r.FormValue("newu")), r.FormValue("url"), sort)
+	case "rename":
+		renFile(w, dir, r.FormValue("oldf"), r.FormValue("newf"), sort)
+	case "renp":
+		prompt(w, dir, r.FormValue("oldf"), sort, "rename")
 	case "logout":
 		logout(w)
 	default:
