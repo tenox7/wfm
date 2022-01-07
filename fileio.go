@@ -126,7 +126,7 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 	}
 	wb.Flush()
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", dir, h.Filename, h.Size)
-	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
 func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
@@ -135,7 +135,7 @@ func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
 		htErr(w, "unable to save text edit file: %v", err)
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", dir, fp, len(data))
-	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
 func mkdir(w http.ResponseWriter, dir, newd, sort string) {
@@ -149,7 +149,7 @@ func mkdir(w http.ResponseWriter, dir, newd, sort string) {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
 func mkfile(w http.ResponseWriter, dir, newf, sort string) {
@@ -163,7 +163,7 @@ func mkfile(w http.ResponseWriter, dir, newf, sort string) {
 		return
 	}
 	f.Close()
-	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }
 
 func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
@@ -182,5 +182,5 @@ func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", url)
 	f.Close()
-	redirect(w, "/?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
 }

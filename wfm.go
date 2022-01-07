@@ -11,7 +11,6 @@
 //   try different lib like lego?
 // * rate limiter with bad auth punishment
 // * favicon
-// * https/certbot
 // * git client
 // * file locking
 // * docker support (no chroot) - mount dir as / ?
