@@ -5,6 +5,10 @@
 // * checkboxes, multi file routines
 // * better symlink support
 // * two factor auth
+// * better handle cert chdir issue
+//   get and preload cert manually on start?
+//   hide acm cache dir?
+//   try different lib like lego?
 // * rate limiter with bad auth punishment
 // * favicon
 // * https/certbot
@@ -43,11 +47,14 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
+type multiString []string
+
 var (
 	vers = "2.0.1"
-	addr = flag.String("addr", "127.0.0.1:8080", "Listen address and port for wfm")
+	addr = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: 0.0.0.0:443")
 	chdr = flag.String("chroot", "", "Path to chroot to")
 	susr = flag.String("setuid", "", "User to setuid to")
+	root = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
 	logf = flag.String("logfile", "", "Log file name, default standard output")
 	pwdf = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
@@ -55,8 +62,8 @@ var (
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
 	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
 	cctl = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	adir = flag.String("acm_dir", "", "autocert temp directory, eg: /var/tmp")
-	ahwh = flag.String("acm_host", "", "autocert allowed host name, eg: www.example.org")
+	adir = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
+	ahwl multiString // flag set in main
 	aadr = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 
 	users = []struct{ User, Salt, Hash string }{}
@@ -165,8 +172,18 @@ func setUid(ui, gi int) error {
 	return nil
 }
 
+func (z *multiString) String() string {
+	return "something"
+}
+
+func (z *multiString) Set(v string) error {
+	*z = append(*z, v)
+	return nil
+}
+
 func main() {
 	var err error
+	flag.Var(&ahwl, "acm_hosts", "autocert manager allowed hostnames")
 	flag.Parse()
 
 	// redirect log to file if needed
@@ -210,13 +227,15 @@ func main() {
 		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
 	}
 
-	// run autocert manager before chroot
+	// run autocert manager before chroot/setuid
+	// however it doesn't matter for chroot as certs will land in chroot *adir anyway
 	acm := autocert.Manager{}
-	if *addr != "" && *adir != "" && *ahwh != "" {
+	if *addr != "" && *adir != "" && len(ahwl) > 0 {
 		acm.Prompt = autocert.AcceptTOS
 		acm.Cache = autocert.DirCache(*adir)
-		acm.HostPolicy = autocert.HostWhitelist(*ahwh)
+		acm.HostPolicy = autocert.HostWhitelist(ahwl...)
 		go http.ListenAndServe(*aadr, acm.HTTPHandler(nil))
+		log.Printf("Autocert enabled")
 	}
 
 	// chroot
@@ -240,19 +259,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to suid for %v: %v", *susr, err)
 	}
-	if os.Getuid() == 0 {
-		log.Fatal("you probably dont want to run wfm as root")
+	if !*root && os.Getuid() == 0 {
+		log.Fatal("you probably dont want to run wfm as root, use --allow_root flag to force it")
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	// serve http(s) as setuid user
-	if *addr != "" && *adir != "" && *ahwh != "" {
+	if *addr != "" && *adir != "" && len(ahwl) > 0 {
 		https := &http.Server{
-			Addr:    *addr,
-			Handler: mux,
-			TLSConfig: &tls.Config{
-				GetCertificate: acm.GetCertificate,
-			},
+			Addr:      *addr,
+			Handler:   mux,
+			TLSConfig: &tls.Config{GetCertificate: acm.GetCertificate},
 		}
 		log.Printf("Starting HTTPS TLS Server")
 		err = https.ServeTLS(l, "", "")
