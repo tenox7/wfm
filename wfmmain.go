@@ -15,22 +15,24 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("req from=%q user=%q uri=%q form=%#v", r.RemoteAddr, user, r.RequestURI, r.Form)
 
-	dir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
-	if dir == "" || dir == "." {
-		dir = "/"
+	uDir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
+	if uDir == "" || uDir == "." {
+		uDir = "/"
 	}
-	sort := html.EscapeString(r.FormValue("sort"))
+	eSort := html.EscapeString(r.FormValue("sort"))
+	uFp := filepath.Clean(html.UnescapeString(r.FormValue("fp")))
+	uFn := filepath.Base(html.UnescapeString(r.FormValue("file")))
 
 	// toolbar buttons
 	switch {
 	case r.FormValue("mkd") != "":
-		prompt(w, dir, "", sort, "mkdir")
+		prompt(w, uDir, "", eSort, "mkdir")
 		return
 	case r.FormValue("mkf") != "":
-		prompt(w, dir, "", sort, "mkfile")
+		prompt(w, uDir, "", eSort, "mkfile")
 		return
 	case r.FormValue("mkb") != "":
-		prompt(w, dir, "", sort, "mkurl")
+		prompt(w, uDir, "", eSort, "mkurl")
 		return
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
@@ -38,19 +40,19 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 			htErr(w, "upload", err)
 			return
 		}
-		uploadFile(w, dir, sort, h, f)
+		uploadFile(w, uDir, eSort, h, f)
 		return
 	case r.FormValue("save") != "":
-		saveText(w, dir, sort, filepath.Clean(html.UnescapeString(r.FormValue("fp"))), html.UnescapeString(r.FormValue("text")))
+		saveText(w, uDir, eSort, uFp, html.UnescapeString(r.FormValue("text")))
 		return
 	}
 
 	// these fall through to directory listing
 	if r.FormValue("home") != "" {
-		dir = "/"
+		uDir = "/"
 	}
 	if r.FormValue("up") != "" {
-		dir = filepath.Dir(dir)
+		uDir = filepath.Dir(uDir)
 	}
 
 	// cancel
@@ -61,24 +63,24 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	// form action
 	switch r.FormValue("fn") {
 	case "disp":
-		dispFile(w, html.UnescapeString(r.FormValue("fp")))
+		dispFile(w, uFp)
 	case "down":
-		downFile(w, html.UnescapeString(r.FormValue("fp")))
+		downFile(w, uFp)
 	case "edit":
-		editText(w, html.UnescapeString(r.FormValue("fp")), sort)
+		editText(w, uFp, eSort)
 	case "mkdir":
-		mkdir(w, dir, html.UnescapeString(r.FormValue("newd")), sort)
+		mkdir(w, uDir, uFn, eSort)
 	case "mkfile":
-		mkfile(w, dir, html.UnescapeString(r.FormValue("newf")), sort)
+		mkfile(w, uDir, uFn, eSort)
 	case "mkurl":
-		mkurl(w, dir, html.UnescapeString(r.FormValue("newu")), r.FormValue("url"), sort)
+		mkurl(w, uDir, uFn, r.FormValue("url"), eSort)
 	case "rename":
-		renFile(w, dir, r.FormValue("oldf"), r.FormValue("newf"), sort)
+		renFile(w, uDir, r.FormValue("oldf"), r.FormValue("newf"), eSort)
 	case "renp":
-		prompt(w, dir, r.FormValue("oldf"), sort, "rename")
+		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
 	case "logout":
 		logout(w)
 	default:
-		listFiles(w, dir, sort, user)
+		listFiles(w, uDir, eSort, user)
 	}
 }

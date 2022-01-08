@@ -9,9 +9,8 @@ import (
 	"path/filepath"
 )
 
-func prompt(w http.ResponseWriter, dir, file, sort, action string) {
-	eDir := html.EscapeString(dir)
-	header(w, eDir, sort)
+func prompt(w http.ResponseWriter, uDir, uFileName, sort, action string) {
+	header(w, uDir, sort)
 
 	w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
@@ -25,25 +24,25 @@ func prompt(w http.ResponseWriter, dir, file, sort, action string) {
 	case "mkdir":
 		w.Write([]byte(`
         &nbsp;<BR>Enter name for the new directory:<P>
-        <INPUT TYPE="TEXT" NAME="newd" SIZE="40" VALUE="">
+        <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         `))
 	case "mkfile":
 		w.Write([]byte(`
         &nbsp;<BR>Enter name for the new file:<P>
-        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="">
+        <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         `))
 	case "mkurl":
 		w.Write([]byte(`
         &nbsp;<BR>Enter name for the new url file:<P>
-        <INPUT TYPE="TEXT" NAME="newu" SIZE="40" VALUE="">
+        <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         &nbsp;<BR>Destination URL:<P>
         <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
         `))
 	case "rename":
 		w.Write([]byte(`
         &nbsp;<BR>Enter new name for the file:<P>
-        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + html.EscapeString(file) + `">
-        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + html.EscapeString(file) + `">
+        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + html.EscapeString(uFileName) + `">
+        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + html.EscapeString(uFileName) + `">
         `))
 	}
 
@@ -63,8 +62,8 @@ func prompt(w http.ResponseWriter, dir, file, sort, action string) {
 	footer(w)
 }
 
-func editText(w http.ResponseWriter, fp, sort string) {
-	fi, err := os.Stat(fp)
+func editText(w http.ResponseWriter, uFilePath, sort string) {
+	fi, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
 		return
@@ -73,16 +72,16 @@ func editText(w http.ResponseWriter, fp, sort string) {
 		htErr(w, "edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
-	f, err := ioutil.ReadFile(fp)
+	f, err := ioutil.ReadFile(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to read file", err)
 		return
 	}
-	header(w, html.EscapeString(filepath.Dir(fp)), sort)
+	header(w, filepath.Dir(uFilePath), sort)
 	w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
-    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(fp)) + `</TD>
+    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(uFilePath)) + `</TD>
     <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT"></TD>
     </TR>
     <TR STYLE="height:99%;">
@@ -90,7 +89,7 @@ func editText(w http.ResponseWriter, fp, sort string) {
     <TEXTAREA NAME="text" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
     <INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" STYLE="float: left;">
 	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel" STYLE="float: left; margin-left: 10px">
-    <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(fp) + `">
+    <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uFilePath) + `">
     </TD></TR></TABLE>
     `))
 	footer(w)

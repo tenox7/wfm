@@ -12,8 +12,8 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func listFiles(w http.ResponseWriter, udir, sort, user string) {
-	dir := filepath.Clean(udir)
+func listFiles(w http.ResponseWriter, uDir, sort, user string) {
+	dir := filepath.Clean(uDir)
 	d, err := ioutil.ReadDir(dir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -22,8 +22,8 @@ func listFiles(w http.ResponseWriter, udir, sort, user string) {
 	sl := []string{}
 	sortFiles(d, &sl, sort)
 
+	header(w, uDir, sort)
 	eDir := html.EscapeString(dir)
-	header(w, eDir, sort)
 	toolbars(w, eDir, user, sl)
 
 	r := 0

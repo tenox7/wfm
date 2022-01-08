@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"fmt"
+	"html"
 	"log"
 	"net/http"
 )
@@ -15,7 +16,8 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	log.Printf("error: %v : %v", msg, err)
 }
 
-func header(w http.ResponseWriter, eDir, sort string) {
+func header(w http.ResponseWriter, uDir, sort string) {
+	eDir := html.EscapeString(uDir)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Cache-Control", *cctl)
 	w.Write([]byte(`
@@ -54,15 +56,15 @@ func footer(w http.ResponseWriter) {
     `))
 }
 
-func redirect(w http.ResponseWriter, url string) {
-	w.Header().Set("Location", url)
+func redirect(w http.ResponseWriter, uUrl string) {
+	w.Header().Set("Location", uUrl)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Cache-Control", *cctl)
 	w.WriteHeader(302)
 
 	w.Write([]byte(`
     <HTML><BODY>
-    <A HREF="` + url + `">Go here...</A>
+    <A HREF="` + html.EscapeString(uUrl) + `">Go here...</A>
     </BODY></HTML>
     `))
 }

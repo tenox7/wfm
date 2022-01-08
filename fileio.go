@@ -16,7 +16,8 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func dispFile(w http.ResponseWriter, fp string) {
+func dispFile(w http.ResponseWriter, uFilePath string) {
+	fp := filepath.Clean(uFilePath)
 	s := strings.Split(strings.ToLower(fp), ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
 	switch s[len(s)-1] {
@@ -33,27 +34,27 @@ func dispFile(w http.ResponseWriter, fp string) {
 	}
 }
 
-func downFile(w http.ResponseWriter, fp string) {
-	f, err := os.Stat(fp)
+func downFile(w http.ResponseWriter, uFilePath string) {
+	f, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(fp)+"\";")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(uFilePath)+"\";")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	w.Header().Set("Cache-Control", *cctl)
-	streamFile(w, fp)
+	streamFile(w, uFilePath)
 }
 
-func dispInline(w http.ResponseWriter, fp string) {
-	f, err := os.Stat(fp)
+func dispInline(w http.ResponseWriter, uFilePath string) {
+	f, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
 		return
 	}
 
-	fi, err := os.Open(fp)
+	fi, err := os.Open(uFilePath)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
 		return
@@ -69,11 +70,11 @@ func dispInline(w http.ResponseWriter, fp string) {
 	w.Header().Set("Content-Disposition", "inline")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	w.Header().Set("Cache-Control", *cctl)
-	streamFile(w, fp)
+	streamFile(w, uFilePath)
 }
 
-func streamFile(w http.ResponseWriter, fp string) {
-	fi, err := os.Open(fp)
+func streamFile(w http.ResponseWriter, uFilePath string) {
+	fi, err := os.Open(uFilePath)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
 		log.Printf("unable to read file: %v", err)
@@ -100,10 +101,10 @@ func streamFile(w http.ResponseWriter, fp string) {
 	wb.Flush()
 }
 
-func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader, f multipart.File) {
+func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHeader, f multipart.File) {
 	defer f.Close()
 
-	o, err := os.OpenFile(dir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
+	o, err := os.OpenFile(uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "unable to write file", err)
 		return
@@ -125,78 +126,78 @@ func uploadFile(w http.ResponseWriter, dir, sort string, h *multipart.FileHeader
 		wb.Write(bu[:n])
 	}
 	wb.Flush()
-	log.Printf("Uploaded Dir=%v File=%v Size=%v", dir, h.Filename, h.Size)
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	log.Printf("Uploaded Dir=%v File=%v Size=%v", uDir, h.Filename, h.Size)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
-func saveText(w http.ResponseWriter, dir, sort, fp, data string) {
-	err := ioutil.WriteFile(filepath.Clean(html.UnescapeString(fp)), []byte(html.UnescapeString(data)), 0644)
+func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
+	err := ioutil.WriteFile(uFilePath, []byte(html.UnescapeString(eData)), 0644)
 	if err != nil {
 		htErr(w, "unable to save text edit file: %v", err)
 	}
-	log.Printf("Saved Text Dir=%v File=%v Size=%v", dir, fp, len(data))
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(eData))
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
-func mkdir(w http.ResponseWriter, dir, newd, sort string) {
-	if newd == "" {
+func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
+	if uNewd == "" {
 		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
 	}
-	err := os.Mkdir(dir+"/"+newd, 0755)
+	err := os.Mkdir(uDir+"/"+filepath.Base(uNewd), 0755)
 	if err != nil {
 		htErr(w, "mkdir", err)
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
-func mkfile(w http.ResponseWriter, dir, newf, sort string) {
-	if newf == "" {
+func mkfile(w http.ResponseWriter, uDir, uNewf, sort string) {
+	if uNewf == "" {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
 		return
 	}
-	f, err := os.OpenFile(dir+"/"+newf, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	f, err := os.OpenFile(uDir+"/"+filepath.Base(uNewf), os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
 		return
 	}
 	f.Close()
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+sort)
 }
 
-func mkurl(w http.ResponseWriter, dir, newu, url, sort string) {
-	if newu == "" {
+func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
+	if uNewu == "" {
 		htErr(w, "mkurl", fmt.Errorf("url file name is empty"))
 		return
 	}
-	if !strings.HasSuffix(newu, ".url") {
-		newu = newu + ".url"
+	if !strings.HasSuffix(uNewu, ".url") {
+		uNewu = uNewu + ".url"
 	}
-	f, err := os.OpenFile(dir+"/"+newu, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	f, err := os.OpenFile(uDir+"/"+uNewu, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
 		return
 	}
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
-	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", url)
+	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", html.UnescapeString(eUrl))
 	f.Close()
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
-func renFile(w http.ResponseWriter, dir, oldf, newf, sort string) {
-	if oldf == "" || newf == "" {
+func renFile(w http.ResponseWriter, uDir, eOldf, eNewf, eSort string) {
+	if eOldf == "" || eNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
 	err := os.Rename(
-		dir+"/"+filepath.Base(html.UnescapeString(oldf)),
-		dir+"/"+filepath.Base(html.UnescapeString(newf)),
+		uDir+"/"+filepath.Base(html.UnescapeString(eOldf)),
+		uDir+"/"+filepath.Base(html.UnescapeString(eNewf)),
 	)
 	if err != nil {
 		htErr(w, "rename", err)
 		return
 	}
-	redirect(w, *wpfx+"?dir="+html.EscapeString(dir)+"&sort="+sort)
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
