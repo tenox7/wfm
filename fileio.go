@@ -25,10 +25,10 @@ func dispFile(w http.ResponseWriter, uFilePath string) {
 		gourl(w, fp)
 
 	case "zip", "7z", "tar", "rar":
-		readArchive(w, fp)
+		listUnarr(w, fp)
 
 	case "iso":
-		readIso(w, fp)
+		listIso(w, fp)
 
 	default:
 		dispInline(w, fp)

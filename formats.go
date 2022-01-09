@@ -61,7 +61,7 @@ func gourl(w http.ResponseWriter, fp string) {
 	redirect(w, url)
 }
 
-func readZip(w http.ResponseWriter, fp string) {
+func listZip(w http.ResponseWriter, fp string) {
 	z, err := zip.OpenReader(fp)
 	if err != nil {
 		htErr(w, "unzip", err)
@@ -75,7 +75,7 @@ func readZip(w http.ResponseWriter, fp string) {
 	}
 }
 
-func readIso(w http.ResponseWriter, fp string) {
+func listIso(w http.ResponseWriter, fp string) {
 	// TODO: recursive file list
 	f, err := os.Open(fp)
 	if err != nil {
@@ -114,7 +114,7 @@ func readIso(w http.ResponseWriter, fp string) {
 	}
 }
 
-func readArchive(w http.ResponseWriter, fp string) {
+func listUnarr(w http.ResponseWriter, fp string) {
 	// TODO: display file sizes
 	ar, err := unarr.NewArchive(fp)
 	if err != nil {
