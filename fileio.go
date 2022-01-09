@@ -24,8 +24,9 @@ func dispFile(w http.ResponseWriter, uFilePath string) {
 	case "url", "desktop", "webloc":
 		gourl(w, fp)
 
-	case "zip":
-		readZip(w, fp)
+	case "zip", "7z", "tar", "rar":
+		readArchive(w, fp)
+
 	case "iso":
 		readIso(w, fp)
 

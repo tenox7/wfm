@@ -24,7 +24,8 @@
 // * ftp server?
 // * html as template
 // * archive files in main view / graphical/table form
-// * support for different filesystems, S3, SMB, archive files
+// * support for different filesystems, S3, SMB, archive files as io/fs
+//   https://github.com/mholt/archiver
 
 package main
 

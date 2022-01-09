@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/dustin/go-humanize"
+	"github.com/gen2brain/go-unarr"
 	"github.com/kdomanski/iso9660"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
@@ -110,5 +111,25 @@ func readIso(w http.ResponseWriter, fp string) {
 		}
 	} else {
 		fmt.Fprintf(w, "%v  %v\n", r.Name(), r.Size())
+	}
+}
+
+func readArchive(w http.ResponseWriter, fp string) {
+	// TODO: display file sizes
+	ar, err := unarr.NewArchive(fp)
+	if err != nil {
+		htErr(w, "unarr open", err)
+		return
+	}
+	defer ar.Close()
+	l, err := ar.List()
+	if err != nil {
+		htErr(w, "unarr list", err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Cache-Control", *cctl)
+	for _, e := range l {
+		fmt.Fprintf(w, "%v\n", e)
 	}
 }

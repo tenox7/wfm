@@ -4,6 +4,8 @@ github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/gabriel-vasile/mimetype v1.4.0 h1:Cn9dkdYsMIu56tGho+fqzh7XmvY2YyGU0FnbhiOsEro=
 github.com/gabriel-vasile/mimetype v1.4.0/go.mod h1:fA8fi6KUiG7MgQQ+mEWotXoEOvmxRtOJlERCzSmRvr8=
+github.com/gen2brain/go-unarr v0.1.2 h1:17kYZ2WMCVFrnmU4A+7BeFXblIOyE8weqggjay+kVIU=
+github.com/gen2brain/go-unarr v0.1.2/go.mod h1:P05CsEe8jVEXhxqXqp9mFKUKFV0BKpFmtgNWf8Mcoos=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/kdomanski/iso9660 v0.2.1 h1:IepyfCeEqx77rZeOM4XZgWB4XJWEF7Jp+1ehMTrSElg=
 github.com/kdomanski/iso9660 v0.2.1/go.mod h1:LY50s7BlG+ES6V99oxYGd0ub9giLrKdHZb3LLOweBj0=

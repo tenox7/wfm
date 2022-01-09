@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/gen2brain/go-unarr v0.1.2 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/text v0.3.6 // indirect
