@@ -41,7 +41,7 @@ func header(w http.ResponseWriter, uDir, sort string) {
     <META HTTP-EQUIV="Content-Language" CONTENT="en-US">
     <META HTTP-EQUIV="google" CONTENT="notranslate">
     <META NAME="viewport" CONTENT="width=device-width">
-    <!-- <LINK REL="icon" TYPE="image/gif" HREF="ICONGOESHERE"> -->
+    <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
     <FORM ACTION="` + *wpfx + `" METHOD="POST" ENCTYPE="multipart/form-data">

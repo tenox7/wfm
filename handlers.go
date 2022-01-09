@@ -85,3 +85,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		listFiles(w, uDir, eSort, user)
 	}
 }
+
+func favicon(w http.ResponseWriter, r *http.Request) {
+	dispIcon(w)
+}

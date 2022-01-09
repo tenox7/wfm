@@ -10,16 +10,12 @@
 //   hide acm cache dir?
 //   try different lib like lego?
 // * rate limiter with bad auth punishment
-// * favicon
 // * git client
 // * file locking
 // * docker support (no chroot) - mount dir as / ?
 // * modern browser detection
 // * fancy unicode icons
 // * html charset, currently US-ASCII ?!
-// * better unicode icons? test on old browsers
-// * generate icons on fly with encoding/gid
-//   also for input type=image, or least for favicon?
 // * webdav server
 // * ftp server?
 // * html as template
@@ -149,7 +145,7 @@ func main() {
 	// http handlers / mux
 	mux := http.NewServeMux()
 	mux.HandleFunc(*wpfx, wfm)
-	mux.HandleFunc("/favicon.ico", http.NotFound)
+	mux.HandleFunc("/favicon.ico", favicon)
 	if *dpfx != "" && *ddir != "" {
 		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
 	}

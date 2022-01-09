@@ -3,18 +3,37 @@ package main
 import (
 	"archive/zip"
 	"fmt"
+	"image"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	ico "github.com/biessek/golang-ico"
 	"github.com/dustin/go-humanize"
 	"github.com/gen2brain/go-unarr"
 	"github.com/kdomanski/iso9660"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/inconsolata"
+	"golang.org/x/image/math/fixed"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
 )
+
+func dispIcon(w http.ResponseWriter) {
+	i := image.NewNRGBA(image.Rect(0, 0, 16, 16))
+	d := &font.Drawer{
+		Dst:  i,
+		Src:  image.NewUniform(color.RGBA{0, 64, 128, 255}),
+		Face: inconsolata.Bold8x16,
+		Dot:  fixed.Point26_6{fixed.Int26_6(4 * 64), fixed.Int26_6(13 * 64)},
+	}
+	d.DrawString("W")
+	w.Header().Set("Content-Type", "image/x-icon")
+	ico.Encode(w, i)
+}
 
 func gourl(w http.ResponseWriter, fp string) {
 	var url string
