@@ -1,7 +1,7 @@
 // Web File Manager
 //
 // TODO:
-// * file routines: mv, rm
+// * file routines: mv
 // * checkboxes, multi file routines
 // * resolve symlinks
 // * two factor auth
@@ -147,7 +147,7 @@ func main() {
 
 	// http handlers / mux
 	mux := http.NewServeMux()
-	mux.HandleFunc(*wpfx, wfmMain)
+	mux.HandleFunc(*wpfx, wfm)
 	mux.HandleFunc("/favicon.ico", http.NotFound)
 	if *dpfx != "" && *ddir != "" {
 		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))

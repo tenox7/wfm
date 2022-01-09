@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func wfmMain(w http.ResponseWriter, r *http.Request) {
+func wfm(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
 	user := auth(w, r)
 	if user == "" {
