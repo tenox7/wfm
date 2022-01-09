@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/dustin/go-humanize"
 )
 
-func prompt(w http.ResponseWriter, uDir, uFileName, sort, action string) {
+func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
 	header(w, uDir, sort)
 
 	w.Write([]byte(`

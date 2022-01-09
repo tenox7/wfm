@@ -1,10 +1,9 @@
 // Web File Manager
 //
 // TODO:
-// * file routines
-// * audit / standardise escape/unescape
+// * file routines: mv, rm
 // * checkboxes, multi file routines
-// * better symlink support
+// * resolve symlinks
 // * two factor auth
 // * better handle cert chdir issue
 //   get and preload cert manually on start?

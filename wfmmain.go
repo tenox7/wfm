@@ -20,10 +20,10 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		uDir = "/"
 	}
 	eSort := html.EscapeString(r.FormValue("sort"))
-	uFp := filepath.Clean(html.UnescapeString(r.FormValue("fp")))
-	uFn := filepath.Base(html.UnescapeString(r.FormValue("file")))
+	uFp := filepath.Clean(html.UnescapeString(r.FormValue("fp")))  // full file path
+	uBn := filepath.Base(html.UnescapeString(r.FormValue("file"))) // base file name
 
-	// toolbar buttons
+	// button clicked
 	switch {
 	case r.FormValue("mkd") != "":
 		prompt(w, uDir, "", eSort, "mkdir")
