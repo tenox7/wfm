@@ -67,11 +67,11 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
     </TD></TR>
     <TR><TD COLSPAN="2">
     <P><CENTER>
-    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK">
+    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK">&nbsp;
     <INPUT TYPE="SUBMIT" VALUE=" Cancel " NAME="cancel">
     <INPUT TYPE="HIDDEN" NAME="fn" VALUE="` + action + `">
     </CENTER>
-    </TD></TR>
+    </TD></TR><TR><TD>&nbsp;</TD></TR>
     </TABLE>
     </TD></TR></TABLE>
     `))
