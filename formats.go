@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,8 +14,8 @@ import (
 
 	ico "github.com/biessek/golang-ico"
 	"github.com/dustin/go-humanize"
-	"github.com/gen2brain/go-unarr"
 	"github.com/kdomanski/iso9660"
+	"github.com/mholt/archiver/v4"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/inconsolata"
 	"golang.org/x/image/math/fixed"
@@ -133,22 +134,24 @@ func listIso(w http.ResponseWriter, fp string) {
 	}
 }
 
-func listUnarr(w http.ResponseWriter, fp string) {
-	// TODO: display file sizes
-	ar, err := unarr.NewArchive(fp)
+func listArchive(w http.ResponseWriter, fp string) {
+	a, err := archiver.FileSystem(fp)
 	if err != nil {
-		htErr(w, "unarr open", err)
-		return
-	}
-	defer ar.Close()
-	l, err := ar.List()
-	if err != nil {
-		htErr(w, "unarr list", err)
+		htErr(w, "archiver", err)
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", *cctl)
-	for _, e := range l {
-		fmt.Fprintf(w, "%v\n", e)
+
+	err = fs.WalkDir(a, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			fmt.Fprintln(w, err)
+			return err
+		}
+		fmt.Fprintln(w, path)
+		return nil
+	})
+	if err != nil {
+		fmt.Fprintln(w, err)
 	}
 }

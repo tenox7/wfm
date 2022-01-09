@@ -24,9 +24,10 @@ func dispFile(w http.ResponseWriter, uFilePath string) {
 	case "url", "desktop", "webloc":
 		gourl(w, fp)
 
-	case "zip", "7z", "tar", "rar":
-		listUnarr(w, fp)
-
+	case "zip":
+		listZip(w, fp)
+	case "7z", "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
+		listArchive(w, fp)
 	case "iso":
 		listIso(w, fp)
 
