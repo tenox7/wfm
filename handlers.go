@@ -45,19 +45,15 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case r.FormValue("save") != "":
 		saveText(w, uDir, eSort, uFp, html.UnescapeString(r.FormValue("text")))
 		return
-	}
-
-	// these fall through to directory listing
-	if r.FormValue("home") != "" {
-		uDir = "/"
-	}
-	if r.FormValue("up") != "" {
-		uDir = filepath.Dir(uDir)
-	}
-
-	// cancel
-	if r.FormValue("cancel") != "" {
-		r.Form.Set("fn", "")
+	case r.FormValue("home") != "":
+		listFiles(w, "/", eSort, user)
+		return
+	case r.FormValue("up") != "":
+		listFiles(w, filepath.Dir(uDir), eSort, user)
+		return
+	case r.FormValue("cancel") != "":
+		listFiles(w, uDir, eSort, user)
+		return
 	}
 
 	// form action
