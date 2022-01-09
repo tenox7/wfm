@@ -41,10 +41,25 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
         <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
         `))
 	case "rename":
+		eBn := html.EscapeString(uBaseName)
 		w.Write([]byte(`
         &nbsp;<BR>Enter new name for the file:<P>
-        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + html.EscapeString(uFileName) + `">
-        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + html.EscapeString(uFileName) + `">
+        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + eBn + `">
+        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + eBn + `">
+        `))
+	case "delete":
+		var a string
+		fi, _ := os.Stat(uDir + "/" + uBaseName)
+		if fi.IsDir() {
+			a = "directory - recursively"
+		} else {
+			a = "file, size " + humanize.Bytes(uint64(fi.Size()))
+		}
+		eBn := html.EscapeString(uBaseName)
+		w.Write([]byte(`
+        &nbsp;<BR>Are you sure you want to delete:<BR><B>` + eBn + `</B>
+        (` + a + `)<P>
+        <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
 	}
 

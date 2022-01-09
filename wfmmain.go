@@ -69,15 +69,20 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	case "edit":
 		editText(w, uFp, eSort)
 	case "mkdir":
-		mkdir(w, uDir, uFn, eSort)
+		mkdir(w, uDir, uBn, eSort)
 	case "mkfile":
-		mkfile(w, uDir, uFn, eSort)
+		mkfile(w, uDir, uBn, eSort)
 	case "mkurl":
-		mkurl(w, uDir, uFn, r.FormValue("url"), eSort)
+		mkurl(w, uDir, uBn, r.FormValue("url"), eSort)
 	case "rename":
 		renFile(w, uDir, r.FormValue("oldf"), r.FormValue("newf"), eSort)
 	case "renp":
 		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
+	case "delp":
+		prompt(w, uDir, uBn, eSort, "delete")
+	case "delete":
+		log.Printf("delete %v by %v @ %v", uDir+"/"+uBn, user, r.RemoteAddr)
+		delete(w, uDir, uDir+"/"+uBn, eSort)
 	case "logout":
 		logout(w)
 	default:

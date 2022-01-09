@@ -51,6 +51,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string) {
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
         <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">[re]</A>&nbsp;
+        <A HREF="` + *wpfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">[rm]</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -77,9 +78,10 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string) {
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">[re]</A>&nbsp;
         <A HREF="` + *wpfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">[dn]</A>&nbsp;
         <A HREF="` + *wpfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">[ed]</A>
+        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">[re]</A>&nbsp;
+        <A HREF="` + *wpfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">[rm]</A>&nbsp;
         </TD>
         </TR>
         `))

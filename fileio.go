@@ -201,3 +201,12 @@ func renFile(w http.ResponseWriter, uDir, eOldf, eNewf, eSort string) {
 	}
 	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
+
+func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
+	err := os.RemoveAll(uFilePath)
+	if err != nil {
+		htErr(w, "delete", err)
+		return
+	}
+	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+}
