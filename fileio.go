@@ -26,7 +26,9 @@ func dispFile(w http.ResponseWriter, uFilePath string) {
 
 	case "zip":
 		listZip(w, fp)
-	case "7z", "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
+	case "7z":
+		list7z(w, fp)
+	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
 		listArchive(w, fp)
 	case "iso":
 		listIso(w, fp)

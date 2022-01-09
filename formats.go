@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	ico "github.com/biessek/golang-ico"
+	"github.com/bodgit/sevenzip"
 	"github.com/dustin/go-humanize"
 	"github.com/kdomanski/iso9660"
 	"github.com/mholt/archiver/v4"
@@ -131,6 +132,20 @@ func listIso(w http.ResponseWriter, fp string) {
 		}
 	} else {
 		fmt.Fprintf(w, "%v  %v\n", r.Name(), r.Size())
+	}
+}
+
+func list7z(w http.ResponseWriter, fp string) {
+	a, err := sevenzip.OpenReader(fp)
+	if err != nil {
+		htErr(w, "sevenzip", err)
+		return
+	}
+	defer a.Close()
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Cache-Control", *cctl)
+	for _, f := range a.File {
+		fmt.Fprintln(w, f.Name)
 	}
 }
 
