@@ -24,6 +24,12 @@ func header(w http.ResponseWriter, uDir, sort string) {
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
     <HTML LANG="en">
     <HEAD>
+    <META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=UTF-8">
+    <META HTTP-EQUIV="Content-Language" CONTENT="en-US">
+    <META HTTP-EQUIV="google" CONTENT="notranslate">
+    <META HTTP-EQUIV="charset" CONTENT="UTF-8">
+    <META HTTP-EQUIV="encoding" CONTENT="UTF-8">
+    <META NAME="viewport" CONTENT="width=device-width">
     <TITLE>WFM ` + eDir + `</TITLE>
     <STYLE TYPE="text/css"><!--
             A:link {text-decoration: none; color:#0000CE; }
@@ -37,10 +43,6 @@ func header(w http.ResponseWriter, uDir, sort string) {
             .tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
             .nb { border-style:none; }
     --></STYLE>
-    <META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=US-ASCII">
-    <META HTTP-EQUIV="Content-Language" CONTENT="en-US">
-    <META HTTP-EQUIV="google" CONTENT="notranslate">
-    <META NAME="viewport" CONTENT="width=device-width">
     <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
