@@ -30,6 +30,8 @@ func header(w http.ResponseWriter, uDir, sort string) {
     <META HTTP-EQUIV="charset" CONTENT="UTF-8">
     <META HTTP-EQUIV="encoding" CONTENT="UTF-8">
     <META NAME="viewport" CONTENT="width=device-width">
+    <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
+    <LINK REL="shortcut icon" HREF="/favicon.ico?">
     <TITLE>WFM ` + eDir + `</TITLE>
     <STYLE TYPE="text/css"><!--
             A:link {text-decoration: none; color:#0000CE; }
@@ -43,7 +45,6 @@ func header(w http.ResponseWriter, uDir, sort string) {
             .tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
             .nb { border-style:none; }
     --></STYLE>
-    <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
     <FORM ACTION="` + *wpfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
