@@ -24,7 +24,12 @@ import (
 	"howett.net/plist"
 )
 
-func dispIcon(w http.ResponseWriter) {
+func dispFavIcon(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "image/x-icon")
+	ico.Encode(w, favIcn)
+}
+
+func genFavIcon() *image.NRGBA {
 	i := image.NewNRGBA(image.Rect(0, 0, 16, 16))
 	d := &font.Drawer{
 		Dst:  i,
@@ -33,8 +38,7 @@ func dispIcon(w http.ResponseWriter) {
 		Dot:  fixed.Point26_6{fixed.Int26_6(4 * 64), fixed.Int26_6(13 * 64)},
 	}
 	d.DrawString("W")
-	w.Header().Set("Content-Type", "image/x-icon")
-	ico.Encode(w, i)
+	return i
 }
 
 func gourl(w http.ResponseWriter, fp string) {

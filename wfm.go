@@ -60,7 +60,8 @@ var (
 	ahwl multiString // flag set in main
 	aadr = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 
-	users = []struct{ User, Salt, Hash string }{}
+	users  = []struct{ User, Salt, Hash string }{}
+	favIcn = genFavIcon()
 )
 
 func userId(usr string) (int, int, error) {

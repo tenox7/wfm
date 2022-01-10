@@ -87,5 +87,5 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 }
 
 func favicon(w http.ResponseWriter, r *http.Request) {
-	dispIcon(w)
+	dispFavIcon(w)
 }
