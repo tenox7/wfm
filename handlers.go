@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 func wfm(w http.ResponseWriter, r *http.Request) {
@@ -15,6 +16,10 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("req from=%q user=%q uri=%q form=%#v", r.RemoteAddr, user, r.RequestURI, r.Form)
 	log.Printf("ua=%v", r.UserAgent())
+	modern := false
+	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
+		modern = true
+	}
 
 	uDir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
 	if uDir == "" || uDir == "." {
@@ -47,13 +52,13 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		saveText(w, uDir, eSort, uFp, html.UnescapeString(r.FormValue("text")))
 		return
 	case r.FormValue("home") != "":
-		listFiles(w, "/", eSort, user)
+		listFiles(w, "/", eSort, user, modern)
 		return
 	case r.FormValue("up") != "":
-		listFiles(w, filepath.Dir(uDir), eSort, user)
+		listFiles(w, filepath.Dir(uDir), eSort, user, modern)
 		return
 	case r.FormValue("cancel") != "":
-		listFiles(w, uDir, eSort, user)
+		listFiles(w, uDir, eSort, user, modern)
 		return
 	}
 
@@ -83,7 +88,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "logout":
 		logout(w)
 	default:
-		listFiles(w, uDir, eSort, user)
+		listFiles(w, uDir, eSort, user, modern)
 	}
 }
 

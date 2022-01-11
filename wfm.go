@@ -13,9 +13,6 @@
 // * git client
 // * file locking
 // * docker support (no chroot) - mount dir as / ?
-// * modern browser detection
-// * fancy unicode icons
-// * html charset, currently US-ASCII ?!
 // * webdav server
 // * ftp server?
 // * html as template
