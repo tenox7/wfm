@@ -31,7 +31,17 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 
 	// List Directories First
 	for _, f := range d {
-		if !f.IsDir() {
+		var ldir bool
+		var li string
+		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
+			ls, err := os.Stat(uDir + "/" + f.Name())
+			if err != nil {
+				continue
+			}
+			ldir = ls.IsDir()
+			li = i["li"]
+		}
+		if !f.IsDir() && !ldir {
 			continue
 		}
 		if !*sdot && f.Name()[0:1] == "." {
@@ -46,8 +56,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + fE + `/</A>
-        </TD>
+        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + fE + `/</A>` + li + `</TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -60,7 +69,17 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 
 	// List Files
 	for _, f := range d {
-		if f.IsDir() {
+		var ldir bool
+		var li string
+		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
+			ls, err := os.Stat(uDir + "/" + f.Name())
+			if err != nil {
+				continue
+			}
+			ldir = ls.IsDir()
+			li = i["li"]
+		}
+		if f.IsDir() || ldir {
 			continue
 		}
 		if !*sdot && f.Name()[0:1] == "." {
@@ -75,7 +94,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wpfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + fE + `</A></TD>
+        <A HREF="` + *wpfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + fE + `</A>` + li + `</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -210,6 +229,7 @@ func candy(b bool) map[string]string {
 	c := map[string]string{
 		"fi": "&bull; ",
 		"di": "&raquo; ",
+		"li": " (link);",
 
 		"rm": "&times;",
 		"mv": "&ang;",
@@ -227,6 +247,7 @@ func candy(b bool) map[string]string {
 		c = map[string]string{
 			"fi": "&#x1F4C4; ",
 			"di": "&#x1F5C2; ", //1F4C2
+			"li": " &#x1F517;",
 
 			"rm": "&#x274C;",
 			"mv": "&#x1F4E6;",

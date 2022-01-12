@@ -15,7 +15,6 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("req from=%q user=%q uri=%q form=%#v", r.RemoteAddr, user, r.RequestURI, r.Form)
-	log.Printf("ua=%v", r.UserAgent())
 	modern := false
 	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
 		modern = true

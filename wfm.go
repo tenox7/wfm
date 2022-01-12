@@ -3,13 +3,13 @@
 // TODO:
 // * file routines: mv
 // * checkboxes, multi file routines
-// * resolve symlinks
+// * du with xdev
 // * two factor auth
 // * better handle cert chdir issue
 //   get and preload cert manually on start?
 //   hide acm cache dir?
 //   try different lib like lego?
-// * rate limiter with bad auth punishment
+// * rate limiter with bad auth punishment (ip and user)
 // * git client
 // * file locking
 // * docker support (no chroot) - mount dir as / ?
