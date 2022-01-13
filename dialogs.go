@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/dustin/go-humanize"
 )
@@ -109,5 +110,40 @@ func editText(w http.ResponseWriter, uFilePath, sort string) {
     <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uFilePath) + `">
     </TD></TR></TABLE>
     `))
+	footer(w)
+}
+
+func about(w http.ResponseWriter, uDir, sort, ua string) {
+	header(w, uDir, sort)
+
+	w.Write([]byte(`
+    <TABLE WIDTH="100%" HEIGHT="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
+    <BR>&nbsp;<BR><P>
+    <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
+      <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; About WFM</FONT></TD></TR>
+      <TR><TD WIDTH="30">&nbsp;</TD><TD><BR>
+	  WFM Version v` + vers + `<BR>
+	  Developed by Antoni Sawicki Et Al.<BR>
+	  <A HREF="https://github.com/tenox7/wfm/">https://github.com/tenox7/wfm/<A><BR>
+	  Copyright &copy; 1994-2018 by Antoni Sawicki<BR>
+	  Copyright &copy; 2018-2022 by Google LLC<BR>
+	  This is not an official Google product.<P>
+	`))
+
+	if *atru {
+		fmt.Fprintf(w, "Go=%v<BR>OS=%v<BR>ARCH=%v<BR>Agent=%v", runtime.Version(), runtime.GOOS, runtime.GOARCH, ua)
+	}
+
+	w.Write([]byte(`
+      </TD></TR>
+    <TR><TD COLSPAN="2">
+    <P><CENTER>
+    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK">&nbsp;
+    </CENTER>
+    </TD></TR><TR><TD>&nbsp;</TD></TR>
+    </TABLE>
+    </TD></TR></TABLE>
+    `))
+
 	footer(w)
 }

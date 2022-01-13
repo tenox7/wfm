@@ -86,6 +86,8 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		delete(w, uDir, uDir+"/"+uBn, eSort)
 	case "logout":
 		logout(w)
+	case "about":
+		about(w, uDir, eSort, r.UserAgent())
 	default:
 		listFiles(w, uDir, eSort, user, modern)
 	}

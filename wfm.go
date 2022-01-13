@@ -51,6 +51,7 @@ var (
 	root = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
 	logf = flag.String("logfile", "", "Log file name, default standard output")
 	pwdf = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
+	atru = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	sdot = flag.Bool("show_dot", false, "show dot files and folders")
 	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
 	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
