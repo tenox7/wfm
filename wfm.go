@@ -18,6 +18,9 @@
 // * html as template
 // * archive files in main view / graphical/table form
 // * support for different filesystems, S3, SMB, archive files as io/fs
+// * separate icons for different file types like images
+//   editable and non editable documents
+// * thumbnail / icon view for pictures
 
 package main
 

@@ -246,8 +246,8 @@ func candy(b bool) map[string]string {
 	if b {
 		c = map[string]string{
 			"fi": "&#x1F4C4; ",
-			"di": "&#x1F5C2; ", //1F4C2
-			"li": " &#x1F517;",
+			"di": "&#x1F4C2; ",
+			"li": " &#x1F517; ",
 
 			"rm": "&#x274C;",
 			"mv": "&#x1F4E6;",
@@ -258,7 +258,7 @@ func candy(b bool) map[string]string {
 			"tcd": "&#x1F69A; ",
 			"tup": "&#x21EA; ",
 			"tho": "&#x1F3E0; ",
-			"tre": "&#x1F300; ", //1F504
+			"tre": "&#x1F300; ",
 			"trm": "&#x274C; ",
 			"tmv": "&#x1F4E6; ",
 			"tln": "&#x1F310; ",
