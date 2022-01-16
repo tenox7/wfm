@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"syscall"
 
 	ico "github.com/biessek/golang-ico"
 	"github.com/bodgit/sevenzip"
@@ -172,5 +173,36 @@ func listArchive(w http.ResponseWriter, fp string) {
 	})
 	if err != nil {
 		fmt.Fprintln(w, err)
+	}
+}
+
+func du() {
+	rf, err := os.Stat("/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rdev := rf.Sys().(*syscall.Stat_t).Dev
+	f := os.DirFS("/")
+	err = fs.WalkDir(f, ".", func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fs.SkipDir
+		}
+		i, err := d.Info()
+		if err != nil {
+			return fs.SkipDir
+		}
+		sys := i.Sys()
+		if sys == nil {
+			return fs.SkipDir
+		}
+		dev := sys.(*syscall.Stat_t).Dev
+		fmt.Printf("p=%v size=%v dev=%v\n", p, i.Size(), dev)
+		if dev != rdev {
+			return fs.SkipDir
+		}
+		return nil
+	})
+	if err != nil {
+		log.Print(err)
 	}
 }
