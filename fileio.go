@@ -47,7 +47,7 @@ func downFile(w http.ResponseWriter, uFilePath string) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(uFilePath)+"\";")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(w, uFilePath)
 }
 
@@ -73,7 +73,7 @@ func dispInline(w http.ResponseWriter, uFilePath string) {
 	w.Header().Set("Content-Type", mt.String())
 	w.Header().Set("Content-Disposition", "inline")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(w, uFilePath)
 }
 
@@ -131,7 +131,7 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 	}
 	wb.Flush()
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", uDir, h.Filename, h.Size)
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
 func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
@@ -140,7 +140,7 @@ func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
 		htErr(w, "unable to save text edit file: %v", err)
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(eData))
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
 func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
@@ -154,7 +154,7 @@ func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
 func mkfile(w http.ResponseWriter, uDir, uNewf, sort string) {
@@ -168,7 +168,7 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, sort string) {
 		return
 	}
 	f.Close()
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+sort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+sort)
 }
 
 func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
@@ -187,7 +187,7 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", html.UnescapeString(eUrl))
 	f.Close()
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
 func renFile(w http.ResponseWriter, uDir, eOldf, eNewf, eSort string) {
@@ -203,7 +203,7 @@ func renFile(w http.ResponseWriter, uDir, eOldf, eNewf, eSort string) {
 		htErr(w, "rename", err)
 		return
 	}
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 
 func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
@@ -212,5 +212,5 @@ func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
 		htErr(w, "delete", err)
 		return
 	}
-	redirect(w, *wpfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }

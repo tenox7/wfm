@@ -3,15 +3,16 @@
 // TODO:
 // * file routines: mv
 // * checkboxes, multi file routines
-// * du with xdev
+// * zip/unzip archives
+// * du with xdev as a go routine
 // * two factor auth
 // * better handle cert chdir issue
 //   get and preload cert manually on start?
 //   hide acm cache dir?
 //   try different lib like lego?
 // * rate limiter with bad auth punishment (ip and user)
-// * git client
-// * file locking
+// * git client https://github.com/go-git/go-git
+// * file locking https://github.com/gofrs/flock
 // * docker support (no chroot) - mount dir as / ?
 // * webdav server
 // * ftp server?
@@ -19,7 +20,7 @@
 // * archive files in main view / graphical/table form
 // * support for different filesystems, S3, SMB, archive files as io/fs
 // * separate icons for different file types like images
-//   editable and non editable documents
+// * editable and non editable documents, also for git checkins
 // * thumbnail / icon view for pictures
 
 package main
@@ -43,23 +44,23 @@ import (
 type multiString []string
 
 var (
-	vers = "2.0.1"
-	addr = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: 0.0.0.0:443")
-	adde = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: 0.0.0.0:8081")
-	chdr = flag.String("chroot", "", "Path to chroot to")
-	susr = flag.String("setuid", "", "User to setuid to")
-	root = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
-	logf = flag.String("logfile", "", "Log file name, default standard output")
-	pwdf = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
-	atru = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
-	sdot = flag.Bool("show_dot", false, "show dot files and folders")
-	wpfx = flag.String("prefix", "/", "Default prefix for WFM access")
-	dpfx = flag.String("http_pfx", "", "Serve regular http files at this prefix")
-	ddir = flag.String("http_dir", "", "Serve regular http files from this directory")
-	cctl = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	adir = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
-	ahwl multiString // flag set in main
-	aadr = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
+	vers      = "2.0.1"
+	bindAddr  = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: 0.0.0.0:443")
+	bindExtra = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: 0.0.0.0:8081")
+	chrootDir = flag.String("chroot", "", "Path to chroot to")
+	suidUser  = flag.String("setuid", "", "User to setuid to")
+	allowRoot = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
+	logFile   = flag.String("logfile", "", "Log file name, default standard output")
+	passwdDb  = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
+	aboutRnt  = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
+	showDot   = flag.Bool("show_dot", false, "show dot files and folders")
+	wfmPfx    = flag.String("prefix", "/", "Default prefix for WFM access")
+	docPfx    = flag.String("doc_pfx", "", "Serve regular http files at this prefix")
+	docDir    = flag.String("doc_dir", "", "Serve regular http files from this directory")
+	cacheCtl  = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+	acmDir    = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
+	acmWhlist multiString // flag set in main
+	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 
 	users  = []struct{ User, Salt, Hash string }{}
 	favIcn = genFavIcon()
@@ -107,12 +108,12 @@ func (z *multiString) Set(v string) error {
 
 func main() {
 	var err error
-	flag.Var(&ahwl, "acm_hosts", "autocert manager allowed hostnames")
+	flag.Var(&acmWhlist, "acm_hosts", "autocert manager allowed hostnames")
 	flag.Parse()
 
 	// redirect log to file if needed
-	if *logf != "" {
-		lf, err := os.OpenFile(*logf, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if *logFile != "" {
+		lf, err := os.OpenFile(*logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -122,8 +123,8 @@ func main() {
 	log.Print("WFM Starting up")
 
 	// read password database before chroot
-	if *pwdf != "" {
-		pwd, err := ioutil.ReadFile(*pwdf)
+	if *passwdDb != "" {
+		pwd, err := ioutil.ReadFile(*passwdDb)
 		if err != nil {
 			log.Fatal("unable to read password file: ", err)
 		}
@@ -131,13 +132,13 @@ func main() {
 		if err != nil {
 			log.Fatal("unable to parse password file: ", err)
 		}
-		log.Printf("Loaded %q (%d users)", *pwdf, len(users))
+		log.Printf("Loaded %q (%d users)", *passwdDb, len(users))
 	}
 
 	// find uid/gid for setuid before chroot
 	var suid, sgid int
-	if *susr != "" {
-		suid, sgid, err = userId(*susr)
+	if *suidUser != "" {
+		suid, sgid, err = userId(*suidUser)
 		if err != nil {
 			log.Fatal("unable to find setuid user", err)
 		}
@@ -145,56 +146,56 @@ func main() {
 
 	// http handlers / mux
 	mux := http.NewServeMux()
-	mux.HandleFunc(*wpfx, wfm)
+	mux.HandleFunc(*wfmPfx, wfm)
 	mux.HandleFunc("/favicon.ico", favicon)
-	if *dpfx != "" && *ddir != "" {
-		mux.Handle(*dpfx, http.FileServer(http.Dir(*ddir)))
+	if *docPfx != "" && *docDir != "" {
+		mux.Handle(*docPfx, http.FileServer(http.Dir(*docDir)))
 	}
 
 	// run autocert manager before chroot/setuid
 	// however it doesn't matter for chroot as certs will land in chroot *adir anyway
 	acm := autocert.Manager{}
-	if *addr != "" && *adir != "" && len(ahwl) > 0 {
+	if *bindAddr != "" && *acmDir != "" && len(acmWhlist) > 0 {
 		acm.Prompt = autocert.AcceptTOS
-		acm.Cache = autocert.DirCache(*adir)
-		acm.HostPolicy = autocert.HostWhitelist(ahwl...)
-		go http.ListenAndServe(*aadr, acm.HTTPHandler(nil))
+		acm.Cache = autocert.DirCache(*acmDir)
+		acm.HostPolicy = autocert.HostWhitelist(acmWhlist...)
+		go http.ListenAndServe(*acmBind, acm.HTTPHandler(nil))
 		log.Printf("Autocert enabled")
 	}
 
 	// chroot
-	if *chdr != "" {
-		err := syscall.Chroot(*chdr)
+	if *chrootDir != "" {
+		err := syscall.Chroot(*chrootDir)
 		if err != nil {
 			log.Fatal("chroot", err)
 		}
-		log.Printf("Chroot to %q", *chdr)
+		log.Printf("Chroot to %q", *chrootDir)
 	}
 
 	// listen/bind to port before setuid
-	l, err := net.Listen("tcp", *addr)
+	l, err := net.Listen("tcp", *bindAddr)
 	if err != nil {
-		log.Fatalf("unable to listen on %v: %v", *addr, err)
+		log.Fatalf("unable to listen on %v: %v", *bindAddr, err)
 	}
-	log.Printf("Listening on %q", *addr)
+	log.Printf("Listening on %q", *bindAddr)
 
 	// setuid now
 	err = setUid(suid, sgid)
 	if err != nil {
-		log.Fatalf("unable to suid for %v: %v", *susr, err)
+		log.Fatalf("unable to suid for %v: %v", *suidUser, err)
 	}
-	if !*root && os.Getuid() == 0 {
+	if !*allowRoot && os.Getuid() == 0 {
 		log.Fatal("you probably dont want to run wfm as root, use --allow_root flag to force it")
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	// serve http(s) as setuid user
-	if *adde != "" {
-		go http.ListenAndServe(*adde, mux)
+	if *bindExtra != "" {
+		go http.ListenAndServe(*bindExtra, mux)
 	}
-	if *addr != "" && *adir != "" && len(ahwl) > 0 {
+	if *bindAddr != "" && *acmDir != "" && len(acmWhlist) > 0 {
 		https := &http.Server{
-			Addr:      *addr,
+			Addr:      *bindAddr,
 			Handler:   mux,
 			TLSConfig: &tls.Config{GetCertificate: acm.GetCertificate},
 		}

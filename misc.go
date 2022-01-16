@@ -11,7 +11,7 @@ import (
 
 func htErr(w http.ResponseWriter, msg string, err error) {
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	fmt.Fprintln(w, msg, ":", err)
 	log.Printf("error: %v : %v", msg, err)
 }
@@ -19,7 +19,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 func header(w http.ResponseWriter, uDir, sort string) {
 	eDir := html.EscapeString(uDir)
 	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	w.Write([]byte(`
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
     <HTML LANG="en">
@@ -47,7 +47,7 @@ func header(w http.ResponseWriter, uDir, sort string) {
     --></STYLE>
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
-    <FORM ACTION="` + *wpfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
+    <FORM ACTION="` + *wfmPfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
     <INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
     <INPUT TYPE="hidden" NAME="sort" VALUE="` + sort + `">
     `))
@@ -62,7 +62,7 @@ func footer(w http.ResponseWriter) {
 func redirect(w http.ResponseWriter, uUrl string) {
 	w.Header().Set("Location", uUrl)
 	w.Header().Set("Content-Type", "text/html")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	w.WriteHeader(302)
 
 	w.Write([]byte(`

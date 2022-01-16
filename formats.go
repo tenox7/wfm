@@ -94,7 +94,7 @@ func listZip(w http.ResponseWriter, fp string) {
 	}
 	defer z.Close()
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	for _, f := range z.File {
 		fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
 	}
@@ -119,7 +119,7 @@ func listIso(w http.ResponseWriter, fp string) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	if r.IsDir() {
 		cld, err := r.GetChildren()
 		if err != nil {
@@ -147,7 +147,7 @@ func list7z(w http.ResponseWriter, fp string) {
 	}
 	defer a.Close()
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 	for _, f := range a.File {
 		fmt.Fprintln(w, f.Name)
 	}
@@ -160,7 +160,7 @@ func listArchive(w http.ResponseWriter, fp string) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cctl)
+	w.Header().Set("Cache-Control", *cacheCtl)
 
 	err = fs.WalkDir(a, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

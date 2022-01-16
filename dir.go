@@ -44,7 +44,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		if !f.IsDir() && !ldir {
 			continue
 		}
-		if !*sdot && f.Name()[0:1] == "." {
+		if !*showDot && f.Name()[0:1] == "." {
 			continue
 		}
 		if r%2 == 0 {
@@ -56,12 +56,12 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wpfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + fE + `/</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + fE + `/</A>` + li + `</TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wpfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -82,7 +82,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		if f.IsDir() || ldir {
 			continue
 		}
-		if !*sdot && f.Name()[0:1] == "." {
+		if !*showDot && f.Name()[0:1] == "." {
 			continue
 		}
 		if r%2 == 0 {
@@ -94,14 +94,14 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wpfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + fE + `</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + fE + `</A>` + li + `</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wpfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wpfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["ed"] + `</A>
-        <A HREF="` + *wpfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wpfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["ed"] + `</A>
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
@@ -119,8 +119,8 @@ func toolbars(w http.ResponseWriter, eDir, user string, sl []string, i map[strin
                 &nbsp;` + i["tcd"] + eDir + `
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-				<A HREF="` + *wpfx + `?fn=logout">` + i["tid"] + user + `</A>
-                <A HREF="` + *wpfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
+				<A HREF="` + *wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>
+                <A HREF="` + *wfmPfx + `?fn=about&amp;dir=` + eDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
         </TR></TABLE>
         `))
@@ -163,13 +163,13 @@ func toolbars(w http.ResponseWriter, eDir, user string, sl []string, i map[strin
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
         <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+            <A HREF="` + *wfmPfx + `?dir=` + eDir + `&amp;sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+            <A HREF="` + *wfmPfx + `?dir=` + eDir + `&amp;sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
-            <A HREF="` + *wpfx + `?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+            <A HREF="` + *wfmPfx + `?dir=` + eDir + `&amp;sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
         </TD>
         <TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
             &nbsp;

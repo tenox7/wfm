@@ -130,7 +130,7 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
 	  This is not an official Google product.<P>
 	`))
 
-	if *atru {
+	if *aboutRnt {
 		fmt.Fprintf(w, "Go=%v<BR>OS=%v<BR>ARCH=%v<BR>Agent=%v", runtime.Version(), runtime.GOOS, runtime.GOARCH, ua)
 	}
 
