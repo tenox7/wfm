@@ -135,11 +135,31 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 }
 
 func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
-	err := ioutil.WriteFile(uFilePath, []byte(html.UnescapeString(eData)), 0644)
-	if err != nil {
-		htErr(w, "unable to save text edit file: %v", err)
+	uData := html.UnescapeString(eData)
+	if uData == "" {
+		htErr(w, "text save", fmt.Errorf("zero lenght data"))
+		return
 	}
-	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(eData))
+	err := ioutil.WriteFile(uFilePath+".tmp", []byte(uData), 0644)
+	if err != nil {
+		htErr(w, "text save", err)
+		return
+	}
+	f, err := os.Stat(uFilePath + ".tmp")
+	if err != nil {
+		htErr(w, "text save", err)
+		return
+	}
+	if f.Size() != int64(len(uData)) {
+		htErr(w, "text save", fmt.Errorf("temp file size != input size"))
+		return
+	}
+	err = os.Rename(uFilePath+".tmp", uFilePath)
+	if err != nil {
+		htErr(w, "text save", err)
+		return
+	}
+	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(uData))
 	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
 }
 

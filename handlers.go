@@ -48,7 +48,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		uploadFile(w, uDir, eSort, h, f)
 		return
 	case r.FormValue("save") != "":
-		saveText(w, uDir, eSort, uFp, html.UnescapeString(r.FormValue("text")))
+		saveText(w, uDir, eSort, uFp, r.FormValue("text"))
 		return
 	case r.FormValue("home") != "":
 		listFiles(w, "/", eSort, user, modern)
