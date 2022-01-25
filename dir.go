@@ -4,6 +4,7 @@ import (
 	"html"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -24,8 +25,8 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 	sortFiles(d, &sl, sort)
 
 	header(w, uDir, sort)
-	eDir := html.EscapeString(dir)
-	toolbars(w, eDir, user, sl, i)
+	toolbars(w, uDir, user, sl, i)
+	eDir := url.QueryEscape(dir)
 
 	r := 0
 
@@ -53,10 +54,10 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		r++
-		fE := html.EscapeString(f.Name())
+		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + fE + `/</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `</TD>
         <TD NOWRAP></TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -91,10 +92,10 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		r++
-		fE := html.EscapeString(f.Name())
+		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + fE + `</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -111,7 +112,8 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 	footer(w)
 }
 
-func toolbars(w http.ResponseWriter, eDir, user string, sl []string, i map[string]string) {
+func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[string]string) {
+	eDir := html.EscapeString(uDir)
 	// Topbar
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>

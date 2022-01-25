@@ -3,12 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"html"
 	"io"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -131,11 +131,10 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 	}
 	wb.Flush()
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", uDir, h.Filename, h.Size)
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
-	uData := html.UnescapeString(eData)
+func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string) {
 	if uData == "" {
 		htErr(w, "text save", fmt.Errorf("zero lenght data"))
 		return
@@ -160,7 +159,7 @@ func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, eData string) {
 		return
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(uData))
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
 func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
@@ -174,10 +173,10 @@ func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func mkfile(w http.ResponseWriter, uDir, uNewf, sort string) {
+func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string) {
 	if uNewf == "" {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
 		return
@@ -188,7 +187,7 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, sort string) {
 		return
 	}
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+sort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
 func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
@@ -205,25 +204,25 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
 		return
 	}
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
-	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", html.UnescapeString(eUrl))
+	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func renFile(w http.ResponseWriter, uDir, eOldf, eNewf, eSort string) {
-	if eOldf == "" || eNewf == "" {
+func renFile(w http.ResponseWriter, uDir, uOldf, uNewf, eSort string) {
+	if uOldf == "" || uNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
 	err := os.Rename(
-		uDir+"/"+filepath.Base(html.UnescapeString(eOldf)),
-		uDir+"/"+filepath.Base(html.UnescapeString(eNewf)),
+		uDir+"/"+filepath.Base(uOldf),
+		uDir+"/"+filepath.Base(uNewf),
 	)
 	if err != nil {
 		htErr(w, "rename", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
 func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
@@ -232,5 +231,5 @@ func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
 		htErr(w, "delete", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+html.EscapeString(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }

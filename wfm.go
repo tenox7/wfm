@@ -15,7 +15,7 @@
 // * file locking https://github.com/gofrs/flock
 // * docker support (no chroot) - mount dir as / ?
 // * webdav server
-// * ftp server?
+// * docker support
 // * html as template
 // * archive files in main view / graphical/table form
 // * support for different filesystems, S3, SMB, archive files as io/fs

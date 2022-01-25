@@ -1,9 +1,9 @@
 package main
 
 import (
-	"html"
 	"log"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
 )
@@ -20,13 +20,13 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		modern = true
 	}
 
-	uDir := filepath.Clean(html.UnescapeString(r.FormValue("dir")))
+	uDir := filepath.Clean(r.FormValue("dir"))
 	if uDir == "" || uDir == "." {
 		uDir = "/"
 	}
-	eSort := html.EscapeString(r.FormValue("sort"))
-	uFp := filepath.Clean(html.UnescapeString(r.FormValue("fp")))  // full file path
-	uBn := filepath.Base(html.UnescapeString(r.FormValue("file"))) // base file name
+	eSort := url.QueryEscape(r.FormValue("sort"))
+	uFp := filepath.Clean(r.FormValue("fp"))
+	uBn := filepath.Base(r.FormValue("file"))
 
 	// button clicked
 	switch {
