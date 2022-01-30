@@ -72,7 +72,7 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
     <INPUT TYPE="SUBMIT" VALUE=" Cancel " NAME="cancel">
     <INPUT TYPE="HIDDEN" NAME="fn" VALUE="` + action + `">
     </CENTER>
-    </TD></TR><TR><TD>&nbsp;</TD></TR>
+    </TD></TR><TR><TD COLSPAN="2">&nbsp;</TD></TR>
     </TABLE>
     </TD></TR></TABLE>
     `))
@@ -140,7 +140,7 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
     <P><CENTER>
     <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK">&nbsp;
     </CENTER>
-    </TD></TR><TR><TD>&nbsp;</TD></TR>
+    </TD></TR><TR><TD COLSPAN="2">&nbsp;</TD></TR>
     </TABLE>
     </TD></TR></TABLE>
     `))
