@@ -231,18 +231,18 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 
 func candy(b bool) map[string]string {
 	c := map[string]string{
-		"fi": "&bull; ",
-		"di": "&raquo; ",
+		"fi": "&#183; ",
+		"di": "&#187; ",
 		"li": " (link);",
 
-		"rm": "&times;",
-		"mv": "&ang;",
-		"re": "&ne;",
-		"ed": "&para;",
-		"dn": "&darr;",
+		"rm": "[rm]",
+		"mv": "[mv]",
+		"re": "[re]",
+		"ed": "[ed]",
+		"dn": "[dn]",
 
-		"tup": "&uarr; ",
-		"tho": "&equiv; ",
+		"tup": "^ ",
+		"tho": "~ ",
 		"tre": "&reg; ",
 		"tid": "User: ",
 		"tve": "WFM ",
