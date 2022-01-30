@@ -57,7 +57,8 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `
+		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -95,7 +96,8 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `</TD>
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `
+		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
@@ -118,7 +120,7 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
             <TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
-                &nbsp;` + i["tcd"] + eDir + `
+                <FONT COLOR="#FFFFFF">&nbsp;` + i["tcd"] + eDir + `</FONT>
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
 				<A HREF="` + *wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>
