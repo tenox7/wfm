@@ -124,14 +124,14 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
       <TR><TD WIDTH="30">&nbsp;</TD><TD><BR>
 	  WFM Version v` + vers + `<BR>
 	  Developed by Antoni Sawicki Et Al.<BR>
-	  <A HREF="https://github.com/tenox7/wfm/">https://github.com/tenox7/wfm/<A><BR>
+	  <A HREF="https://github.com/tenox7/wfm/">https://github.com/tenox7/wfm/</A><BR>
 	  Copyright &copy; 1994-2018 by Antoni Sawicki<BR>
 	  Copyright &copy; 2018-2022 by Google LLC<BR>
 	  This is not an official Google product.<P>
 	`))
 
 	if *aboutRnt {
-		fmt.Fprintf(w, "Go=%v<BR>OS=%v<BR>ARCH=%v<BR>Agent=%v", runtime.Version(), runtime.GOOS, runtime.GOARCH, ua)
+		fmt.Fprintf(w, "Go=%v<BR>OS=%v<BR>ARCH=%v<BR>Agent=%v<P>", runtime.Version(), runtime.GOOS, runtime.GOARCH, ua)
 	}
 
 	w.Write([]byte(`
