@@ -1,6 +1,7 @@
 // Web File Manager
 //
 // TODO:
+// * render in netscape 3.x / earlier
 // * file routines: mv
 // * checkboxes, multi file routines
 // * zip/unzip archives

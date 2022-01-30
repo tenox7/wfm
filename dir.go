@@ -58,11 +58,11 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
         <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `</TD>
-        <TD NOWRAP></TD>
+        <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -99,10 +99,10 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;=sort=` + sort + `">` + i["ed"] + `</A>
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;=sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;=sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
