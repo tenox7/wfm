@@ -15,8 +15,7 @@ import (
 
 func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 	i := candy(modern)
-	dir := filepath.Clean(uDir)
-	d, err := ioutil.ReadDir(dir)
+	d, err := ioutil.ReadDir(uDir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
 		return
@@ -26,7 +25,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 
 	header(w, uDir, sort)
 	toolbars(w, uDir, user, sl, i)
-	eDir := url.QueryEscape(dir)
+	qeDir := url.QueryEscape(uDir)
 
 	r := 0
 
@@ -57,13 +56,13 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wfmPfx + `?dir=` + eDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `
+        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `
 		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -96,15 +95,16 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		fE := url.QueryEscape(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + eDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + eDir + "/" + fE + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + eDir + "/" + fE + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + eDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + eDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + fE + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + fE + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))

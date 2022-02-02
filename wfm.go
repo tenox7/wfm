@@ -1,7 +1,6 @@
 // Web File Manager
 //
 // TODO:
-// * render in netscape 3.x / earlier
 // * file routines: mv
 // * checkboxes, multi file routines
 // * zip/unzip archives
@@ -21,8 +20,9 @@
 // * archive files in main view / graphical/table form
 // * support for different filesystems, S3, SMB, archive files as io/fs
 // * separate icons for different file types like images
-// * editable and non editable documents, also for git checkins
+// * editable and non editable documents by extension, also for git checkins
 // * thumbnail / icon view for pictures
+// * glob filter (*.*) in dir view
 
 package main
 
