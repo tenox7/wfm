@@ -209,6 +209,23 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
+func moveFile(w http.ResponseWriter, uFp, uDst, eSort string) {
+	if uFp == "" || uDst == "" {
+		htErr(w, "move", fmt.Errorf("filename is empty"))
+		return
+	}
+	err := os.Rename(
+		uFp,
+		filepath.Clean(uDst),
+	)
+	if err != nil {
+		htErr(w, "move", err)
+		return
+	}
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(filepath.Dir(uDst))+"&sort="+eSort)
+}
+
+// TODO(tenox): this can be done by above moveFile()
 func renFile(w http.ResponseWriter, uDir, uOldf, uNewf, eSort string) {
 	if uOldf == "" || uNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))

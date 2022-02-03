@@ -79,8 +79,13 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		renFile(w, uDir, r.FormValue("oldf"), r.FormValue("newf"), eSort)
 	case "renp":
 		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
+	case "movp":
+		prompt(w, uDir, uBn, eSort, "move")
 	case "delp":
 		prompt(w, uDir, uBn, eSort, "delete")
+	case "move":
+		log.Printf("move %v by %v @ %v", uFp, user, r.RemoteAddr)
+		moveFile(w, uFp, r.FormValue("dst"), eSort)
 	case "delete":
 		log.Printf("delete %v by %v @ %v", uDir+"/"+uBn, user, r.RemoteAddr)
 		delete(w, uDir, uDir+"/"+uBn, eSort)

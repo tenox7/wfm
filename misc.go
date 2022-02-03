@@ -5,8 +5,12 @@ import (
 	"crypto/subtle"
 	"fmt"
 	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func htErr(w http.ResponseWriter, msg string, err error) {
@@ -100,4 +104,46 @@ unauth:
 
 func logout(w http.ResponseWriter) {
 	http.Error(w, "Logged out", http.StatusUnauthorized)
+}
+
+func emit(s string, c int) string {
+	o := strings.Builder{}
+	for c > 0 {
+		o.WriteString(s)
+		c--
+	}
+	return o.String()
+}
+
+func upDnDir(uDir, uBn string) string {
+	o := strings.Builder{}
+	o.WriteString("<OPTION VALUE=\"/\">/ - Root</OPTION>\n")
+	p := "/"
+	i := 0
+	for _, n := range strings.Split(uDir, string(os.PathSeparator))[1:] {
+		p = p + n + "/"
+		opt := ""
+		if p == uDir+"/" {
+			opt = "DISABLED"
+		}
+		i++
+		o.WriteString("<OPTION " + opt + " VALUE=\"" +
+			html.EscapeString(filepath.Clean(p+"/"+uBn)) + "\">" +
+			emit("&nbsp;&nbsp;", i) + " L " +
+			html.EscapeString(n) + "</OPTION>\n")
+	}
+	d, err := ioutil.ReadDir(uDir)
+	if err != nil {
+		return o.String()
+	}
+	for _, n := range d {
+		if !n.IsDir() || strings.HasPrefix(n.Name(), ".") {
+			continue
+		}
+		o.WriteString("<OPTION VALUE=\"" +
+			html.EscapeString(uDir+"/"+n.Name()+"/"+uBn) + "\">" +
+			emit("&nbsp;&nbsp;&nbsp;", i) + " L " +
+			html.EscapeString(n.Name()) + "</OPTION>\n")
+	}
+	return o.String()
 }

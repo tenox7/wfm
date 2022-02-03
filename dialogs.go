@@ -44,10 +44,18 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
 	case "rename":
 		eBn := html.EscapeString(uBaseName)
 		w.Write([]byte(`
-        &nbsp;<BR>Enter new name for the file:<P>
+        &nbsp;<BR>Enter new name for the file <B>` + eBn + `</B>:<P>
         <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + eBn + `">
         <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + eBn + `">
         `))
+	case "move":
+		eBn := html.EscapeString(uBaseName)
+		w.Write([]byte(`
+		&nbsp;<BR>Select destination folder for <B>` + eBn + `</B>:<P>
+		<SELECT NAME="dst">
+		` + upDnDir(uDir, uBaseName) + `</SELECT>
+		<INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uDir) + "/" + eBn + `">
+		`))
 	case "delete":
 		var a string
 		fi, _ := os.Stat(uDir + "/" + uBaseName)

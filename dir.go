@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"sort"
 	"time"
 
@@ -62,6 +61,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
         <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
         <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
