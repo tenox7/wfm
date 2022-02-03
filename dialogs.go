@@ -108,11 +108,11 @@ func editText(w http.ResponseWriter, uFilePath, sort string) {
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
     <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(uFilePath)) + `</TD>
-    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT"></TD>
+    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">&nbsp;</TD>
     </TR>
     <TR STYLE="height:99%;">
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
-    <TEXTAREA NAME="text" SPELLCHECK="false" COLS="120" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
+    <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
     <INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" STYLE="float: left;">
 	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel" STYLE="float: left; margin-left: 10px">
     <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uFilePath) + `">
