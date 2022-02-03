@@ -225,14 +225,13 @@ func moveFile(w http.ResponseWriter, uFp, uDst, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(filepath.Dir(uDst))+"&sort="+eSort)
 }
 
-// TODO(tenox): this can be done by above moveFile()
-func renFile(w http.ResponseWriter, uDir, uOldf, uNewf, eSort string) {
-	if uOldf == "" || uNewf == "" {
+func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string) {
+	if uBn == "" || uNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
 	err := os.Rename(
-		uDir+"/"+filepath.Base(uOldf),
+		uDir+"/"+uBn,
 		uDir+"/"+filepath.Base(uNewf),
 	)
 	if err != nil {

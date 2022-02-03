@@ -76,7 +76,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "mkurl":
 		mkurl(w, uDir, uBn, r.FormValue("url"), eSort)
 	case "rename":
-		renFile(w, uDir, r.FormValue("oldf"), r.FormValue("newf"), eSort)
+		renFile(w, uDir, uBn, r.FormValue("dst"), eSort)
 	case "renp":
 		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
 	case "movp":

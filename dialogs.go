@@ -45,8 +45,8 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
 		eBn := html.EscapeString(uBaseName)
 		w.Write([]byte(`
         &nbsp;<BR>Enter new name for the file <B>` + eBn + `</B>:<P>
-        <INPUT TYPE="TEXT" NAME="newf" SIZE="40" VALUE="` + eBn + `">
-        <INPUT TYPE="HIDDEN" NAME="oldf" VALUE="` + eBn + `">
+        <INPUT TYPE="TEXT" NAME="dst" SIZE="40" VALUE="` + eBn + `">
+        <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
 	case "move":
 		eBn := html.EscapeString(uBaseName)
