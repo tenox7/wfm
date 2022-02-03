@@ -1,9 +1,9 @@
 // Web File Manager
 //
 // TODO:
-// * file routines: mv
 // * checkboxes, multi file routines
 // * zip/unzip archives
+// * iso files recursive list
 // * du with xdev as a go routine
 // * two factor auth
 // * better handle cert chdir issue
@@ -15,7 +15,6 @@
 // * file locking https://github.com/gofrs/flock
 // * docker support (no chroot) - mount dir as / ?
 // * webdav server
-// * docker support
 // * html as template
 // * archive files in main view / graphical/table form
 // * support for different filesystems, S3, SMB, archive files as io/fs
