@@ -144,14 +144,6 @@ func main() {
 		}
 	}
 
-	// http handlers / mux
-	mux := http.NewServeMux()
-	mux.HandleFunc(*wfmPfx, wfm)
-	mux.HandleFunc("/favicon.ico", favicon)
-	if *docPfx != "" && *docDir != "" {
-		mux.Handle(*docPfx, http.FileServer(http.Dir(*docDir)))
-	}
-
 	// run autocert manager before chroot/setuid
 	// however it doesn't matter for chroot as certs will land in chroot *adir anyway
 	acm := autocert.Manager{}
@@ -189,7 +181,16 @@ func main() {
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
-	// serve http(s) as setuid user
+	// http handlers / mux
+	mux := http.NewServeMux()
+	mux.HandleFunc(*wfmPfx, wfm)
+	mux.HandleFunc("/favicon.ico", favicon)
+	if *docPfx != "" && *docDir != "" {
+		log.Printf("Starting doc handler for dir %v at %v", *docDir, *docPfx)
+		mux.Handle(*docPfx, http.StripPrefix(*docPfx, http.FileServer(http.Dir(*docDir))))
+	}
+
+	// serve http(s)
 	if *bindExtra != "" {
 		go http.ListenAndServe(*bindExtra, mux)
 	}
