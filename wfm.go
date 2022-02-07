@@ -1,6 +1,7 @@
 // Web File Manager
 //
 // TODO:
+// * CSS html/body height 100%
 // * checkboxes, multi file routines
 // * zip/unzip archives
 // * iso files recursive list
