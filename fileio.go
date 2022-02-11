@@ -241,7 +241,7 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func delete(w http.ResponseWriter, uDir, uFilePath, eSort string) {
+func deleteFile(w http.ResponseWriter, uDir, uFilePath, eSort string) {
 	err := os.RemoveAll(uFilePath)
 	if err != nil {
 		htErr(w, "delete", err)

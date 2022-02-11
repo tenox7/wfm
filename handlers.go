@@ -88,7 +88,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		moveFile(w, uFp, r.FormValue("dst"), eSort)
 	case "delete":
 		log.Printf("delete %v by %v @ %v", uDir+"/"+uBn, user, r.RemoteAddr)
-		delete(w, uDir, uDir+"/"+uBn, eSort)
+		deleteFile(w, uDir, uDir+"/"+uBn, eSort)
 	case "logout":
 		logout(w)
 	case "about":
