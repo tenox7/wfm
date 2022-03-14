@@ -130,6 +130,7 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
         `))
 
 	// Toolbar
+	// TODO: remove BGCOLOR="#F1F1F1"
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
         <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">

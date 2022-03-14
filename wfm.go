@@ -21,8 +21,14 @@
 // * support for different filesystems, S3, SMB, archive files as io/fs
 // * separate icons for different file types like images
 // * editable and non editable documents by extension, also for git checkins
-// * thumbnail / icon view for pictures
+// * thumbnail / icon view for pictures, cache thumbnails on server
 // * glob filter (*.*) in dir view
+// * FastCGI Interface
+// * Chroot and User in Systemd Unit
+// * Security Hardening in Systemd Unit
+// * Highlight newly uploaded file
+// * different icons for different file types
+// * Build summary in about dialog
 
 package main
 
