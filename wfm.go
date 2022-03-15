@@ -4,9 +4,7 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"flag"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -39,7 +37,6 @@ var (
 	acmWhlist multiString // flag set in main
 	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 
-	users  = []struct{ User, Salt, Hash string }{}
 	favIcn = genFavIcon()
 )
 
@@ -101,15 +98,7 @@ func main() {
 
 	// read password database before chroot
 	if *passwdDb != "" {
-		pwd, err := ioutil.ReadFile(*passwdDb)
-		if err != nil {
-			log.Fatal("unable to read password file: ", err)
-		}
-		err = json.Unmarshal(pwd, &users)
-		if err != nil {
-			log.Fatal("unable to parse password file: ", err)
-		}
-		log.Printf("Loaded %q (%d users)", *passwdDb, len(users))
+		loadPwdDb(*passwdDb)
 	}
 
 	// find uid/gid for setuid before chroot
@@ -162,6 +151,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc(*wfmPfx, wfm)
 	mux.HandleFunc("/favicon.ico", favicon)
+	mux.HandleFunc("/dumplim", dumpf2b)
 	if *docPfx != "" && *docDir != "" {
 		log.Printf("Starting doc handler for dir %v at %v", *docDir, *docPfx)
 		mux.Handle(*docPfx, http.StripPrefix(*docPfx, http.FileServer(http.Dir(*docDir))))
