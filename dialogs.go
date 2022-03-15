@@ -139,7 +139,11 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
 	`))
 
 	if *aboutRnt {
-		fmt.Fprintf(w, "Go=%v<BR>OS=%v<BR>ARCH=%v<BR>Agent=%v<P>", runtime.Version(), runtime.GOOS, runtime.GOARCH, ua)
+		fmt.Fprintf(w, "Build: %v %v-%v<BR>Agent: %v<P>",
+			runtime.Version(),
+			runtime.GOARCH,
+			runtime.GOOS,
+			ua)
 	}
 
 	w.Write([]byte(`
