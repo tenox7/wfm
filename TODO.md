@@ -1,6 +1,7 @@
 # WFM TODO
 
 * CSS html/body height 100%
+* top bar buttons have different bgcolors
 * checkboxes, multi file routines
 * zip/unzip archives
 * iso files recursive list
@@ -12,7 +13,7 @@
 * better handle cert chdir issue
   get and preload cert manually on start?
   hide acm cache dir?
-  try different lib like lego?
+  try https://github.com/go-acme/lego
 * git client https://github.com/go-git/go-git
 * file locking https://github.com/gofrs/flock
 * docker support (no chroot) - mount dir as / ?
@@ -27,6 +28,5 @@
 * FastCGI Interface
 * Chroot and User in Systemd Unit
 * Security Hardening in Systemd Unit
-* Highlight newly uploaded file
+* Highlight newly uploaded file/created dir/bookmark
 * different icons for different file types
-* Build summary in about dialog
