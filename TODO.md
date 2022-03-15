@@ -6,11 +6,13 @@
 * iso files recursive list
 * du with xdev as a go routine
 * two factor auth
+* custom html login window
+  needed for two factor auth
+  fail2ban improvements
 * better handle cert chdir issue
   get and preload cert manually on start?
   hide acm cache dir?
   try different lib like lego?
-* rate limiter with bad auth punishment (ip and user)
 * git client https://github.com/go-git/go-git
 * file locking https://github.com/gofrs/flock
 * docker support (no chroot) - mount dir as / ?
