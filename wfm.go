@@ -19,7 +19,7 @@ import (
 type multiString []string
 
 var (
-	vers      = "2.0.1"
+	vers      = "2.0.2"
 	bindAddr  = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: 0.0.0.0:443")
 	bindExtra = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: 0.0.0.0:8081")
 	chrootDir = flag.String("chroot", "", "Path to chroot to")
@@ -34,8 +34,8 @@ var (
 	docDir    = flag.String("doc_dir", "", "Serve regular http files from this directory")
 	cacheCtl  = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmDir    = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
-	acmWhlist multiString // flag set in main
 	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
+	acmWhlist multiString // this flag set in main
 
 	favIcn = genFavIcon()
 )
