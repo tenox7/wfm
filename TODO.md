@@ -36,6 +36,7 @@
 * thumbnail / icon view for pictures, cache thumbnails on server
 * glob filter (*.*) in dir view
 * separate icons for different file types like images
+* errors in dialog boxes
 
 ## File IO
 * exclude/deny folders based on list

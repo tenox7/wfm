@@ -26,7 +26,7 @@ var (
 	chrootDir = flag.String("chroot", "", "Directory to chroot to")
 	suidUser  = flag.String("setuid", "", "Username to setuid to")
 	allowRoot = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
-	logFile   = flag.String("logfile", "", "Log file name, default standard output")
+	logFile   = flag.String("logfile", "", "Log file name (default stdout)")
 	passwdDb  = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	aboutRnt  = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	showDot   = flag.Bool("show_dot", false, "show dot files and folders")
