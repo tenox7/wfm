@@ -10,7 +10,7 @@
 # wfm_enable (bool):      Set to NO by default.
 #                         Set it to YES to enable wfm.
 # wfm_args (flags):       Check WFM manual for flags. Example:
-# wfm_args="-logfile=/var/log/wfm.log -chroot=/home/ftp -setuid=ftp -addr=0.0.0.0:80"
+# wfm_args="-logfile=/var/log/wfm.log -chroot=/home/ftp -setuid=ftp -addr=:80"
 
 . /etc/rc.subr
 
