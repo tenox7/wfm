@@ -151,7 +151,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc(*wfmPfx, wfm)
 	mux.HandleFunc("/favicon.ico", favicon)
-	mux.HandleFunc("/dumplim", dumpf2b)
+	mux.HandleFunc("/dumpf2b", dumpf2b)
 	if *docPfx != "" && *docDir != "" {
 		log.Printf("Starting doc handler for dir %v at %v", *docDir, *docPfx)
 		mux.Handle(*docPfx, http.StripPrefix(*docPfx, http.FileServer(http.Dir(*docDir))))

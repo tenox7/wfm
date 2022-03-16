@@ -30,3 +30,6 @@
 * Security Hardening in Systemd Unit
 * Highlight newly uploaded file/created dir/bookmark
 * different icons for different file types
+* garbage collect old f2b entries
+* f2b dos prevention
+* remove f2b dump

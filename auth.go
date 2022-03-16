@@ -9,14 +9,13 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"sync"
-	"time"
 )
 
 var (
 	// you can also hardcode users here instead of loading password file
 	users = []struct{ User, Salt, Hash string }{}
-	f2b   = newf2b()
+
+	f2b = newf2b()
 )
 
 func loadPwdDb(pwdb string) {
@@ -81,78 +80,4 @@ unauth:
 // this doesn't really work
 func logout(w http.ResponseWriter) {
 	http.Error(w, "Logged out", http.StatusUnauthorized)
-}
-
-type f2bDBentr struct {
-	banUntil time.Time
-	noTries  int
-}
-
-type f2bDB struct {
-	entr map[string]f2bDBentr
-	sync.Mutex
-}
-
-func newf2b() *f2bDB {
-	l := new(f2bDB)
-	l.entr = make(map[string]f2bDBentr)
-	return l
-}
-
-func (db *f2bDB) check(ip string) bool {
-	db.Lock()
-	defer db.Unlock()
-	// purge old entries, for bigger systems this should be in a separate goroutine
-	/*for k, v := range li.db {
-		if v.banUntil.After(time.Now()) {
-			delete(li.db, k)
-		}
-	}*/
-	// check client
-	l, ok := db.entr[ip]
-	if !ok {
-		log.Printf("auth: %v not in DB", ip)
-		return false
-	}
-	log.Printf("auth: found IP=%v For=%v No#Tries=%v",
-		ip, time.Until(l.banUntil), l.noTries)
-	return time.Now().Before(l.banUntil)
-}
-
-func (db *f2bDB) ban(ip string) {
-	db.Lock()
-	defer db.Unlock()
-	l, ok := db.entr[ip]
-	if !ok {
-		l = f2bDBentr{noTries: 0}
-	}
-	l.banUntil = time.Now().Add(time.Minute * time.Duration(l.noTries))
-	l.noTries++
-	db.entr[ip] = l
-
-	log.Printf("auth: Banning ip=%v for=%v no#tries=%v", ip, time.Until(l.banUntil), l.noTries)
-}
-
-func (db *f2bDB) unban(ip string) {
-	db.Lock()
-	defer db.Unlock()
-	delete(db.entr, ip)
-
-	log.Printf("auth: Unbanning ip=%v", ip)
-}
-
-func (db *f2bDB) dump(w http.ResponseWriter) {
-	db.Lock()
-	defer db.Unlock()
-
-	for i, l := range db.entr {
-		fmt.Fprintf(w, "ip=%v for=%v until=%v tries=%v\n", i, time.Until(l.banUntil), l.banUntil, l.noTries)
-	}
-}
-
-func dumpf2b(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", "no-cache")
-	fmt.Fprintf(w, "Limiter DB\n\n")
-	f2b.dump(w)
 }
