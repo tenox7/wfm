@@ -35,7 +35,7 @@ var (
 	docDir    = flag.String("doc_dir", "", "Serve regular http files from this directory")
 	cacheCtl  = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmDir    = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
-	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
+	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist multiString // this flag set in main
 	dof2b     = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
 
