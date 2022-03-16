@@ -37,6 +37,7 @@ var (
 	acmDir    = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
 	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: 0.0.0.0:80")
 	acmWhlist multiString // this flag set in main
+	dof2b     = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
 
 	favIcn = genFavIcon()
 )

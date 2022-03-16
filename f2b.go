@@ -25,6 +25,9 @@ func newf2b() *f2bDB {
 }
 
 func (db *f2bDB) check(ip string) bool {
+	if !*dof2b {
+		return false
+	}
 	db.Lock()
 	defer db.Unlock()
 
@@ -41,6 +44,9 @@ func (db *f2bDB) check(ip string) bool {
 }
 
 func (db *f2bDB) ban(ip string) {
+	if !*dof2b {
+		return
+	}
 	db.Lock()
 	defer db.Unlock()
 	l, ok := db.entr[ip]
@@ -56,6 +62,9 @@ func (db *f2bDB) ban(ip string) {
 }
 
 func (db *f2bDB) unban(ip string) {
+	if !*dof2b {
+		return
+	}
 	db.Lock()
 	defer db.Unlock()
 	delete(db.entr, ip)
