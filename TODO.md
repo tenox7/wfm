@@ -1,5 +1,8 @@
 # WFM TODO
 
+* acme needs acccess to cacerts outside of chroot
+  maybe copy cacerts to acme cfg dir set SSL_CERT_DIR
+  or maybe https://github.com/gwatts/rootcerts 
 * CSS html/body height 100%
 * top bar buttons have different bgcolors
 * checkboxes, multi file routines

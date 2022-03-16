@@ -6,7 +6,7 @@ edited directly in the browser. WFM can also create and open bookmarks, link and
 shortcut files, list inside archives and ISO files.
 
 You can use WFM as a web interface for a NAS box, a "personal cloud", document
-sharing site or a lighweight Content Management System (CMS). WFM can also serve
+sharing site or a lightweight Content Management System (CMS). WFM can also serve
 public, static html files from a selected directory which you can manage from the
 private interface. See usage scenarios for more information.
 
@@ -26,11 +26,17 @@ web browsers. Supported everything going back to Internet Explorer 2.x and Netsc
 
 ## Authentication
 
+### Generate password hash
+
+```sh
+$ echo -n "SaltMyPassword" | shasum -a 256 | cut -f 1 -d" "
+```
+
 ## History
 WFM begun its life around 1994 as a CGI Perl script for CERN httpd server to allow
 uploading and managing customer logs by field support engineers over the web and a
 front end to FTP server. Later rewritten in C language, when CGIC library and
 Apache httpd were released. Up to 2015 WFM has been a closed source commercial
-application used for lighweight document management and supported by a few customers.
+application used for lightweight document management and supported by a few customers.
 Later it has been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
 application with built-in web server for more modern deployment styles.
