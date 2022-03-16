@@ -60,7 +60,7 @@ func auth(w http.ResponseWriter, r *http.Request) string {
 
 		s := fmt.Sprintf("%x", sha256.Sum256([]byte(usr.Salt+p)))
 		if subtle.ConstantTimeCompare([]byte(s), []byte(usr.Hash)) == 1 {
-			f2b.unban(ip)
+			go f2b.unban(ip)
 			return u
 		}
 	}

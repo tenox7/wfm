@@ -32,11 +32,11 @@ func (db *f2bDB) check(ip string) bool {
 
 	l, ok := db.entr[ip]
 	if !ok {
-		log.Printf("auth: ip=%v not in DB", ip)
+		//log.Printf("auth: ip=%v not in DB", ip)
 		return false
 	}
-	log.Printf("auth: found ip=%v for=%v no#tries=%v",
-		ip, time.Until(l.banUntil), l.noTries)
+	//log.Printf("auth: found ip=%v for=%v no#tries=%v",
+	//ip, time.Until(l.banUntil), l.noTries)
 	return time.Now().Before(l.banUntil)
 }
 
@@ -59,8 +59,6 @@ func (db *f2bDB) unban(ip string) {
 	db.Lock()
 	defer db.Unlock()
 	delete(db.entr, ip)
-
-	log.Printf("auth: Unbanning ip=%v", ip)
 }
 
 func (db *f2bDB) dump(w http.ResponseWriter) {
