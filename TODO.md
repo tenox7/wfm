@@ -7,7 +7,9 @@
 
 ## Security
 * two factor auth
-* docker support (no chroot) - mount dir as / ?
+* docker support
+  no chroot - mount dir as / ?
+  env vars for port, etc?
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
 * remove f2b dump
@@ -17,7 +19,7 @@
 ## ACME / Auto Cert Manager
 * acme needs acccess to cacerts outside of chroot
   maybe copy cacerts to acme cfg dir set SSL_CERT_DIR
-  or maybe https://github.com/gwatts/rootcerts 
+  or maybe https://github.com/gwatts/rootcerts
 * acme dir with key/cert is exposed inside chroot dir
   obtain acme cert before chroot?? self call https?
   get and preload cert manually on start?
@@ -25,17 +27,16 @@
   try https://github.com/go-acme/lego
 
 ## Layout / UI
-* CSS html/body height 100% especially for dialogs, textarea
 * top bar too long on mobile/small screen
-* html as template
 * Highlight newly uploaded file/created dir/bookmark
 * different icons for different file types
 * custom html login window - needed for two factor auth?
 * editable and non editable documents by extension, also for git checkins
 * thumbnail / icon view for pictures, cache thumbnails on server
 * glob filter (*.*) in dir view
-* separate icons for different file types like images
-* errors in dialog boxes
+* separate icons for different file types like images, docs, etc
+* errors in dialog boxes instead of plain text
+* html as template
 
 ## File IO
 * exclude/deny folders based on list
