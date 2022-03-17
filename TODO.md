@@ -25,8 +25,7 @@
   try https://github.com/go-acme/lego
 
 ## Layout / UI
-* CSS html/body height 100% especially for dialogs
-* top bar buttons have different bgcolors
+* CSS html/body height 100% especially for dialogs, textarea
 * top bar too long on mobile/small screen
 * html as template
 * Highlight newly uploaded file/created dir/bookmark

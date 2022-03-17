@@ -45,7 +45,7 @@ func header(w http.ResponseWriter, uDir, sort string) {
             input { border-color:#000000; border-style:solid; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
             .thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
             .tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
-            .nb { border-style:none; }
+            .nb { border-style:none; background-color: #EEEEEE; }
     --></STYLE>
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">

@@ -130,34 +130,33 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
         `))
 
 	// Toolbar
-	// TODO: remove BGCOLOR="#F1F1F1"
 	w.Write([]byte(`
-        <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TABLE WIDTH="100%" BGCOLOR="#EEEEEE" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="up" VALUE="` + i["tup"] + `Up" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="home" VALUE="` + i["tho"] + `Home" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP  VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">
         </TD>
-            <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER" >
+            <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER" >
         <INPUT TYPE="SUBMIT" DISABLED NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" DISABLED NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Folder" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Bookmark" CLASS="nb">
         </TD>
-        <TD NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="CENTER">
+        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
             <INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb">
         </TD>
