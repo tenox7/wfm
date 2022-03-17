@@ -10,21 +10,32 @@ sharing site or a lightweight Content Management System (CMS). WFM can also serv
 public, static html files from a selected directory which you can manage from the
 private interface. See usage scenarios for more information.
 
-WFM is written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is
+WFM is a standalone service with it's own web server. It runs from systemd, sysvinit,
+launchd, bsd rc or Docker. TLS/SSL is supported with automatic certificate generation
+by Lets Encrypt / Certbot / ACME.
+
+Written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is
 fully self contained and has zero dependencies. No need for Python, PHP, SQL, JavaScript,
-Node or any other bloat. It's blazingly fast and the output is a pure, validated and
-certified HTML 4.01 without JavaScript. It's tested on vide variety of modern and vintage
-web browsers. Supported everything going back to Internet Explorer 2.x and Netscape 3.x.
+Node or any other bloat. WFM works on both modern and old web browsers going back to
+Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without JavaScript.
 
 ## Deployment scenarios
+
+### Init
+
+### Docker
 
 ### Running as regular user
 
 ### Chroot and Setuid
 
-## Certbot
+## Auto Cert Manager
 
 ## Authentication
+
+### Json password file
+
+### Binary hardcoded
 
 ### Generate password hash
 
@@ -33,10 +44,10 @@ $ echo -n "SaltMyPassword" | shasum -a 256 | cut -f 1 -d" "
 ```
 
 ## History
-WFM begun its life around 1994 as a CGI Perl script for CERN httpd server to allow
-uploading and managing customer logs by field support engineers over the web and a
-front end to FTP server. Later rewritten in C language, when CGIC library and
+WFM begun its life around 1994 as a CGI Perl script for CERN httpd server, to allow
+uploading and managing customer logs by field support engineers over the web and
+as a front end to FTP server. Later rewritten in C language, when CGIC library and
 Apache httpd were released. Up to 2015 WFM has been a closed source commercial
 application used for lightweight document management and supported by a few customers.
-Later it has been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
+It has been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
 application with built-in web server for more modern deployment styles.
