@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/biessek/golang-ico v0.0.0-20180326222316-d348d9ea4670
 	github.com/bodgit/sevenzip v1.1.1
+	github.com/breml/rootcerts v0.2.2
 	github.com/dustin/go-humanize v1.0.0
 	github.com/gabriel-vasile/mimetype v1.4.0
-	github.com/gen2brain/go-unarr v0.1.2
 	github.com/kdomanski/iso9660 v0.2.1
 	github.com/mholt/archiver/v4 v4.0.0-alpha.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3

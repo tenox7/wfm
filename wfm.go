@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"syscall"
 
+	_ "github.com/breml/rootcerts"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -84,7 +85,7 @@ func (z *multiString) Set(v string) error {
 
 func main() {
 	var err error
-	flag.Var(&acmWhlist, "acm_hosts", "autocert manager allowed hostnames")
+	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostnames")
 	flag.Parse()
 
 	// redirect log to file if needed
@@ -120,7 +121,7 @@ func main() {
 		acm.Cache = autocert.DirCache(*acmDir)
 		acm.HostPolicy = autocert.HostWhitelist(acmWhlist...)
 		go http.ListenAndServe(*acmBind, acm.HTTPHandler(nil))
-		log.Printf("Autocert enabled")
+		log.Printf("Autocert enabled for %v", acmWhlist)
 	}
 
 	// chroot
