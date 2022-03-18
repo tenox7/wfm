@@ -15,16 +15,15 @@
 * remove f2b dump
 * Chroot and User in Systemd Unit
 * Security Hardening in Systemd Unit
+* RW/RO per user and no user read-only mode
 
 ## ACME / Auto Cert Manager
-* acme needs acccess to cacerts outside of chroot
-  maybe copy cacerts to acme cfg dir set SSL_CERT_DIR
-  or maybe https://github.com/gwatts/rootcerts
 * acme dir with key/cert is exposed inside chroot dir
   obtain acme cert before chroot?? self call https?
   get and preload cert manually on start?
   hide acm cache dir?
-  try https://github.com/go-acme/lego
+* try https://github.com/go-acme/lego
+
 
 ## Layout / UI
 * top bar too long on mobile/small screen
@@ -42,6 +41,10 @@
 * exclude/deny folders based on list
 * zip/unzip archives
 * iso files recursive list
+* zipped iso like .iso.gz, .iso.xz, .iso.lz
+* auto unpack via mime type...
+* udf iso format https://github.com/mogaika/udf
+* add more formats like tgz/txz, etc
 * du with xdev as a go routine
 * git client https://github.com/go-git/go-git
 * file locking https://github.com/gofrs/flock
