@@ -1,8 +1,9 @@
 [
     {
-        "User": "",
-        "Salt": "",
-        "Hash": ""
+        "User": "guest",
+        "Salt": "pepper",
+        "Hash": "26a11be1e48c09db5cffe9200fe610c1eb1d8e1eb39f04e35a7890262253e5eb",
+        "RW": true
     }
 ]
 

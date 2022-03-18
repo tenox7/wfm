@@ -13,7 +13,10 @@ import (
 
 var (
 	// you can also hardcode users here instead of loading password file
-	users = []struct{ User, Salt, Hash string }{}
+	users = []struct {
+		User, Salt, Hash string
+		RW               bool
+	}{}
 
 	f2b = newf2b()
 )
@@ -30,21 +33,21 @@ func loadPwdDb(pwdb string) {
 	log.Printf("Loaded %q (%d users)", pwdb, len(users))
 }
 
-func auth(w http.ResponseWriter, r *http.Request) string {
+func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 	if len(users) == 0 {
-		return "n/a"
+		return "n/a", *noPwdDbRW
 	}
 
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		log.Print(err)
-		return ""
+		return "", false
 	}
 
 	if f2b.check(ip) {
 		log.Printf("auth: %v is banned", ip)
 		http.Error(w, "Too many bad username/password attempts", http.StatusTooManyRequests)
-		return ""
+		return "", false
 	}
 
 	u, p, ok := r.BasicAuth()
@@ -61,7 +64,7 @@ func auth(w http.ResponseWriter, r *http.Request) string {
 		s := fmt.Sprintf("%x", sha256.Sum256([]byte(usr.Salt+p)))
 		if subtle.ConstantTimeCompare([]byte(s), []byte(usr.Hash)) == 1 {
 			go f2b.unban(ip)
-			return u
+			return usr.User, usr.RW
 		}
 	}
 
@@ -74,7 +77,7 @@ func auth(w http.ResponseWriter, r *http.Request) string {
 unauth:
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"wfm\"")
 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
-	return ""
+	return "", false
 }
 
 // this doesn't really work

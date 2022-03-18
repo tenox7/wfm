@@ -15,7 +15,7 @@
 * remove f2b dump
 * Chroot and User in Systemd Unit
 * Security Hardening in Systemd Unit
-* RW/RO per user and no user read-only mode
+* userless read-only mode, user rw
 
 ## ACME / Auto Cert Manager
 * acme dir with key/cert is exposed inside chroot dir

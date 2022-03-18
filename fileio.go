@@ -105,7 +105,11 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 	wb.Flush()
 }
 
-func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHeader, f multipart.File) {
+func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHeader, f multipart.File, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	defer f.Close()
 
 	o, err := os.OpenFile(uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
@@ -134,7 +138,11 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string) {
+func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	if uData == "" {
 		htErr(w, "text save", fmt.Errorf("zero lenght data"))
 		return
@@ -162,7 +170,12 @@ func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
+func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
+
 	if uNewd == "" {
 		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
@@ -176,7 +189,12 @@ func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string) {
+func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
+
 	if uNewf == "" {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
 		return
@@ -190,7 +208,11 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
+func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	if uNewu == "" {
 		htErr(w, "mkurl", fmt.Errorf("url file name is empty"))
 		return
@@ -209,7 +231,11 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func moveFile(w http.ResponseWriter, uFp, uDst, eSort string) {
+func moveFile(w http.ResponseWriter, uFp, uDst, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	if uFp == "" || uDst == "" {
 		htErr(w, "move", fmt.Errorf("filename is empty"))
 		return
@@ -225,7 +251,11 @@ func moveFile(w http.ResponseWriter, uFp, uDst, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(filepath.Dir(uDst))+"&sort="+eSort)
 }
 
-func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string) {
+func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	if uBn == "" || uNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
@@ -241,7 +271,11 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func deleteFile(w http.ResponseWriter, uDir, uFilePath, eSort string) {
+func deleteFile(w http.ResponseWriter, uDir, uFilePath, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
 	err := os.RemoveAll(uFilePath)
 	if err != nil {
 		htErr(w, "delete", err)

@@ -10,7 +10,7 @@ import (
 
 func wfm(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
-	user := auth(w, r)
+	user, rw := auth(w, r)
 	if user == "" {
 		return
 	}
@@ -45,10 +45,10 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 			htErr(w, "upload", err)
 			return
 		}
-		uploadFile(w, uDir, eSort, h, f)
+		uploadFile(w, uDir, eSort, h, f, rw)
 		return
 	case r.FormValue("save") != "":
-		saveText(w, uDir, eSort, uFp, r.FormValue("text"))
+		saveText(w, uDir, eSort, uFp, r.FormValue("text"), rw)
 		return
 	case r.FormValue("home") != "":
 		listFiles(w, "/", eSort, user, modern)
@@ -70,13 +70,13 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "edit":
 		editText(w, uFp, eSort)
 	case "mkdir":
-		mkdir(w, uDir, uBn, eSort)
+		mkdir(w, uDir, uBn, eSort, rw)
 	case "mkfile":
-		mkfile(w, uDir, uBn, eSort)
+		mkfile(w, uDir, uBn, eSort, rw)
 	case "mkurl":
-		mkurl(w, uDir, uBn, r.FormValue("url"), eSort)
+		mkurl(w, uDir, uBn, r.FormValue("url"), eSort, rw)
 	case "rename":
-		renFile(w, uDir, uBn, r.FormValue("dst"), eSort)
+		renFile(w, uDir, uBn, r.FormValue("dst"), eSort, rw)
 	case "renp":
 		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
 	case "movp":
@@ -85,10 +85,10 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		prompt(w, uDir, uBn, eSort, "delete")
 	case "move":
 		log.Printf("move %v by %v @ %v", uFp, user, r.RemoteAddr)
-		moveFile(w, uFp, r.FormValue("dst"), eSort)
+		moveFile(w, uFp, r.FormValue("dst"), eSort, rw)
 	case "delete":
 		log.Printf("delete %v by %v @ %v", uDir+"/"+uBn, user, r.RemoteAddr)
-		deleteFile(w, uDir, uDir+"/"+uBn, eSort)
+		deleteFile(w, uDir, uDir+"/"+uBn, eSort, rw)
 	case "logout":
 		logout(w)
 	case "about":
