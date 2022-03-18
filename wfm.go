@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+	"strings"
 	"syscall"
 
 	_ "github.com/breml/rootcerts"
@@ -32,8 +33,7 @@ var (
 	aboutRnt  = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	showDot   = flag.Bool("show_dot", false, "show dot files and folders")
 	wfmPfx    = flag.String("prefix", "/", "Default prefix for WFM access")
-	docPfx    = flag.String("doc_pfx", "", "Serve regular http files at this prefix")
-	docDir    = flag.String("doc_dir", "", "Serve regular http files from this directory")
+	docSrv    = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www:/home")
 	cacheCtl  = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmDir    = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (affected by chroot)")
 	acmBind   = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
@@ -155,9 +155,10 @@ func main() {
 	mux.HandleFunc(*wfmPfx, wfm)
 	mux.HandleFunc("/favicon.ico", favicon)
 	mux.HandleFunc("/dumpf2b", dumpf2b)
-	if *docPfx != "" && *docDir != "" {
-		log.Printf("Starting doc handler for dir %v at %v", *docDir, *docPfx)
-		mux.Handle(*docPfx, http.StripPrefix(*docPfx, http.FileServer(http.Dir(*docDir))))
+	if *docSrv != "" {
+		ds := strings.Split(*docSrv, ":")
+		log.Printf("Starting doc handler for dir %v at %v", ds[0], ds[1])
+		mux.Handle(ds[1], http.StripPrefix(ds[1], http.FileServer(http.Dir(ds[0]))))
 	}
 
 	// serve http(s)

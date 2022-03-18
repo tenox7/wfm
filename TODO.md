@@ -38,7 +38,7 @@
 * html as template
 
 ## File IO
-* exclude/deny folders based on list
+* exclude/hide folders based on list
 * zip/unzip archives
 * iso files recursive list
 * zipped iso like .iso.gz, .iso.xz, .iso.lz
@@ -50,4 +50,3 @@
 * file locking https://github.com/gofrs/flock
 * support for different filesystems, S3, SMB, archive files as io/fs
 * archive files in main view / graphical/table form
-* combine doc_dir:doc_pfx in to one string flag
