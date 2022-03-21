@@ -28,9 +28,9 @@
 
 
 ## Layout / UI
+* Highlight newly uploaded file/created dir/bookmark
 * add flag to specify own favicon.ico
 * top bar too long on mobile/small screen
-* Highlight newly uploaded file/created dir/bookmark
 * different icons for different file types
 * custom html login window - needed for two factor auth?
 * editable and non editable documents by extension, also for git checkins
@@ -39,6 +39,7 @@
 * separate icons for different file types like images, docs, etc
 * errors in dialog boxes instead of plain text
 * html as template
+* total bytes on the last line
 
 ## File IO
 * exclude/hide folders based on list
