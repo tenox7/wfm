@@ -31,13 +31,16 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	// button clicked
 	switch {
 	case r.FormValue("mkd") != "":
-		prompt(w, uDir, "", eSort, "mkdir")
+		prompt(w, uDir, "", eSort, "mkdir", nil)
 		return
 	case r.FormValue("mkf") != "":
-		prompt(w, uDir, "", eSort, "mkfile")
+		prompt(w, uDir, "", eSort, "mkfile", nil)
 		return
 	case r.FormValue("mkb") != "":
-		prompt(w, uDir, "", eSort, "mkurl")
+		prompt(w, uDir, "", eSort, "mkurl", nil)
+		return
+	case r.FormValue("mdelp") != "":
+		prompt(w, uDir, "", eSort, "multi_delete", r.Form["mulf"])
 		return
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
@@ -78,17 +81,20 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "rename":
 		renFile(w, uDir, uBn, r.FormValue("dst"), eSort, rw)
 	case "renp":
-		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename")
+		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename", nil)
 	case "movp":
-		prompt(w, uDir, uBn, eSort, "move")
+		prompt(w, uDir, uBn, eSort, "move", nil)
 	case "delp":
-		prompt(w, uDir, uBn, eSort, "delete")
+		prompt(w, uDir, uBn, eSort, "delete", nil)
 	case "move":
 		log.Printf("move %v by %v @ %v", uFp, user, r.RemoteAddr)
 		moveFile(w, uFp, r.FormValue("dst"), eSort, rw)
 	case "delete":
-		log.Printf("delete %v by %v @ %v", uDir+"/"+uBn, user, r.RemoteAddr)
-		deleteFile(w, uDir, uDir+"/"+uBn, eSort, rw)
+		log.Printf("delete dir=%v file=%v user=%v@%v", uDir, uBn, user, r.RemoteAddr)
+		deleteFiles(w, uDir, []string{uBn}, eSort, rw)
+	case "multi_delete":
+		log.Printf("multi_delete dir=%v files=%+v user=%v@%v", uDir, r.Form["mulf"], user, r.RemoteAddr)
+		deleteFiles(w, uDir, r.Form["mulf"], eSort, rw)
 	case "logout":
 		logout(w)
 	case "about":

@@ -12,7 +12,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
+func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName []string) {
 	header(w, uDir, sort)
 
 	w.Write([]byte(`
@@ -70,6 +70,14 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string) {
         (` + a + `)<P>
         <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
+	case "multi_delete":
+		fmt.Fprintf(w, "&nbsp;<BR>Are you sure you want to delete from <B>%v</B>:<P><UL>\n", html.EscapeString(uDir))
+		for _, f := range mulName {
+			fE := html.EscapeString(f)
+			fmt.Fprintf(w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
+				"<LI TYPE=\"square\">%v</LI>\n", fE, fE)
+		}
+		fmt.Fprintln(w, "</UL><P>")
 	}
 
 	w.Write([]byte(`

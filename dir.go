@@ -52,17 +52,19 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		r++
-		fE := url.QueryEscape(f.Name())
+		qeFile := url.QueryEscape(f.Name())
+		heFile := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
-        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + fE + `&amp;sort=` + sort + `">` + i["di"] + html.EscapeString(f.Name()) + `/</A>` + li + `
+		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
+        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + i["di"] + heFile + `/</A>` + li + `
 		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -92,19 +94,21 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		r++
-		fE := url.QueryEscape(f.Name())
+		qeFile := url.QueryEscape(f.Name())
+		heFile := html.EscapeString(f.Name())
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + fE + `">` + i["fi"] + html.EscapeString(f.Name()) + `</A>` + li + `
+		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + i["fi"] + heFile + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + fE + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + fE + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + fE + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + fE + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
@@ -142,10 +146,10 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
             <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">
         </TD>
             <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER" >
-        <INPUT TYPE="SUBMIT" DISABLED NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb">
+        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" DISABLED NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Folder" CLASS="nb">

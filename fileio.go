@@ -271,15 +271,17 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func deleteFile(w http.ResponseWriter, uDir, uFilePath, eSort string, rw bool) {
+func deleteFiles(w http.ResponseWriter, uDir string, uFilePaths []string, eSort string, rw bool) {
 	if !rw {
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	err := os.RemoveAll(uFilePath)
-	if err != nil {
-		htErr(w, "delete", err)
-		return
+	for _, f := range uFilePaths {
+		err := os.RemoveAll(uDir + "/" + filepath.Base(f))
+		if err != nil {
+			htErr(w, "delete", err)
+			return
+		}
 	}
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }

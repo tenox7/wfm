@@ -6,6 +6,9 @@
 * FastCGI Interface
 
 ## Security
+* https://github.com/microcosm-cc/bluemonday
+  use strict policy except for input from text editor
+* userless/guest read-only mode, user rw
 * two factor auth
 * docker support
   no chroot - mount dir as / ?
@@ -15,7 +18,6 @@
 * remove f2b dump
 * Chroot and User in Systemd Unit
 * Security Hardening in Systemd Unit
-* userless read-only mode, user rw
 
 ## ACME / Auto Cert Manager
 * acme dir with key/cert is exposed inside chroot dir
