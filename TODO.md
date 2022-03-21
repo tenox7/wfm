@@ -28,6 +28,7 @@
 
 
 ## Layout / UI
+* add flag to specify own favicon.ico
 * top bar too long on mobile/small screen
 * Highlight newly uploaded file/created dir/bookmark
 * different icons for different file types
