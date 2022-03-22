@@ -1,7 +1,6 @@
 # WFM TODO
 
 ## General
-* checkboxes, multi file routines
 * webdav server
 * FastCGI Interface
 

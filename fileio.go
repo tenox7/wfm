@@ -231,26 +231,6 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
 }
 
-func moveFile(w http.ResponseWriter, uFp, uDst, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
-		return
-	}
-	if uFp == "" || uDst == "" {
-		htErr(w, "move", fmt.Errorf("filename is empty"))
-		return
-	}
-	err := os.Rename(
-		uFp,
-		filepath.Clean(uDst),
-	)
-	if err != nil {
-		htErr(w, "move", err)
-		return
-	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(filepath.Dir(uDst))+"&sort="+eSort)
-}
-
 func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
 	if !rw {
 		htErr(w, "permission", fmt.Errorf("read only"))
@@ -269,6 +249,25 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
 		return
 	}
 	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+}
+
+func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eSort string, rw bool) {
+	if !rw {
+		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
+	for _, f := range uFilePaths {
+		fb := filepath.Base(f)
+		err := os.Rename(
+			uDir+"/"+fb,
+			filepath.Clean(uDst+"/"+fb),
+		)
+		if err != nil {
+			htErr(w, "move", err)
+			return
+		}
+	}
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+eSort)
 }
 
 func deleteFiles(w http.ResponseWriter, uDir string, uFilePaths []string, eSort string, rw bool) {

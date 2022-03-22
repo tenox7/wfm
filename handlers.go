@@ -42,6 +42,9 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case r.FormValue("mdelp") != "":
 		prompt(w, uDir, "", eSort, "multi_delete", r.Form["mulf"])
 		return
+	case r.FormValue("mmovp") != "":
+		prompt(w, uDir, "", eSort, "multi_move", r.Form["mulf"])
+		return
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
 		if err != nil {
@@ -87,14 +90,17 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "delp":
 		prompt(w, uDir, uBn, eSort, "delete", nil)
 	case "move":
-		log.Printf("move %v by %v @ %v", uFp, user, r.RemoteAddr)
-		moveFile(w, uFp, r.FormValue("dst"), eSort, rw)
+		log.Printf("move dir=%v file=%v user=%v@%v", uDir, uFp, user, r.RemoteAddr)
+		moveFiles(w, uDir, []string{uBn}, r.FormValue("dst"), eSort, rw)
 	case "delete":
 		log.Printf("delete dir=%v file=%v user=%v@%v", uDir, uBn, user, r.RemoteAddr)
 		deleteFiles(w, uDir, []string{uBn}, eSort, rw)
 	case "multi_delete":
 		log.Printf("multi_delete dir=%v files=%+v user=%v@%v", uDir, r.Form["mulf"], user, r.RemoteAddr)
 		deleteFiles(w, uDir, r.Form["mulf"], eSort, rw)
+	case "multi_move":
+		log.Printf("multi_move dir=%v files=%+v dest=%v user=%v@%v", uDir, r.Form["mulf"], r.FormValue("dst"), user, r.RemoteAddr)
+		moveFiles(w, uDir, r.Form["mulf"], r.FormValue("dst"), eSort, rw)
 	case "logout":
 		logout(w)
 	case "about":

@@ -53,8 +53,8 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName
 		w.Write([]byte(`
 		&nbsp;<BR>Select destination folder for <B>` + eBn + `</B>:<P>
 		<SELECT NAME="dst">
-		` + upDnDir(uDir, uBaseName) + `</SELECT>
-		<INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uDir) + "/" + eBn + `">
+		` + upDnDir(uDir, "") + `</SELECT>
+		<INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
 		`))
 	case "delete":
 		var a string
@@ -72,6 +72,18 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName
         `))
 	case "multi_delete":
 		fmt.Fprintf(w, "&nbsp;<BR>Are you sure you want to delete from <B>%v</B>:<P><UL>\n", html.EscapeString(uDir))
+		for _, f := range mulName {
+			fE := html.EscapeString(f)
+			fmt.Fprintf(w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
+				"<LI TYPE=\"square\">%v</LI>\n", fE, fE)
+		}
+		fmt.Fprintln(w, "</UL><P>")
+	case "multi_move":
+		fmt.Fprintf(w, "&nbsp;<BR>Move from: <B>%v</B><P>\n"+
+			"To: <SELECT NAME=\"dst\">%v</SELECT><P>\n<UL>Items:<P>\n",
+			html.EscapeString(uDir),
+			upDnDir(uDir, uBaseName),
+		)
 		for _, f := range mulName {
 			fE := html.EscapeString(f)
 			fmt.Fprintf(w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
