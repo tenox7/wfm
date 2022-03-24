@@ -127,6 +127,13 @@ $ echo -n "zzxgh34j3n1" | shasum -a 256 | cut -f 1 -d" "
 
 Get the encoded string and paste it into Hash: "" value.
 
+### Fail to ban
+
+WFM monitor failed user login attempts and bans user for increasing period of
+time with more bad attempts. This is enabled by default. You can disable this
+behavior with `-f2b=false` flag. In addition for debugging purposes you can
+enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2b`.
+
 ## Prefix
 
 By default WFM serves requests from "/" prefix of the built in web server.
