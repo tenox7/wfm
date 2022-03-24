@@ -19,8 +19,6 @@
   user
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
-* Chroot and User in Systemd Unit
-* Security Hardening in Systemd Unit
 
 ## ACME / Auto Cert Manager
 * acme dir with key/cert is exposed inside chroot dir

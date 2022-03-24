@@ -40,7 +40,7 @@ var (
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
 	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
-	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump")
+	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
 
 	favIcn = genFavIcon()
 )

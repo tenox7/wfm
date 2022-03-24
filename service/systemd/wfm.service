@@ -5,9 +5,9 @@ After=network.target
 [Service]
 User=root
 ExecStart=/usr/local/sbin/wfm \
-    -addr=:80
+    -addr=:80 \
 	-chroot=/datadir \
-	-setuid=myuser 
+	-setuid=myuser
 Restart=on-failure
 SuccessExitStatus=3 4
 RestartForceExitStatus=3 4
