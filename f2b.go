@@ -25,7 +25,7 @@ func newf2b() *f2bDB {
 }
 
 func (db *f2bDB) check(ip string) bool {
-	if !*dof2b {
+	if !*f2bEnabled {
 		return false
 	}
 	db.Lock()
@@ -35,16 +35,14 @@ func (db *f2bDB) check(ip string) bool {
 
 	l, ok := db.entr[ip]
 	if !ok {
-		//log.Printf("auth: ip=%v not in DB", ip)
 		return false
 	}
-	//log.Printf("auth: found ip=%v for=%v no#tries=%v",
-	//ip, time.Until(l.banUntil), l.noTries)
+
 	return time.Now().Before(l.banUntil)
 }
 
 func (db *f2bDB) ban(ip string) {
-	if !*dof2b {
+	if !*f2bEnabled {
 		return
 	}
 	db.Lock()
@@ -62,7 +60,7 @@ func (db *f2bDB) ban(ip string) {
 }
 
 func (db *f2bDB) unban(ip string) {
-	if !*dof2b {
+	if !*f2bEnabled {
 		return
 	}
 	db.Lock()
@@ -82,6 +80,6 @@ func (db *f2bDB) dump(w http.ResponseWriter) {
 func dumpf2b(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", "no-cache")
-	fmt.Fprintf(w, "F2B DB\n\n")
+	fmt.Fprintf(w, "F2BDB\n\n")
 	f2b.dump(w)
 }

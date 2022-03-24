@@ -8,10 +8,15 @@
 * https://github.com/microcosm-cc/bluemonday
   use strict policy except for input from text editor
 * userless/guest read-only mode, user rw
+  requires custom login window
 * two factor auth
+  requires custom login window
 * docker support
   no chroot - mount dir as / ?
   env vars for port, etc?
+* systemd support
+  chroot
+  user
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
 * remove f2b dump
