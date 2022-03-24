@@ -5,6 +5,8 @@ and organize directory tree structure. Text, markup and markdown files can be
 edited directly in the browser. WFM can also create and open bookmarks, link and
 shortcut files, list inside archives and ISO files.
 
+![wfm screenshot](screenshot.png "WFM Screenshot")
+
 You can use WFM as a web interface for a NAS box, a "personal cloud", document
 sharing site or a lightweight Content Management System (CMS). WFM can also serve
 public, static html files from a selected directory which you can manage from the
