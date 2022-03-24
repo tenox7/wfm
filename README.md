@@ -12,34 +12,34 @@ sharing site or a lightweight Content Management System (CMS). WFM can also serv
 public, static html files from a selected directory which you can manage from the
 private interface. See usage scenarios for more information.
 
-WFM is a standalone service with it's own web server. It runs from systemd, sysvinit,
-launchd, bsd rc or Docker. TLS/SSL is supported with automatic certificate generation
-by Lets Encrypt / Certbot / ACME.
+WFM is a standalone service with it's own web server. No need for Apache, Nginx or
+anything else. It directly runs from systemd, sysvinit, launchd, bsd rc or Docker.
+TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
-Written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is
-fully self contained and has zero dependencies. No need for Python, PHP, SQL, JavaScript,
-Node or any other bloat. WFM works on both modern and old web browsers going back to
+Written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is statically
+linked, fully self contained and has zero external dependencies. Icons are Unicode
+emojis. CA Certs are embedded at built time. No need for Python, PHP, SQL, JavaScript,
+Node or any other bloat. WFM works on both modern and legacy web browsers going back to
 Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without JavaScript.
 
 ## Deployment scenarios
 
-For security reasons WFM doesn't have any provisions for specifying what directory to use.
-It always uses root dir / and solely relies on chroot for limiting to the jail directory.
-
-Chroot can be set by WFM own `-chroot=/dir` flag or by Systemd `RootDirectory=`. Also
-depending on what port you want WFM to listen to (eg 80/443 vs 8080) you need to run it
-as root or regular user. If ran by root WFM support flag `-setuid=user` to setuid after
-port bind is complete.
+WFM relies on chroot for limiting which directory to use. Chroot can be set by WFM own
+`-chroot=/dir` flag or by Systemd `RootDirectory=`. Also depending on what port you want
+WFM to listen to (eg 80/443 vs 8080) you need to run it as root or regular user. If ran
+by root WFM supports flag `-setuid=<user>` to setuid after port bind is complete.
 
 ### Systemd
 
-An example service file is provided [here](systemd/wfm.service). By default it starts the
-process as root to allow to bind to port 80. You can specify destination directory in
-`-chroot=/datadir` and user to run as in `-setuid=myuser`. WFM will automatically chroot
-and setuid after port bind is complete.
+An example service file is provided [here](service/systemd/wfm80.service). By default it
+starts the process as root to allow to bind to port 80. You can specify destination
+directory in `-chroot=/datadir` and user to run as in `-setuid=myuser`. WFM will
+automatically chroot and setuid after port bind is complete.
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
-chroot, a non privileged port (above 1024) or your binary has adequate capabilities set.
+chroot and use non privileged port (above 1024, eg 8080), or your binary has adequate
+capabilities set. Example [here](service/systemd/wfm80.service).
+
 
 ### Docker
 

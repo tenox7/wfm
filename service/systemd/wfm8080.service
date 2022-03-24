@@ -1,0 +1,22 @@
+[Unit]
+Description=Web File Manager
+After=network.target
+
+[Service]
+User=myuser
+RootDirectory=/home/myuser
+ExecStart=/usr/local/sbin/wfm -addr=:8080
+Restart=on-failure
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+RestartSec=60
+
+# Hardening
+ProtectSystem=full
+PrivateTmp=true
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
