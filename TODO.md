@@ -7,6 +7,7 @@
 ## Security
 * https://github.com/microcosm-cc/bluemonday
   use strict policy except for input from text editor
+* User manager add/delete/chpw user via arg
 * userless/guest read-only mode, user rw
   requires custom login window
 * two factor auth

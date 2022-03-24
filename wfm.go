@@ -27,7 +27,7 @@ var (
 	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
 	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
 	suidUser   = flag.String("setuid", "", "Username to setuid to")
-	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid 0 / root user")
+	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
 	logFile    = flag.String("logfile", "", "Log file name (default stdout)")
 	passwdDb   = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	noPwdDbRW  = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
