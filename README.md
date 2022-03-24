@@ -38,7 +38,7 @@ automatically chroot and setuid after port bind is complete.
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
 chroot and use non privileged port (above 1024, eg 8080), or your binary has adequate
-capabilities set. Example [here](service/systemd/wfm80.service).
+capabilities set. Example [here](service/systemd/wfm8080.service).
 
 
 ### Docker
@@ -153,6 +153,50 @@ $ wfm \
 In this example WFM will serve html files from `/somedir` on / http prefix
 with `/admin` as a password protected admin interface where you can edit
 and manage the site.
+
+## Flags
+
+```text
+Usage of ./wfm:
+  -about_runtime
+        Display runtime info in About Dialog (default true)
+  -acm_addr string
+        autocert manager listen address, eg: :80
+  -acm_dir string
+        autocert cache, eg: /var/cache (affected by chroot)
+  -acm_host value
+        autocert manager allowed hostnames
+  -addr string
+        Listen address, eg: :443 (default "127.0.0.1:8080")
+  -addr_extra string
+        Extra non-TLS listener address, eg: :8081
+  -allow_root
+        allow to run as uid=0/root without setuid
+  -cache_ctl string
+        HTTP Header Cache Control (default "no-cache")
+  -chroot string
+        Directory to chroot to
+  -doc_srv string
+        Serve regular http files, fsdir:prefix, eg /var/www:/home
+  -f2b
+        ban ip addresses on user/pass failures (default true)
+  -f2b_dump string
+        enable f2b dump at this prefix, eg. /f2bdump (default no)
+  -logfile string
+        Log file name (default stdout)
+  -nopass_rw
+        allow read-write access if there is no password file
+  -passwd string
+        wfm password file, eg: /usr/local/etc/wfmpw.json
+  -prefix string
+        Default prefix for WFM access (default "/")
+  -proto string
+        tcp, tcp4, tcp6, etc (default "tcp")
+  -setuid string
+        Username to setuid to
+  -show_dot
+        show dot files and folders
+```
 
 ## History
 WFM begun its life around 1994 as a CGI Perl script for CERN httpd server, to allow
