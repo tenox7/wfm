@@ -70,6 +70,10 @@ and currently accessible to users (TODO: fix this) so insecure. The
 ACM will only obtain certificates for whitelisted hosts. If your WFM
 site has multiple names in DNS you need to add them to the whitelist.
 
+If the https site is exposed externally outside of your firewall its
+sometimes desired to have a local http (non-SSL) listener as well. To
+enable this use `-addr_extra=:8080` flag.
+
 ## Authentication
 
 If no password file is specified and no hardcoded passwords are present
