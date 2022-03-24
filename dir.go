@@ -12,7 +12,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
+func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) {
 	i := candy(modern)
 	d, err := ioutil.ReadDir(uDir)
 	if err != nil {
@@ -46,7 +46,9 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		if !*showDot && f.Name()[0:1] == "." {
 			continue
 		}
-		if r%2 == 0 {
+		if f.Name() == hi {
+			w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+		} else if r%2 == 0 {
 			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
 		} else {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
@@ -88,7 +90,9 @@ func listFiles(w http.ResponseWriter, uDir, sort, user string, modern bool) {
 		if !*showDot && f.Name()[0:1] == "." {
 			continue
 		}
-		if r%2 == 0 {
+		if f.Name() == hi {
+			w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+		} else if r%2 == 0 {
 			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
 		} else {
 			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))

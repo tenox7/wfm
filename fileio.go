@@ -135,7 +135,7 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 	}
 	wb.Flush()
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", uDir, h.Filename, h.Size)
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(h.Filename))
 }
 
 func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string, rw bool) {
@@ -167,7 +167,7 @@ func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string, rw bo
 		return
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(uData))
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(filepath.Base(uFilePath)))
 }
 
 func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string, rw bool) {
@@ -180,13 +180,14 @@ func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string, rw bool) {
 		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
 	}
-	err := os.Mkdir(uDir+"/"+filepath.Base(uNewd), 0755)
+	uB := filepath.Base(uNewd)
+	err := os.Mkdir(uDir+"/"+uB, 0755)
 	if err != nil {
 		htErr(w, "mkdir", err)
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(uB))
 }
 
 func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
@@ -199,13 +200,14 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
 		return
 	}
-	f, err := os.OpenFile(uDir+"/"+filepath.Base(uNewf), os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	fB := filepath.Base(uNewf)
+	f, err := os.OpenFile(uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
 		return
 	}
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
 }
 
 func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
@@ -220,7 +222,8 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
 	if !strings.HasSuffix(uNewu, ".url") {
 		uNewu = uNewu + ".url"
 	}
-	f, err := os.OpenFile(uDir+"/"+uNewu, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	fB := filepath.Base(uNewu)
+	f, err := os.OpenFile(uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(w, "mkfile", err)
 		return
@@ -228,7 +231,7 @@ func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
 }
 
 func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
@@ -240,15 +243,16 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
+	fB := filepath.Base(uNewf)
 	err := os.Rename(
 		uDir+"/"+uBn,
-		uDir+"/"+filepath.Base(uNewf),
+		uDir+"/"+fB,
 	)
 	if err != nil {
 		htErr(w, "rename", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
 }
 
 func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eSort string, rw bool) {
@@ -256,6 +260,7 @@ func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eS
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	lF := ""
 	for _, f := range uFilePaths {
 		fb := filepath.Base(f)
 		err := os.Rename(
@@ -266,8 +271,9 @@ func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eS
 			htErr(w, "move", err)
 			return
 		}
+		lF = fb
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+eSort)
+	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+eSort+"&hi="+url.QueryEscape(lF))
 }
 
 func deleteFiles(w http.ResponseWriter, uDir string, uFilePaths []string, eSort string, rw bool) {

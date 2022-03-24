@@ -27,6 +27,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	eSort := url.QueryEscape(r.FormValue("sort"))
 	uFp := filepath.Clean(r.FormValue("fp"))
 	uBn := filepath.Base(r.FormValue("file"))
+	hi := filepath.Base(r.FormValue("hi"))
 
 	// button clicked
 	switch {
@@ -57,13 +58,13 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 		saveText(w, uDir, eSort, uFp, r.FormValue("text"), rw)
 		return
 	case r.FormValue("home") != "":
-		listFiles(w, "/", eSort, user, modern)
+		listFiles(w, "/", eSort, user, hi, modern)
 		return
 	case r.FormValue("up") != "":
-		listFiles(w, filepath.Dir(uDir), eSort, user, modern)
+		listFiles(w, filepath.Dir(uDir), eSort, hi, user, modern)
 		return
 	case r.FormValue("cancel") != "":
-		listFiles(w, uDir, eSort, user, modern)
+		listFiles(w, uDir, eSort, user, hi, modern)
 		return
 	}
 
@@ -106,7 +107,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	case "about":
 		about(w, uDir, eSort, r.UserAgent())
 	default:
-		listFiles(w, uDir, eSort, user, modern)
+		listFiles(w, uDir, eSort, hi, user, modern)
 	}
 }
 

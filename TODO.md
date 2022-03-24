@@ -19,7 +19,6 @@
   user
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
-* remove f2b dump
 * Chroot and User in Systemd Unit
 * Security Hardening in Systemd Unit
 
@@ -32,7 +31,6 @@
 
 
 ## Layout / UI
-* Highlight newly uploaded file/created dir/bookmark
 * add flag to specify own favicon.ico
 * top bar too long on mobile/small screen
 * different icons for different file types
@@ -47,11 +45,11 @@
 
 ## File IO
 * exclude/hide folders based on list
+* udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
 * iso files recursive list
 * zipped iso like .iso.gz, .iso.xz, .iso.lz
 * auto unpack via mime type...
-* udf iso format https://github.com/mogaika/udf
 * add more formats like tgz/txz, etc
 * du with xdev as a go routine
 * git client https://github.com/go-git/go-git
