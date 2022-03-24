@@ -27,6 +27,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 	qeDir := url.QueryEscape(uDir)
 
 	r := 0
+	var total uint64
 
 	// List Directories First
 	for _, f := range d {
@@ -116,9 +117,12 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
         </TD>
         </TR>
         `))
+		total = total + uint64(f.Size())
 	}
 
-	w.Write([]byte(`</TABLE>`))
+	// Footer
+	w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">Total ` +
+		humanize.Bytes(total) + `</TD><TD></TD><TD></TD></TR></TABLE>`))
 	footer(w)
 }
 

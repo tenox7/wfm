@@ -1,6 +1,6 @@
 # WFM TODO
 
-## General
+## Interfaces
 * webdav server
 * FastCGI Interface
 
@@ -24,11 +24,9 @@
 
 ## ACME / Auto Cert Manager
 * acme dir with key/cert is exposed inside chroot dir
-  obtain acme cert before chroot?? self call https?
-  get and preload cert manually on start?
+  get and preload cert manually on start before chroot?
   hide acm cache dir?
 * try https://github.com/go-acme/lego
-
 
 ## Layout / UI
 * add flag to specify own favicon.ico
@@ -41,7 +39,6 @@
 * separate icons for different file types like images, docs, etc
 * errors in dialog boxes instead of plain text
 * html as template
-* total bytes on the last line
 
 ## File IO
 * exclude/hide folders based on list
