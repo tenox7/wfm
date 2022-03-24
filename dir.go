@@ -160,13 +160,13 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
             <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Folder" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Bookmark" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb">
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
