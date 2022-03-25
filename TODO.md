@@ -1,12 +1,10 @@
 # WFM TODO
 
 ## Interfaces
-* webdav server
+* WebDAV server
 * FastCGI Interface
 
 ## Security
-* https://github.com/microcosm-cc/bluemonday
-  use strict policy except for input from text editor
 * User manager add/delete/chpw user via arg
 * userless/guest read-only mode, user rw
   requires custom login window
@@ -30,7 +28,6 @@
 ## Layout / UI
 * add flag to specify own favicon.ico
 * top bar too long on mobile/small screen
-* different icons for different file types
 * custom html login window - needed for two factor auth?
 * editable and non editable documents by extension, also for git checkins
 * thumbnail / icon view for pictures, cache thumbnails on server
@@ -40,6 +37,7 @@
 * html as template
 
 ## File IO
+* do not log FormValue["text"] as it contains text data from edit
 * exclude/hide folders based on list
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
