@@ -251,7 +251,7 @@ func icons(b bool) map[string]string {
 
 			"rm": "&#x274C;",
 			"mv": "&#x1F69A;",
-			"re": "&#x1FAA7;",
+			"re": "&#x1F516;",
 			"ed": "&#x1F52C;",
 			"dn": "&#x1F4BE;",
 
