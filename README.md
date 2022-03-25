@@ -8,9 +8,9 @@ bookmarks, link and shortcut files, list inside archives and ISO files.
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
 You can use WFM as a web interface for a NAS box, a "personal cloud", document
-sharing site or a lightweight Content Management System (CMS). WFM can also serve
-public, static html files from a selected directory which you can manage from the
-private interface. See usage scenarios for more information.
+sharing site or a lightweight Content Management System (CMS). The app can also
+serve static html files from a directory which you can manage as an admin. See
+usage scenarios for more information.
 
 WFM is a standalone service with it's own web server. No need for Apache, Nginx or
 anything else. It directly runs from systemd, sysvinit, launchd, bsd rc or Docker.
