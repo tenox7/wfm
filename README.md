@@ -1,9 +1,9 @@
 # WFM - Web File Manager
 WFM is a lightweight web based file manager. It allows to perform
-regular file and folder operations such as upload, download, rename, delete files
-and organize directory tree structure. Text, markup and markdown files can be
-edited directly in the browser. WFM can also create and open bookmarks, link and
-shortcut files, list inside archives and ISO files.
+typical file and folder operations such as upload, download, rename, move,
+delete files and organize directory tree structure. Text, markup and markdown
+files can be edited directly in the browser. WFM can also create and open
+bookmarks, link and shortcut files, list inside archives and ISO files.
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
