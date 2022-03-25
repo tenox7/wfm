@@ -7,13 +7,14 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
 )
 
 func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) {
-	b := buttons(modern)
+	i := icons(modern)
 	d, err := ioutil.ReadDir(uDir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -23,7 +24,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 	sortFiles(d, &sl, sort)
 
 	header(w, uDir, sort)
-	toolbars(w, uDir, user, sl, b)
+	toolbars(w, uDir, user, sl, i)
 	qeDir := url.QueryEscape(uDir)
 
 	r := 0
@@ -39,7 +40,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 				continue
 			}
 			ldir = ls.IsDir()
-			li = b["li"]
+			li = i["li"]
 		}
 		if !f.IsDir() && !ldir {
 			continue
@@ -60,14 +61,14 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + b["di"] + heFile + `/</A>` + li + `
+        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + i["di"] + heFile + `/</A>` + li + `
 		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + b["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -83,7 +84,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 				continue
 			}
 			ldir = ls.IsDir()
-			li = b["li"]
+			li = i["li"]
 		}
 		if f.IsDir() || ldir {
 			continue
@@ -104,16 +105,16 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + b["fi"] + heFile + `</A>` + li + `
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + fileIcon(qeFile, modern) + ` ` + heFile + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + b["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + b["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + b["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
@@ -241,7 +242,7 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 	}
 }
 
-func buttons(b bool) map[string]string {
+func icons(b bool) map[string]string {
 	if b {
 		return map[string]string{
 			"fi": "&#x1F5D2; ",
@@ -250,12 +251,12 @@ func buttons(b bool) map[string]string {
 
 			"rm": "&#x274C;",
 			"mv": "&#x1F69A;",
-			"re": "&#x1F3F7;",
-			"ed": "&#x1F4DD;",
+			"re": "&#x1FAA7;",
+			"ed": "&#x1F52C;",
 			"dn": "&#x1F4BE;",
 
-			"tcd": "&#x1F5C4; ",
-			"tup": "&#x21EA; ",
+			"tcd": "&#x1F371; ",
+			"tup": "&#x1F53A; ",
 			"tho": "&#x1F3E0; ",
 			"tre": "&#x1F300; ",
 			"trm": "&#x274C; ",
@@ -287,4 +288,33 @@ func buttons(b bool) map[string]string {
 		"tid": "User: ",
 		"tve": "WFM ",
 	}
+}
+
+func fileIcon(f string, m bool) string {
+	if !m {
+		return "&#183;"
+	}
+	s := strings.Split(f, ".")
+	switch strings.ToLower(s[len(s)-1]) {
+	case "iso", "udf":
+		return "&#x1F4BF;"
+	case "mp4", "mov", "qt", "avi", "mpg", "mpeg":
+		return "&#x1F3AC;"
+	case "gif", "png", "jpg", "jpeg", "ico", "webp", "bmp", "tif", "tiff", "heif", "heic":
+		return "&#x1F5BC;"
+	case "deb", "rpm", "dpkg", "apk", "msi", "pkg":
+		return "&#x1F4E6;"
+	case "zip", "rar", "7z", "z", "gz", "bz2", "xz", "lz", "tgz", "tbz", "txz", "arj", "lha", "tar":
+		return "&#x1F5DC;"
+	case "imd", "img", "raw", "dd", "tap", "dsk":
+		return "&#x1F4BE;"
+	case "txt", "log", "csv", "md", "mhtml", "html", "htm", "cfg", "conf", "ini", "json", "xml":
+		return "&#x1F4DD;"
+	case "pdf", "ps", "doc", "docx", "xls", "xlsx", "rtf":
+		return "&#x1F4DA;"
+	case "url", "desktop", "webloc":
+		return "&#x1F310;"
+		// a
+	}
+	return "&#x1F4D2;"
 }

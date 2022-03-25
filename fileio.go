@@ -18,9 +18,9 @@ import (
 
 func dispFile(w http.ResponseWriter, uFilePath string) {
 	fp := filepath.Clean(uFilePath)
-	s := strings.Split(strings.ToLower(fp), ".")
+	s := strings.Split(fp, ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
-	switch s[len(s)-1] {
+	switch strings.ToLower(s[len(s)-1]) {
 	case "url", "desktop", "webloc":
 		gourl(w, fp)
 
