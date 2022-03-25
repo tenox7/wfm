@@ -13,7 +13,7 @@ import (
 )
 
 func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) {
-	i := candy(modern)
+	b := buttons(modern)
 	d, err := ioutil.ReadDir(uDir)
 	if err != nil {
 		htErr(w, "Unable to read directory", err)
@@ -23,7 +23,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 	sortFiles(d, &sl, sort)
 
 	header(w, uDir, sort)
-	toolbars(w, uDir, user, sl, i)
+	toolbars(w, uDir, user, sl, b)
 	qeDir := url.QueryEscape(uDir)
 
 	r := 0
@@ -39,7 +39,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 				continue
 			}
 			ldir = ls.IsDir()
-			li = i["li"]
+			li = b["li"]
 		}
 		if !f.IsDir() && !ldir {
 			continue
@@ -60,14 +60,14 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + i["di"] + heFile + `/</A>` + li + `
+        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + b["di"] + heFile + `/</A>` + li + `
 		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + b["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -83,7 +83,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 				continue
 			}
 			ldir = ls.IsDir()
-			li = i["li"]
+			li = b["li"]
 		}
 		if f.IsDir() || ldir {
 			continue
@@ -104,16 +104,16 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 		w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + i["fi"] + heFile + `</A>` + li + `
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + b["fi"] + heFile + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + b["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + b["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + b["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + b["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
@@ -241,26 +241,9 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 	}
 }
 
-func candy(b bool) map[string]string {
-	c := map[string]string{
-		"fi": "&#183; ",
-		"di": "&#187; ",
-		"li": " (link);",
-
-		"rm": "[rm]",
-		"mv": "[mv]",
-		"re": "[re]",
-		"ed": "[ed]",
-		"dn": "[dn]",
-
-		"tup": "^ ",
-		"tho": "~ ",
-		"tre": "&reg; ",
-		"tid": "User: ",
-		"tve": "WFM ",
-	}
+func buttons(b bool) map[string]string {
 	if b {
-		c = map[string]string{
+		return map[string]string{
 			"fi": "&#x1F5D2; ",
 			"di": "&#x1F4C2; ",
 			"li": " &#x1F517; ",
@@ -287,5 +270,21 @@ func candy(b bool) map[string]string {
 		}
 	}
 
-	return c
+	return map[string]string{
+		"fi": "&#183; ",
+		"di": "&#187; ",
+		"li": " (link);",
+
+		"rm": "[rm]",
+		"mv": "[mv]",
+		"re": "[re]",
+		"ed": "[ed]",
+		"dn": "[dn]",
+
+		"tup": "^ ",
+		"tho": "~ ",
+		"tre": "&reg; ",
+		"tid": "User: ",
+		"tve": "WFM ",
+	}
 }
