@@ -160,6 +160,12 @@ In this example WFM will serve html files from `/somedir` on / http prefix
 with `/admin` as a password protected admin interface where you can edit
 and manage the site.
 
+## Deny / hide dir
+
+You can deny access and hide any directory prefix. For example lets say
+you want to exclude `/priv` folder inside the chroot directory.
+Add `-deny_pfx=/priv` to your flags. This flag can be repeated.
+
 ## Flags
 
 ```text
@@ -214,5 +220,5 @@ uploading and managing customer logs by field support engineers over the web and
 as a front end to FTP server. Later rewritten in C language, when CGIC library and
 Apache httpd were released. Up to 2015 WFM has been a closed source commercial
 application used for lightweight document management and supported by a few customers.
-It has been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
+It has since been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
 application with built-in web server for more modern deployment scenarios.
