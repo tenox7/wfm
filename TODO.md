@@ -13,17 +13,8 @@
 * docker support
   no chroot - mount dir as / ?
   env vars for port, etc?
-* systemd support
-  chroot
-  user
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
-
-## ACME / Auto Cert Manager
-* acme dir with key/cert is exposed inside chroot dir
-  get and preload cert manually on start before chroot?
-  hide acm cache dir?
-* try https://github.com/go-acme/lego
 
 ## Layout / UI
 * add flag to specify own favicon.ico
@@ -38,7 +29,6 @@
 
 ## File IO
 * do not log FormValue["text"] as it contains text data from edit
-* exclude/hide folders based on list
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
 * iso files recursive list

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html"
 	"io/ioutil"
 	"net/http"
@@ -14,6 +15,10 @@ import (
 )
 
 func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) {
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	i := icons(modern)
 	d, err := ioutil.ReadDir(uDir)
 	if err != nil {
@@ -32,6 +37,9 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 
 	// List Directories First
 	for _, f := range d {
+		if deniedPfx(uDir + "/" + f.Name()) {
+			continue
+		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
@@ -76,6 +84,9 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 
 	// List Files
 	for _, f := range d {
+		if deniedPfx(uDir + "/" + f.Name()) {
+			continue
+		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {

@@ -16,7 +16,21 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
+func deniedPfx(pfx string) bool {
+	cPfx := filepath.Clean(pfx)
+	for _, p := range denyPfxs {
+		if strings.HasPrefix(cPfx, p) {
+			return true
+		}
+	}
+	return false
+}
+
 func dispFile(w http.ResponseWriter, uFilePath string) {
+	if deniedPfx(uFilePath) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	fp := filepath.Clean(uFilePath)
 	s := strings.Split(fp, ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
@@ -39,6 +53,10 @@ func dispFile(w http.ResponseWriter, uFilePath string) {
 }
 
 func downFile(w http.ResponseWriter, uFilePath string) {
+	if deniedPfx(uFilePath) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	f, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
@@ -52,6 +70,10 @@ func downFile(w http.ResponseWriter, uFilePath string) {
 }
 
 func dispInline(w http.ResponseWriter, uFilePath string) {
+	if deniedPfx(uFilePath) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	f, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
@@ -78,6 +100,10 @@ func dispInline(w http.ResponseWriter, uFilePath string) {
 }
 
 func streamFile(w http.ResponseWriter, uFilePath string) {
+	if deniedPfx(uFilePath) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	fi, err := os.Open(uFilePath)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
@@ -108,6 +134,10 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHeader, f multipart.File, rw bool) {
 	if !rw {
 		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	defer f.Close()
@@ -143,6 +173,10 @@ func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string, rw bo
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 	if uData == "" {
 		htErr(w, "text save", fmt.Errorf("zero lenght data"))
 		return
@@ -175,6 +209,10 @@ func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string, rw bool) {
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 
 	if uNewd == "" {
 		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
@@ -195,6 +233,10 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
 
 	if uNewf == "" {
 		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
@@ -213,6 +255,10 @@ func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
 func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
 	if !rw {
 		htErr(w, "permission", fmt.Errorf("read only"))
+		return
+	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	if uNewu == "" {
@@ -239,6 +285,11 @@ func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
+
 	if uBn == "" || uNewf == "" {
 		htErr(w, "rename", fmt.Errorf("filename is empty"))
 		return
@@ -260,6 +311,11 @@ func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eS
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) || deniedPfx(uDst) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
+
 	lF := ""
 	for _, f := range uFilePaths {
 		fb := filepath.Base(f)
@@ -281,6 +337,11 @@ func deleteFiles(w http.ResponseWriter, uDir string, uFilePaths []string, eSort 
 		htErr(w, "permission", fmt.Errorf("read only"))
 		return
 	}
+	if deniedPfx(uDir) {
+		htErr(w, "access", fmt.Errorf("forbidden"))
+		return
+	}
+
 	for _, f := range uFilePaths {
 		err := os.RemoveAll(uDir + "/" + filepath.Base(f))
 		if err != nil {

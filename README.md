@@ -13,7 +13,7 @@ serve static html files from a directory which you can manage as an admin. See
 usage scenarios for more information.
 
 WFM is a standalone service with it's own web server. No need for Apache, Nginx or
-anything else. It directly runs from systemd, sysvinit, launchd, bsd rc or Docker.
+anything else. It runs directly from systemd, sysvinit, launchd, bsd rc or Docker.
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
 Written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is statically
@@ -66,9 +66,8 @@ ExecStart=/usr/local/sbin/wfm \
 The flag `-addr=:443` makes WFM listen on port 443 for https requests.
 Flag `-acm_addr=:80` is used for Auto Cert Manager to obtain the cert
 and then redirect to port 443/https. `-acm_dir=/.certs` is where the
-certificate and key are stored. This directory is inside chroot jail
-and currently accessible to users (TODO: fix this) so insecure. The
-`-acm_host=` is a repeated flag that adds specific host to a whitelist.
+certificate and key are stored. This directory is inside chroot jail.
+The `-acm_host=` is a repeated flag that adds specific host to a whitelist.
 ACM will only obtain certificates for whitelisted hosts. If your WFM
 site has multiple names in DNS you need to add them to the whitelist.
 
@@ -164,25 +163,29 @@ and manage the site.
 ## Flags
 
 ```text
-Usage of ./wfm:
+Usage of wfm:
   -about_runtime
         Display runtime info in About Dialog (default true)
   -acm_addr string
         autocert manager listen address, eg: :80
   -acm_dir string
-        autocert cache, eg: /var/cache (affected by chroot)
+        autocert cache, eg: /var/cache (inside chroot)
   -acm_host value
-        autocert manager allowed hostnames
+        autocert manager allowed hostname (multi)
   -addr string
         Listen address, eg: :443 (default "127.0.0.1:8080")
   -addr_extra string
         Extra non-TLS listener address, eg: :8081
+  -allow_acm_dir
+        allow access to acm cache dir (insecure!)
   -allow_root
         allow to run as uid=0/root without setuid
   -cache_ctl string
         HTTP Header Cache Control (default "no-cache")
   -chroot string
         Directory to chroot to
+  -deny_pfx value
+        deny access / hide this path prefix (multi)
   -doc_srv string
         Serve regular http files, fsdir:prefix, eg /var/www:/home
   -f2b
