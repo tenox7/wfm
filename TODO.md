@@ -21,9 +21,8 @@
 * top bar too long on mobile/small screen
 * custom html login window - needed for two factor auth?
 * editable and non editable documents by extension, also for git checkins
-* thumbnail / icon view for pictures, cache thumbnails on server
+* thumbnail / icon view for pictures (cache thumbnails on server?)
 * glob filter (*.*) in dir view
-* separate icons for different file types like images, docs, etc
 * errors in dialog boxes instead of plain text
 * html as template
 
