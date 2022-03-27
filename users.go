@@ -56,6 +56,10 @@ func manageUsers() {
 		delUser(flag.Arg(2))
 	case "passwd":
 		pwdUser(flag.Arg(2))
+	case "setro":
+		setUser(flag.Arg(2), false)
+	case "setrw":
+		setUser(flag.Arg(2), true)
 	default:
 		fmt.Println("usage: user <list|add|delete|passwd|setrw|setro> [username] [rw|ro]")
 	}
@@ -116,6 +120,24 @@ func pwdUser(usr string) {
 		}
 		users[i].Salt = salt
 		users[i].Hash = hash
+		chg = true
+	}
+	if !chg {
+		log.Fatal("User not found / nothing changed")
+	}
+	saveUsers()
+}
+
+func setUser(usr string, rw bool) {
+	if usr == "" || rw == "" {
+		log.Fatal("user add requires username and ro/rw\n")
+	}
+	chg := false
+	for i, u := range users {
+		if u.User != usr {
+			continue
+		}
+		users[i].RW = rw
 		chg = true
 	}
 	if !chg {
