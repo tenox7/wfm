@@ -93,6 +93,9 @@ func delUser(usr string) {
 		}
 		udb = append(udb, u)
 	}
+	if len(users) == len(udb) {
+		log.Fatal("User not found / nothing changed")
+	}
 	users = udb
 	saveUsers()
 }
@@ -106,12 +109,17 @@ func pwdUser(usr string) {
 	fmt.Scanln(&pwd)
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
+	chg := false
 	for i, u := range users {
 		if u.User != usr {
 			continue
 		}
 		users[i].Salt = salt
 		users[i].Hash = hash
+		chg = true
+	}
+	if !chg {
+		log.Fatal("User not found / nothing changed")
 	}
 	saveUsers()
 }
