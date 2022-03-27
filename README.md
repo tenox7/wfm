@@ -22,12 +22,19 @@ emojis. CA Certs are embedded at built time. No need for Python, PHP, SQL, JavaS
 Node or any other bloat. WFM works on both modern and legacy web browsers going back to
 Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without JavaScript.
 
+## Directory tree
+
+WFM exposes a directory tree via web based interface. For security it relies entirely
+on chroot(2) for selection which path to use and the base directory is always / (root).
+Chroot can be set by WFM's own `-chroot=/dir` flag or by your service manager.
+For example Systemd service file `RootDirectory=` directive.
+
 ## Deployment scenarios
 
-WFM relies on chroot for limiting which directory to use. Chroot can be set by WFM own
-`-chroot=/dir` flag or by Systemd `RootDirectory=`. Also depending on what port you want
-WFM to listen to (eg 80/443 vs 8080) you need to run it as root or regular user. If ran
-by root WFM supports flag `-setuid=<user>` to setuid after port bind is complete.
+Setting chroot(2) and binding to ports below 1024 requires root user or capability
+set on the binary file. Depending on whether you bind to port :80, :443 or :8080
+and whether chroot is performed by wfm itself or service manager you can run it
+as a regular user or root user.
 
 ### Systemd
 
@@ -40,6 +47,18 @@ You can specify Systemd `User=` other than root if you also use `RootDirectory=`
 chroot and use non privileged port (above 1024, eg 8080), or your binary has adequate
 capabilities set. Example [here](service/systemd/wfm8080.service).
 
+To install wfm service file copy it to `/etc/systemd/system/wfm.service` edit the
+configuration and run:
+
+```shell
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable wfm
+$ sudo systemctl start wfm
+```
+
+### Launchd
+
+An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.plist).
 
 ### Docker
 
