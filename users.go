@@ -73,10 +73,10 @@ func listUsers() {
 }
 
 func addUser(usr string, rw bool) {
-	loadUsers()
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
+	loadUsers()
 	fmt.Print("Password: ")
 	var pwd string
 	fmt.Scanln(&pwd)
@@ -103,10 +103,10 @@ func delUser(usr string) {
 }
 
 func pwdUser(usr string) {
-	loadUsers()
 	if usr == "" {
 		log.Fatal("user passwd requires username\n")
 	}
+	loadUsers()
 	fmt.Print("Password: ")
 	var pwd string
 	fmt.Scanln(&pwd)
@@ -128,10 +128,10 @@ func pwdUser(usr string) {
 }
 
 func setUser(usr string, rw bool) {
-	loadUsers()
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
+	loadUsers()
 	chg := false
 	for i, u := range users {
 		if u.User != usr {
