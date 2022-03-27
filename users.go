@@ -51,17 +51,15 @@ func manageUsers() {
 	case "list":
 		listUsers()
 	case "add":
-		addUser(flag.Arg(2), flag.Arg(3))
+		addUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
 	case "delete":
 		delUser(flag.Arg(2))
 	case "passwd":
 		pwdUser(flag.Arg(2))
-	case "setro":
-		setUser(flag.Arg(2), false)
-	case "setrw":
-		setUser(flag.Arg(2), true)
+	case "access":
+		setUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
 	default:
-		fmt.Println("usage: user <list|add|delete|passwd|setrw|setro> [username] [rw|ro]")
+		fmt.Println("usage: user <list|add|delete|passwd|access> [username] [rw|ro]")
 	}
 }
 
@@ -71,21 +69,16 @@ func listUsers() {
 	}
 }
 
-func addUser(usr, rw string) {
-	if usr == "" || rw == "" {
+func addUser(usr string, rw bool) {
+	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
-	var bRW bool
-	if rw == "rw" {
-		bRW = true
-	}
-
 	fmt.Print("Password: ")
 	var pwd string
 	fmt.Scanln(&pwd)
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
-	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: bRW})
+	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: rw})
 	saveUsers()
 }
 
@@ -129,7 +122,7 @@ func pwdUser(usr string) {
 }
 
 func setUser(usr string, rw bool) {
-	if usr == "" || rw == "" {
+	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
 	chg := false
@@ -144,6 +137,19 @@ func setUser(usr string, rw bool) {
 		log.Fatal("User not found / nothing changed")
 	}
 	saveUsers()
+}
+
+func rwStrBool(acc string) bool {
+	var rw bool
+	switch acc {
+	case "rw":
+		rw = true
+	case "ro":
+		rw = false
+	default:
+		log.Fatal("access must be either 'ro' or 'rw'")
+	}
+	return rw
 }
 
 func rndStr(len int) string {
