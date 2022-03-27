@@ -54,6 +54,8 @@ func manageUsers() {
 		addUser(flag.Arg(2), flag.Arg(3))
 	case "delete":
 		delUser(flag.Arg(2))
+	case "passwd":
+		pwdUser(flag.Arg(2))
 	default:
 		fmt.Println("usage: user <list|add|delete|passwd|setrw|setro> [username] [rw|ro]")
 	}
@@ -92,6 +94,25 @@ func delUser(usr string) {
 		udb = append(udb, u)
 	}
 	users = udb
+	saveUsers()
+}
+
+func pwdUser(usr string) {
+	if usr == "" {
+		log.Fatal("user passwd requires username\n")
+	}
+	fmt.Print("Password: ")
+	var pwd string
+	fmt.Scanln(&pwd)
+	salt := rndStr(8)
+	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
+	for i, u := range users {
+		if u.User != usr {
+			continue
+		}
+		users[i].Salt = salt
+		users[i].Hash = hash
+	}
 	saveUsers()
 }
 
