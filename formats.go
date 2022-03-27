@@ -25,6 +25,10 @@ import (
 	"howett.net/plist"
 )
 
+var (
+	favIcn = genFavIcon()
+)
+
 func dispFavIcon(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "image/x-icon")
 	ico.Encode(w, favIcn)

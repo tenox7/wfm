@@ -40,7 +40,7 @@ func manageUsers() {
 	case "add":
 		addUser(flag.Arg(2), flag.Arg(3))
 	default:
-		fmt.Println("usage: user <list|add|delete|passwd|rw|ro> [username] [rw|ro]")
+		fmt.Println("usage: user <list|add|delete|passwd|setrw|setro> [username] [rw|ro]")
 	}
 }
 
