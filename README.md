@@ -25,9 +25,10 @@ Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without J
 ## Directory tree
 
 WFM exposes a directory tree via web based interface. For security it relies entirely
-on chroot(2) for selection which path to use and the base directory is always / (root).
-Chroot can be set by WFM's own `-chroot=/dir` flag or by your service manager.
-For example Systemd service file `RootDirectory=` directive.
+on `chroot(2)` for selection which path to use and the base directory is always `/` (root).
+Chroot can be set by WFM's own `-chroot=/dir` flag, by your service manager or container
+service. For example Systemd service file `RootDirectory=` directive. Without chroot it will
+expose the system root `/` directory.
 
 ## Deployment scenarios
 
