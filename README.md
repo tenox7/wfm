@@ -25,10 +25,10 @@ Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without J
 ## Directory tree
 
 WFM exposes a directory tree via web based interface. For security it relies entirely
-on `chroot(2)` for selection and restriction which path to use.
-Chroot can be set by WFM's own `-chroot=/dir` flag, by your service manager or container
-service. For example Systemd service file `RootDirectory=` directive or Docker `-v /dir:/`.
-Without chroot it will expose the system root `/` directory.
+on `chroot(2)` for selection and restriction which path to use. Chroot can be set by
+WFM's own `-chroot=/dir` flag, by your service manager or container service. For example
+Systemd service file `RootDirectory=` directive or Docker `-v /dir:/`. WFM is not
+intended to be used without chroot.
 
 ## Deployment scenarios
 
