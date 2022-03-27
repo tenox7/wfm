@@ -33,12 +33,27 @@ func loadUsers() {
 	log.Printf("Loaded %q (%d users)", *passwdDb, len(users))
 }
 
+func saveUsers() {
+	u, err := json.Marshal(users)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// TODO: pretty format file
+	err = ioutil.WriteFile(*passwdDb, u, 600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Saved %q (%v users)", *passwdDb, len(users))
+}
+
 func manageUsers() {
 	switch flag.Arg(1) {
 	case "list":
 		listUsers()
 	case "add":
 		addUser(flag.Arg(2), flag.Arg(3))
+	case "delete":
+		delUser(flag.Arg(2))
 	default:
 		fmt.Println("usage: user <list|add|delete|passwd|setrw|setro> [username] [rw|ro]")
 	}
@@ -55,13 +70,8 @@ func addUser(usr, rw string) {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
 	var bRW bool
-	switch rw {
-	case "ro":
-		bRW = false
-	case "rw":
+	if rw == "rw" {
 		bRW = true
-	default:
-		log.Fatal("Access must be 'ro' or 'rw' only.")
 	}
 
 	fmt.Print("Password: ")
@@ -69,17 +79,20 @@ func addUser(usr, rw string) {
 	fmt.Scanln(&pwd)
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
-	fmt.Printf("New Usr=%q Salt=%q Pwd=%q Hash=%q Rw=%v\n", usr, salt, pwd, hash, bRW)
 	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: bRW})
-	fmt.Printf("users=%#v\n", users)
-	u, err := json.Marshal(users)
-	if err != nil {
-		log.Fatal(err)
+	saveUsers()
+}
+
+func delUser(usr string) {
+	var udb []userDB
+	for _, u := range users {
+		if u.User == usr {
+			continue
+		}
+		udb = append(udb, u)
 	}
-	err = ioutil.WriteFile(*passwdDb, u, 600)
-	if err != nil {
-		log.Fatal(err)
-	}
+	users = udb
+	saveUsers()
 }
 
 func rndStr(len int) string {
