@@ -5,6 +5,7 @@
 * FastCGI Interface
 
 ## Security
+* do not log FormValue["text"] as it contains text data from edit
 * User manager add/delete/chpw user via arg
 * userless/guest read-only mode, user rw
   requires custom login window
@@ -27,7 +28,6 @@
 * html as template
 
 ## File IO
-* do not log FormValue["text"] as it contains text data from edit
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
 * iso files recursive list
