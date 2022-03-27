@@ -35,7 +35,7 @@ func loadUsers() {
 }
 
 func saveUsers() {
-	u, err := json.Marshal([]userDB{})
+	u, err := json.Marshal(users)
 	if err != nil {
 		log.Fatal(err)
 	}
