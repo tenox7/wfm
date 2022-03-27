@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"time"
 )
 
 type userDB struct {
@@ -161,6 +162,7 @@ func rwStrBool(acc string) bool {
 
 func rndStr(len int) string {
 	b := make([]byte, len)
+	rand.Seed(time.Now().Unix())
 	rand.Read(b)
 	return base64.StdEncoding.EncodeToString(b)[:len]
 }
