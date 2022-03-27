@@ -3,35 +3,11 @@ package main
 import (
 	"crypto/sha256"
 	"crypto/subtle"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 )
-
-var (
-	// you can also hardcode users here instead of loading password file
-	users = []struct {
-		User, Salt, Hash string
-		RW               bool
-	}{}
-
-	f2b = newf2b()
-)
-
-func loadPwdDb(pwdb string) {
-	pwd, err := ioutil.ReadFile(pwdb)
-	if err != nil {
-		log.Fatal("unable to read password file: ", err)
-	}
-	err = json.Unmarshal(pwd, &users)
-	if err != nil {
-		log.Fatal("unable to parse password file: ", err)
-	}
-	log.Printf("Loaded %q (%d users)", pwdb, len(users))
-}
 
 func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 	if len(users) == 0 {

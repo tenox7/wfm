@@ -110,7 +110,7 @@ func main() {
 
 	// read password database before chroot
 	if *passwdDb != "" {
-		loadPwdDb(*passwdDb)
+		loadUsers(*passwdDb)
 	}
 
 	// find uid/gid for setuid before chroot

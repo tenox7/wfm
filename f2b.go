@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+var (
+	f2b = newf2b()
+)
+
 type f2bDBentr struct {
 	banUntil time.Time
 	noTries  int
