@@ -77,15 +77,48 @@ enable this use `-addr_extra=:8080` flag.
 
 ## Authentication
 
-If no password file is specified and no hardcoded passwords are present
-WFM will not ask for password. By default it will be in read-only mode
-unless you specify `-nopass_rw` flag. The password file can be specified
-via `-passwd=/path/users.json` flag. Passwords are read on startup and
-therefore can be placed outside of chroot directory.
+Authentication is performed by HTTP Basic Auth (in future a custom login
+window may be implemented instead). If no password file is specified, or
+no users present in it (blank) and no hardcoded passwords are present WFM
+will not ask for username/password. Auth-less mode by default it will be
+in read-only unless you specify `-nopass_rw` flag.
 
-Passwords can also be hardcoded in the binary, se below.
+To enable authentication specify password file via `-passwd=/path/users.json`
+flag. Passwords are read on startup and therefore can be placed outside of
+chroot directory. Passwords can also be hardcoded in the binary, se below.
 
-### Json password file
+## User Management
+
+Users can be managed using a built-in helper function that services the
+specified password json file.
+
+### Create new blank password file
+
+```shell
+$ wfm -passwd=/path/users.json user newfile
+```
+
+### Add user
+
+```shell
+$ wfm -passwd=/path/users.json user add myuser rw
+```
+
+### Delete user
+
+```shell
+$ wfm -passwd=/path/users.json user delete myuser
+```
+
+### Change password
+
+```shell
+$ wfm -passwd=/path/users.json user passwd myuser
+```
+
+## JSON password file format
+
+The JSON file can be edited / managed manually.
 
 An example file is [provided](users.json). The format is a simple list of
 users with "User", "Salt", "Hash" strings and "RW" boolean field. User

@@ -6,7 +6,6 @@
 
 ## Security
 * do not log FormValue["text"] as it contains text data from edit
-* User manager add/delete/chpw user via arg
 * userless/guest read-only mode, user rw
   requires custom login window
 * two factor auth
