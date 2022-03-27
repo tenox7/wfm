@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 )
@@ -14,8 +16,8 @@ var (
 	}{}
 )
 
-func loadUsers(pwdb string) {
-	pwd, err := ioutil.ReadFile(pwdb)
+func loadUsers() {
+	pwd, err := ioutil.ReadFile(*passwdDb)
 	if err != nil {
 		log.Fatal("unable to read password file: ", err)
 	}
@@ -23,5 +25,20 @@ func loadUsers(pwdb string) {
 	if err != nil {
 		log.Fatal("unable to parse password file: ", err)
 	}
-	log.Printf("Loaded %q (%d users)", pwdb, len(users))
+	log.Printf("Loaded %q (%d users)", *passwdDb, len(users))
+}
+
+func listUsers() {
+	for _, u := range users {
+		fmt.Printf("User: %q, RW: %v\n", u.User, u.RW)
+	}
+}
+
+func manageUsers() {
+	switch flag.Arg(1) {
+	case "list":
+		listUsers()
+	default:
+		fmt.Println("usage: user <list|add|delete|passwd|rw|ro> [username]")
+	}
 }

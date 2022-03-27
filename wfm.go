@@ -93,11 +93,21 @@ func main() {
 	flag.Var(&denyPfxs, "deny_pfx", "deny access / hide this path prefix (multi)")
 	flag.Parse()
 
+	if *passwdDb != "" {
+		loadUsers()
+	}
+
+	if flag.Arg(0) == "user" {
+		manageUsers()
+		return
+	}
+
+	log.Print("WFM Starting up")
+
 	if !*allowAcmDir && *acmDir != "" {
 		denyPfxs = append(denyPfxs, *acmDir)
 	}
 
-	// redirect log to file if needed
 	if *logFile != "" {
 		lf, err := os.OpenFile(*logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
@@ -105,12 +115,6 @@ func main() {
 		}
 		defer lf.Close()
 		log.SetOutput(lf)
-	}
-	log.Print("WFM Starting up")
-
-	// read password database before chroot
-	if *passwdDb != "" {
-		loadUsers(*passwdDb)
 	}
 
 	// find uid/gid for setuid before chroot
@@ -133,7 +137,7 @@ func main() {
 		log.Printf("Autocert enabled for %v", acmWhlist)
 	}
 
-	// chroot
+	// chroot now
 	if *chrootDir != "" {
 		err := syscall.Chroot(*chrootDir)
 		if err != nil {
@@ -159,7 +163,7 @@ func main() {
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
-	// http handlers / mux
+	// http stuff
 	mux := http.NewServeMux()
 	mux.HandleFunc(*wfmPfx, wfm)
 	mux.HandleFunc("/favicon.ico", favicon)
@@ -172,7 +176,6 @@ func main() {
 		mux.Handle(ds[1], http.StripPrefix(ds[1], http.FileServer(http.Dir(ds[0]))))
 	}
 
-	// serve http(s)
 	if *bindExtra != "" {
 		log.Printf("Listening (extra) on %q", *bindAddr)
 		go http.ListenAndServe(*bindExtra, mux)
