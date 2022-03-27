@@ -50,6 +50,8 @@ func manageUsers() {
 	switch flag.Arg(1) {
 	case "list":
 		listUsers()
+	case "newfile":
+		saveUsers()
 	case "add":
 		addUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
 	case "delete":
@@ -59,17 +61,19 @@ func manageUsers() {
 	case "access":
 		setUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
 	default:
-		fmt.Println("usage: user <list|add|delete|passwd|access> [username] [rw|ro]")
+		fmt.Println("usage: user <list|add|delete|passwd|access|newfile> [username] [rw|ro]")
 	}
 }
 
 func listUsers() {
+	loadUsers()
 	for _, u := range users {
 		fmt.Printf("User: %q, RW: %v\n", u.User, u.RW)
 	}
 }
 
 func addUser(usr string, rw bool) {
+	loadUsers()
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
@@ -83,6 +87,7 @@ func addUser(usr string, rw bool) {
 }
 
 func delUser(usr string) {
+	loadUsers()
 	var udb []userDB
 	for _, u := range users {
 		if u.User == usr {
@@ -98,6 +103,7 @@ func delUser(usr string) {
 }
 
 func pwdUser(usr string) {
+	loadUsers()
 	if usr == "" {
 		log.Fatal("user passwd requires username\n")
 	}
@@ -122,6 +128,7 @@ func pwdUser(usr string) {
 }
 
 func setUser(usr string, rw bool) {
+	loadUsers()
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}

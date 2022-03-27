@@ -91,16 +91,16 @@ func main() {
 	flag.Var(&denyPfxs, "deny_pfx", "deny access / hide this path prefix (multi)")
 	flag.Parse()
 
-	if *passwdDb != "" {
-		loadUsers()
-	}
-
 	if flag.Arg(0) == "user" {
 		manageUsers()
 		return
 	}
 
 	log.Print("WFM Starting up")
+
+	if *passwdDb != "" {
+		loadUsers()
+	}
 
 	if !*allowAcmDir && *acmDir != "" {
 		denyPfxs = append(denyPfxs, *acmDir)
