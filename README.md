@@ -111,6 +111,10 @@ chroot directory. Passwords can also be hardcoded in the binary, se below.
 Users can be managed using a built-in helper function that services the
 specified password json file.
 
+Note that any changes to the password file require restart of wfm daemon
+to take effect. This is because the file is read once on startup before
+chroot(2) is performed.
+
 ### Create new blank password file
 
 ```shell
