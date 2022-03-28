@@ -26,9 +26,8 @@ Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without J
 
 WFM exposes a directory tree via web based interface. For security it relies entirely
 on `chroot(2)` for selection and restriction which path to use. Chroot can be set by
-WFM's own `-chroot=/dir` flag, by your service manager or container service. For example
-Systemd service file `RootDirectory=` directive or Docker `-v /dir:/`. WFM is not
-intended to be used without chroot.
+WFM's own `-chroot=/dir` flag, or by your service manager. For example Systemd service
+file `RootDirectory=` directive. WFM is not intended to be used without chroot.
 
 ## Deployment scenarios
 
@@ -63,7 +62,7 @@ An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.
 
 ### Docker
 
-TBD
+TBD.
 
 ## SSL / TLS / Auto Cert Manager
 

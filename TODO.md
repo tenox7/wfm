@@ -3,6 +3,7 @@
 ## Interfaces
 * WebDAV server
 * FastCGI Interface
+* Docker support
 
 ## Security
 * do not log FormValue["text"] as it contains text data from edit
@@ -27,6 +28,7 @@
 * html as template
 
 ## File IO
+* path prefix, required for docker
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
 * iso files recursive list
