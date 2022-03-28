@@ -6,14 +6,10 @@
 * Docker support
 
 ## Security
-* do not log FormValue["text"] as it contains text data from edit
 * userless/guest read-only mode, user rw
   requires custom login window
 * two factor auth
   requires custom login window
-* docker support
-  no chroot - mount dir as / ?
-  env vars for port, etc?
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
 

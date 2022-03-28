@@ -14,7 +14,7 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 	if user == "" {
 		return
 	}
-	log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, user, r.RequestURI, r.Form)
+	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, user, r.RequestURI, noText(r.Form))
 	modern := false
 	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
 		modern = true
@@ -113,4 +113,15 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 
 func favicon(w http.ResponseWriter, r *http.Request) {
 	dispFavIcon(w)
+}
+
+func noText(m map[string][]string) map[string][]string {
+	o := make(map[string][]string)
+	for k, v := range m {
+		if k == "text" {
+			continue
+		}
+		o[k] = v
+	}
+	return o
 }
