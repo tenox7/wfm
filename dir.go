@@ -320,7 +320,7 @@ func fileIcon(f string, m bool) string {
 	case "imd", "img", "raw", "dd", "tap", "dsk":
 		return "&#x1F4BE;"
 	case "txt", "log", "csv", "md", "mhtml", "html", "htm", "cfg", "conf", "ini", "json", "xml":
-		return "&#x1F5D2;"
+		return "&#x1F4C4;"
 	case "pdf", "ps", "doc", "docx", "xls", "xlsx", "rtf":
 		return "&#x1F4DA;"
 	case "url", "desktop", "webloc":
