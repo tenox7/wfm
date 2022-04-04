@@ -309,14 +309,14 @@ func fileIcon(f string, m bool) string {
 	switch strings.ToLower(s[len(s)-1]) {
 	case "iso", "udf":
 		return "&#x1F4BF;"
-	case "mp4", "mov", "qt", "avi", "mpg", "mpeg":
+	case "mp4", "mov", "qt", "avi", "mpg", "mpeg", "mkv":
 		return "&#x1F3AC;"
 	case "gif", "png", "jpg", "jpeg", "ico", "webp", "bmp", "tif", "tiff", "heif", "heic":
 		return "&#x1F5BC;"
 	case "deb", "rpm", "dpkg", "apk", "msi", "pkg":
-		return "&#x1F4E6;"
+		return "&#x1F381;"
 	case "zip", "rar", "7z", "z", "gz", "bz2", "xz", "lz", "tgz", "tbz", "txz", "arj", "lha", "tar":
-		return "&#x1F5DC;"
+		return "&#x1F4E6;"
 	case "imd", "img", "raw", "dd", "tap", "dsk":
 		return "&#x1F4BE;"
 	case "txt", "log", "csv", "md", "mhtml", "html", "htm", "cfg", "conf", "ini", "json", "xml":
