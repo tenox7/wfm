@@ -263,7 +263,7 @@ func icons(b bool) map[string]string {
 			"rm": "&#x274C;",
 			"mv": "&#x1F69A;",
 			"re": "&#x1F4AC;",
-			"ed": "&#x1F52C;",
+			"ed": "&#x1F4DD;",
 			"dn": "&#x1F4BE;",
 
 			"tcd": "&#x1F371; ",
@@ -320,7 +320,7 @@ func fileIcon(f string, m bool) string {
 	case "imd", "img", "raw", "dd", "tap", "dsk":
 		return "&#x1F4BE;"
 	case "txt", "log", "csv", "md", "mhtml", "html", "htm", "cfg", "conf", "ini", "json", "xml":
-		return "&#x1F4DD;"
+		return "&#x1F5D2;"
 	case "pdf", "ps", "doc", "docx", "xls", "xlsx", "rtf":
 		return "&#x1F4DA;"
 	case "url", "desktop", "webloc":

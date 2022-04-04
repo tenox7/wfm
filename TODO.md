@@ -24,6 +24,7 @@
 * html as template
 
 ## File IO
+* file search function
 * path prefix, required for docker
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
