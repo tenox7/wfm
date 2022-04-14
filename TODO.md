@@ -26,6 +26,7 @@
 ## File IO
 * file search function
 * path prefix, required for docker
+* path prefix per user
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
 * iso files recursive list

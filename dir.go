@@ -317,7 +317,7 @@ func fileIcon(f string, m bool) string {
 		return "&#x1F381;"
 	case "zip", "rar", "7z", "z", "gz", "bz2", "xz", "lz", "tgz", "tbz", "txz", "arj", "lha", "tar":
 		return "&#x1F4E6;"
-	case "imd", "img", "raw", "dd", "tap", "dsk":
+	case "imd", "img", "raw", "dd", "tap", "dsk", "dmg":
 		return "&#x1F4BE;"
 	case "txt", "log", "csv", "md", "mhtml", "html", "htm", "cfg", "conf", "ini", "json", "xml":
 		return "&#x1F4C4;"
@@ -325,7 +325,6 @@ func fileIcon(f string, m bool) string {
 		return "&#x1F4DA;"
 	case "url", "desktop", "webloc":
 		return "&#x1F310;"
-		// a
 	}
 	return "&#x1F4D2;"
 }
