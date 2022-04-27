@@ -12,6 +12,8 @@
   requires custom login window
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
+* qps throttling
+* download/upload throttling
 
 ## Layout / UI
 * add flag to specify own favicon.ico
