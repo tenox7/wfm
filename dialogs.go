@@ -13,7 +13,7 @@ import (
 )
 
 func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName []string) {
-	header(w, uDir, sort)
+	header(w, uDir, sort, "")
 
 	w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
@@ -123,7 +123,7 @@ func editText(w http.ResponseWriter, uFilePath, sort string) {
 		htErr(w, "Unable to read file", err)
 		return
 	}
-	header(w, filepath.Dir(uFilePath), sort)
+	header(w, filepath.Dir(uFilePath), sort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
 	w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
@@ -142,7 +142,7 @@ func editText(w http.ResponseWriter, uFilePath, sort string) {
 }
 
 func about(w http.ResponseWriter, uDir, sort, ua string) {
-	header(w, uDir, sort)
+	header(w, uDir, sort, "")
 
 	w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">

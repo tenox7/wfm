@@ -28,7 +28,7 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 	sl := []string{}
 	sortFiles(d, &sl, sort)
 
-	header(w, uDir, sort)
+	header(w, uDir, sort, "")
 	toolbars(w, uDir, user, sl, i)
 	qeDir := url.QueryEscape(uDir)
 

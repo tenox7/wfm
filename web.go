@@ -18,7 +18,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	log.Printf("error: %v : %v", msg, err)
 }
 
-func header(w http.ResponseWriter, uDir, sort string) {
+func header(w http.ResponseWriter, uDir, sort, extraCSS string) {
 	eDir := html.EscapeString(uDir)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Cache-Control", *cacheCtl)
@@ -46,6 +46,7 @@ func header(w http.ResponseWriter, uDir, sort string) {
             .thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
             .tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
             .nb { border-style:none; background-color: #EEEEEE; }
+			` + extraCSS + `
     --></STYLE>
     </HEAD>
     <BODY BGCOLOR="#FFFFFF">
