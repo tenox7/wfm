@@ -3,7 +3,8 @@
 ## Interfaces
 * WebDAV server
 * FastCGI Interface
-* Docker support
+* Docker support - requires sub folder off root
+* Web folder with no index, on a separate port?
 
 ## Security
 * userless/guest read-only mode, user rw
