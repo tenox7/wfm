@@ -34,7 +34,7 @@ var (
 	aboutRnt    = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	showDot     = flag.Bool("show_dot", false, "show dot files and folders")
 	wfmPfx      = flag.String("prefix", "/", "Default prefix for WFM access")
-	docSrv      = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www:/home")
+	docSrv      = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmDir      = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
 	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")

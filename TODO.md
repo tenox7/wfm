@@ -5,6 +5,8 @@
 * FastCGI Interface
 * Docker support - requires sub folder off root
 * Web folder with no index, on a separate port?
+* Use custom FS implementation to resolve and deny symlinks outside of srv directory
+https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## Security
 * userless/guest read-only mode, user rw
