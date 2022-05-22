@@ -99,8 +99,8 @@ enable this use `-addr_extra=:8080` flag.
 Authentication is performed by HTTP Basic Auth (in future a custom login
 window may be implemented instead). If no password file is specified, or
 no users present in it (blank) and no hardcoded passwords are present WFM
-will not ask for username/password. Auth-less mode by default it will be
-in read-only unless you specify `-nopass_rw` flag.
+will not ask for username/password. Auth-less mode by will be read-only
+mode (like a regular web server) unless you specify `-nopass_rw` flag.
 
 To enable authentication specify password file via `-passwd=/path/users.json`
 flag. Passwords are read on startup and therefore can be placed outside of
