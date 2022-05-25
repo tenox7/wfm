@@ -32,7 +32,7 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * deniedPfx should be fired in handlers not in fileio???
   this may be superseded by docker virtual path
 * file search function
-* path prefix, required for docker
+* path prefix, required for docker, afero?
 * path prefix per user
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives

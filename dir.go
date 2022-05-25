@@ -14,7 +14,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (r wfmRequest) listFiles(hi string) {
+func (r *wfmRequest) listFiles(hi string) {
 	if deniedPfx(r.uDir) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return

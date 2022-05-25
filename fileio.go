@@ -26,7 +26,7 @@ func deniedPfx(pfx string) bool {
 	return false
 }
 
-func (r wfmRequest) dispFile() {
+func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	// TODO(tenox): deniedpfx should be in handlers???
 	if deniedPfx(fp) {
@@ -53,7 +53,7 @@ func (r wfmRequest) dispFile() {
 	}
 }
 
-func (r wfmRequest) downFile() {
+func (r *wfmRequest) downFile() {
 	fp := r.uDir + "/" + r.uFbn
 	if deniedPfx(fp) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
@@ -133,7 +133,7 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 	wb.Flush()
 }
 
-func (r wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
+func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -170,7 +170,7 @@ func (r wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(h.Filename))
 }
 
-func (r wfmRequest) saveText(uData string) {
+func (r *wfmRequest) saveText(uData string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -208,7 +208,7 @@ func (r wfmRequest) saveText(uData string) {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
-func (r wfmRequest) mkdir() {
+func (r *wfmRequest) mkdir() {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -231,7 +231,7 @@ func (r wfmRequest) mkdir() {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
-func (r wfmRequest) mkfile() {
+func (r *wfmRequest) mkfile() {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -254,7 +254,7 @@ func (r wfmRequest) mkfile() {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
-func (r wfmRequest) mkurl(eUrl string) {
+func (r *wfmRequest) mkurl(eUrl string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -281,7 +281,7 @@ func (r wfmRequest) mkurl(eUrl string) {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
-func (r wfmRequest) renFile(uNewf string) {
+func (r *wfmRequest) renFile(uNewf string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -307,7 +307,7 @@ func (r wfmRequest) renFile(uNewf string) {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(newB))
 }
 
-func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
+func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -335,7 +335,7 @@ func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+r.eSort+"&hi="+url.QueryEscape(lF))
 }
 
-func (r wfmRequest) deleteFiles(uFilePaths []string) {
+func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return

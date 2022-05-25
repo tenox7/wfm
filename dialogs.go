@@ -10,7 +10,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (r wfmRequest) prompt(action string, mul []string) {
+func (r *wfmRequest) prompt(action string, mul []string) {
 	header(r.w, r.uDir, r.eSort, "")
 
 	r.w.Write([]byte(`
@@ -106,7 +106,7 @@ func (r wfmRequest) prompt(action string, mul []string) {
 	footer(r.w)
 }
 
-func (r wfmRequest) editText() {
+func (r *wfmRequest) editText() {
 	fi, err := os.Stat(r.uDir + "/" + r.uFbn)
 	if err != nil {
 		htErr(r.w, "Unable to get file attributes", err)
@@ -140,7 +140,7 @@ func (r wfmRequest) editText() {
 	footer(r.w)
 }
 
-func (r wfmRequest) about(ua string) {
+func (r *wfmRequest) about(ua string) {
 	header(r.w, r.uDir, r.eSort, "")
 
 	r.w.Write([]byte(`
