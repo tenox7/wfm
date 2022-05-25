@@ -9,38 +9,36 @@ import (
 )
 
 type wfmRequest struct {
-	w       http.ResponseWriter
-	user    string
-	remAddr string
-	rw      bool
-	modern  bool
-	eSort   string // escaped sort order
-	uDir    string // unescaped directory name
-	uFp     string // unescaped (full) file path TODO(tenox): to be removed
-	uBn     string // unescaped base name
+	w        http.ResponseWriter
+	userName string
+	remAddr  string
+	rwAccess bool
+	modern   bool
+	eSort    string // escaped sort order
+	uDir     string // unescaped directory name
+	uFbn     string // unescaped file base name
 }
 
 func wfmMain(w http.ResponseWriter, r *http.Request) {
 	wfm := new(wfmRequest)
 	r.ParseMultipartForm(10 << 20)
-	wfm.user, wfm.rw = auth(w, r)
-	if wfm.user == "" {
+	wfm.userName, wfm.rwAccess = auth(w, r)
+	if wfm.userName == "" {
 		return
 	}
-	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.user, r.RequestURI, noText(r.Form))
+	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.userName, r.RequestURI, noText(r.Form))
 
 	wfm.w = w
 	wfm.remAddr = r.RemoteAddr
+	wfm.eSort = url.QueryEscape(r.FormValue("sort"))
 	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
 		wfm.modern = true
 	}
+	wfm.uFbn = filepath.Base(r.FormValue("file"))
 	wfm.uDir = filepath.Clean(r.FormValue("dir"))
 	if wfm.uDir == "" || wfm.uDir == "." {
 		wfm.uDir = "/"
 	}
-	wfm.eSort = url.QueryEscape(r.FormValue("sort"))
-	wfm.uFp = filepath.Clean(r.FormValue("fp"))
-	wfm.uBn = filepath.Base(r.FormValue("file"))
 
 	// button clicked
 	switch {
@@ -100,16 +98,15 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	case "rename":
 		wfm.renFile(r.FormValue("dst"))
 	case "renp":
-		wfm.uBn = r.FormValue("oldf")
 		wfm.prompt("rename", nil)
 	case "movp":
 		wfm.prompt("move", nil)
 	case "delp":
 		wfm.prompt("delete", nil)
 	case "move":
-		wfm.moveFiles([]string{wfm.uBn}, r.FormValue("dst"))
+		wfm.moveFiles([]string{wfm.uFbn}, r.FormValue("dst"))
 	case "delete":
-		wfm.deleteFiles([]string{wfm.uBn})
+		wfm.deleteFiles([]string{wfm.uFbn})
 	case "multi_delete":
 		wfm.deleteFiles(r.Form["mulf"])
 	case "multi_move":

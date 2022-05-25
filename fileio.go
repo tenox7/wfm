@@ -27,7 +27,7 @@ func deniedPfx(pfx string) bool {
 }
 
 func (r wfmRequest) dispFile() {
-	fp := r.uFp // TODO(tenox): uDir + uBn
+	fp := r.uDir + "/" + r.uFbn
 	// TODO(tenox): deniedpfx should be in handlers???
 	if deniedPfx(fp) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
@@ -54,7 +54,7 @@ func (r wfmRequest) dispFile() {
 }
 
 func (r wfmRequest) downFile() {
-	fp := r.uFp // TODO(tenox): uDir + uBn
+	fp := r.uDir + "/" + r.uFbn
 	if deniedPfx(fp) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
@@ -65,7 +65,7 @@ func (r wfmRequest) downFile() {
 		return
 	}
 	r.w.Header().Set("Content-Type", "application/octet-stream")
-	r.w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(fp)+"\";")
+	r.w.Header().Set("Content-Disposition", "attachment; filename=\""+url.QueryEscape(r.uFbn)+"\";")
 	r.w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	r.w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(r.w, fp)
@@ -134,7 +134,7 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 }
 
 func (r wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -171,7 +171,7 @@ func (r wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 }
 
 func (r wfmRequest) saveText(uData string) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -183,7 +183,7 @@ func (r wfmRequest) saveText(uData string) {
 		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
 		return
 	}
-	fp := r.uFp // TODO(tenox): uDir + uBn
+	fp := r.uDir + "/" + r.uFbn
 	tmpName := fp + ".tmp"
 	err := ioutil.WriteFile(tmpName, []byte(uData), 0644)
 	if err != nil {
@@ -199,17 +199,17 @@ func (r wfmRequest) saveText(uData string) {
 		htErr(r.w, "text save", fmt.Errorf("temp file size != input size"))
 		return
 	}
-	err = os.Rename(tmpName, r.uFp)
+	err = os.Rename(tmpName, fp)
 	if err != nil {
 		htErr(r.w, "text save", err)
 		return
 	}
-	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, r.uFp, len(uData))
-	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(filepath.Base(r.uFp)))
+	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, fp, len(uData))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
 func (r wfmRequest) mkdir() {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -218,22 +218,21 @@ func (r wfmRequest) mkdir() {
 		return
 	}
 
-	if r.uBn == "" {
+	if r.uFbn == "" {
 		htErr(r.w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
 	}
-	uB := filepath.Base(r.uBn)
-	err := os.Mkdir(r.uDir+"/"+uB, 0755)
+	err := os.Mkdir(r.uDir+"/"+r.uFbn, 0755)
 	if err != nil {
 		htErr(r.w, "mkdir", err)
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(uB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
 func (r wfmRequest) mkfile() {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -242,22 +241,21 @@ func (r wfmRequest) mkfile() {
 		return
 	}
 
-	if r.uBn == "" {
+	if r.uFbn == "" {
 		htErr(r.w, "mkfile", fmt.Errorf("file name is empty"))
 		return
 	}
-	fB := filepath.Base(r.uBn)
-	f, err := os.OpenFile(r.uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	f, err := os.OpenFile(r.uDir+"/"+r.uFbn, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(r.w, "mkfile", err)
 		return
 	}
 	f.Close()
-	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
 func (r wfmRequest) mkurl(eUrl string) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -265,15 +263,14 @@ func (r wfmRequest) mkurl(eUrl string) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	if r.uBn == "" {
+	if r.uFbn == "" {
 		htErr(r.w, "mkurl", fmt.Errorf("url file name is empty"))
 		return
 	}
-	fB := filepath.Base(r.uBn)
-	if !strings.HasSuffix(fB, ".url") {
-		fB = fB + ".url"
+	if !strings.HasSuffix(r.uFbn, ".url") {
+		r.uFbn = r.uFbn + ".url"
 	}
-	f, err := os.OpenFile(r.uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	f, err := os.OpenFile(r.uDir+"/"+r.uFbn, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(r.w, "mkfile", err)
 		return
@@ -281,11 +278,11 @@ func (r wfmRequest) mkurl(eUrl string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(r.uFbn))
 }
 
 func (r wfmRequest) renFile(uNewf string) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -294,24 +291,24 @@ func (r wfmRequest) renFile(uNewf string) {
 		return
 	}
 
-	if r.uBn == "" || uNewf == "" {
+	if r.uFbn == "" || uNewf == "" {
 		htErr(r.w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
-	fB := filepath.Base(uNewf)
+	newB := filepath.Base(uNewf)
 	err := os.Rename(
-		r.uDir+"/"+r.uBn,
-		r.uDir+"/"+fB,
+		r.uDir+"/"+r.uFbn,
+		r.uDir+"/"+newB,
 	)
 	if err != nil {
 		htErr(r.w, "rename", err)
 		return
 	}
-	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(newB))
 }
 
 func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -320,7 +317,7 @@ func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	log.Printf("move dir=%v files=%+v dst=%v user=%v@%v", r.uDir, uFilePaths, uDst, r.user, r.remAddr)
+	log.Printf("move dir=%v files=%+v dst=%v user=%v@%v", r.uDir, uFilePaths, uDst, r.userName, r.remAddr)
 
 	lF := ""
 	for _, f := range uFilePaths {
@@ -339,7 +336,7 @@ func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 }
 
 func (r wfmRequest) deleteFiles(uFilePaths []string) {
-	if !r.rw {
+	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
@@ -347,7 +344,7 @@ func (r wfmRequest) deleteFiles(uFilePaths []string) {
 		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.user, r.remAddr)
+	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)
 
 	for _, f := range uFilePaths {
 		err := os.RemoveAll(r.uDir + "/" + filepath.Base(f))

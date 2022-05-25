@@ -29,7 +29,7 @@ func (r wfmRequest) listFiles(hi string) {
 	sortFiles(d, &sl, r.eSort)
 
 	header(r.w, r.uDir, r.eSort, "")
-	toolbars(r.w, r.uDir, r.user, sl, i)
+	toolbars(r.w, r.uDir, r.userName, sl, i)
 	qeDir := url.QueryEscape(r.uDir)
 
 	z := 0
@@ -74,7 +74,7 @@ func (r wfmRequest) listFiles(hi string) {
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
         <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
         <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
@@ -116,14 +116,14 @@ func (r wfmRequest) listFiles(hi string) {
 		r.w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=down&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + i["dn"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
         <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
         <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
         </TD>

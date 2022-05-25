@@ -5,7 +5,6 @@ import (
 	"html"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"runtime"
 
 	"github.com/dustin/go-humanize"
@@ -41,14 +40,14 @@ func (r wfmRequest) prompt(action string, mul []string) {
         <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
         `))
 	case "rename":
-		eBn := html.EscapeString(r.uBn)
+		eBn := html.EscapeString(r.uFbn)
 		r.w.Write([]byte(`
         &nbsp;<BR>Enter new name for the file <B>` + eBn + `</B>:<P>
         <INPUT TYPE="TEXT" NAME="dst" SIZE="40" VALUE="` + eBn + `">
         <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
 	case "move":
-		eBn := html.EscapeString(r.uBn)
+		eBn := html.EscapeString(r.uFbn)
 		r.w.Write([]byte(`
 		&nbsp;<BR>Select destination folder for <B>` + eBn + `</B>:<P>
 		<SELECT NAME="dst">
@@ -57,13 +56,13 @@ func (r wfmRequest) prompt(action string, mul []string) {
 		`))
 	case "delete":
 		var a string
-		fi, _ := os.Stat(r.uDir + "/" + r.uBn)
+		fi, _ := os.Stat(r.uDir + "/" + r.uFbn)
 		if fi.IsDir() {
 			a = "directory - recursively"
 		} else {
 			a = "file, size " + humanize.Bytes(uint64(fi.Size()))
 		}
-		eBn := html.EscapeString(r.uBn)
+		eBn := html.EscapeString(r.uFbn)
 		r.w.Write([]byte(`
         &nbsp;<BR>Are you sure you want to delete:<BR><B>` + eBn + `</B>
         (` + a + `)<P>
@@ -81,7 +80,7 @@ func (r wfmRequest) prompt(action string, mul []string) {
 		fmt.Fprintf(r.w, "&nbsp;<BR>Move from: <B>%v</B><P>\n"+
 			"To: <SELECT NAME=\"dst\">%v</SELECT><P>\n<UL>Items:<P>\n",
 			html.EscapeString(r.uDir),
-			upDnDir(r.uDir, r.uBn),
+			upDnDir(r.uDir, r.uFbn),
 		)
 		for _, f := range mul {
 			fE := html.EscapeString(f)
@@ -108,8 +107,7 @@ func (r wfmRequest) prompt(action string, mul []string) {
 }
 
 func (r wfmRequest) editText() {
-	uFilePath := r.uFp // TODO(tenox): uDir + uBn
-	fi, err := os.Stat(uFilePath)
+	fi, err := os.Stat(r.uDir + "/" + r.uFbn)
 	if err != nil {
 		htErr(r.w, "Unable to get file attributes", err)
 		return
@@ -118,16 +116,16 @@ func (r wfmRequest) editText() {
 		htErr(r.w, "edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
-	f, err := ioutil.ReadFile(uFilePath)
+	f, err := ioutil.ReadFile(r.uDir + "/" + r.uFbn)
 	if err != nil {
 		htErr(r.w, "Unable to read file", err)
 		return
 	}
-	header(r.w, filepath.Dir(uFilePath), r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
+	header(r.w, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
 	r.w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
-    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(uFilePath)) + `</TD>
+    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(r.uFbn) + `</TD>
     <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">&nbsp;</TD>
     </TR>
     <TR STYLE="height:99%;">
@@ -135,7 +133,8 @@ func (r wfmRequest) editText() {
     <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
     <INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" STYLE="float: left;">
 	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel" STYLE="float: left; margin-left: 10px">
-    <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uFilePath) + `">
+    <INPUT TYPE="HIDDEN" NAME="dir" VALUE="` + html.EscapeString(r.uDir) + `">
+    <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + html.EscapeString(r.uFbn) + `">
     </TD></TR></TABLE>
     `))
 	footer(r.w)
