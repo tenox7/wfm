@@ -33,7 +33,7 @@ var (
 	noPwdDbRW   = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
 	aboutRnt    = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	showDot     = flag.Bool("show_dot", false, "show dot files and folders")
-	wfmPfx      = flag.String("prefix", "/", "Default prefix for WFM access")
+	wfmPfx      = flag.String("prefix", "/", "Default url prefix for WFM access")
 	docSrv      = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmDir      = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
@@ -163,7 +163,7 @@ func main() {
 
 	// http stuff
 	mux := http.NewServeMux()
-	mux.HandleFunc(*wfmPfx, wfm)
+	mux.HandleFunc(*wfmPfx, wfmMain)
 	mux.HandleFunc("/favicon.ico", favicon)
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)

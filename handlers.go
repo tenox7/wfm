@@ -8,43 +8,56 @@ import (
 	"strings"
 )
 
-func wfm(w http.ResponseWriter, r *http.Request) {
+type wfmRequest struct {
+	w       http.ResponseWriter
+	user    string
+	remAddr string
+	rw      bool
+	modern  bool
+	eSort   string // escaped sort order
+	uDir    string // unescaped directory name
+	uFp     string // unescaped (full) file path TODO(tenox): to be removed
+	uBn     string // unescaped base name
+}
+
+func wfmMain(w http.ResponseWriter, r *http.Request) {
+	wfm := new(wfmRequest)
 	r.ParseMultipartForm(10 << 20)
-	user, rw := auth(w, r)
-	if user == "" {
+	wfm.user, wfm.rw = auth(w, r)
+	if wfm.user == "" {
 		return
 	}
-	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, user, r.RequestURI, noText(r.Form))
-	modern := false
-	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
-		modern = true
-	}
+	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.user, r.RequestURI, noText(r.Form))
 
-	uDir := filepath.Clean(r.FormValue("dir"))
-	if uDir == "" || uDir == "." {
-		uDir = "/"
+	wfm.w = w
+	wfm.remAddr = r.RemoteAddr
+	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
+		wfm.modern = true
 	}
-	eSort := url.QueryEscape(r.FormValue("sort"))
-	uFp := filepath.Clean(r.FormValue("fp"))
-	uBn := filepath.Base(r.FormValue("file"))
-	hi := filepath.Base(r.FormValue("hi"))
+	wfm.uDir = filepath.Clean(r.FormValue("dir"))
+	if wfm.uDir == "" || wfm.uDir == "." {
+		wfm.uDir = "/"
+	}
+	wfm.eSort = url.QueryEscape(r.FormValue("sort"))
+	wfm.uFp = filepath.Clean(r.FormValue("fp"))
+	wfm.uBn = filepath.Base(r.FormValue("file"))
 
 	// button clicked
 	switch {
 	case r.FormValue("mkd") != "":
-		prompt(w, uDir, "", eSort, "mkdir", nil)
+		wfm.prompt("mkdir", nil)
 		return
 	case r.FormValue("mkf") != "":
-		prompt(w, uDir, "", eSort, "mkfile", nil)
+		wfm.prompt("mkfile", nil)
 		return
 	case r.FormValue("mkb") != "":
-		prompt(w, uDir, "", eSort, "mkurl", nil)
+		wfm.prompt("mkurl", nil)
 		return
 	case r.FormValue("mdelp") != "":
-		prompt(w, uDir, "", eSort, "multi_delete", r.Form["mulf"])
+		wfm.prompt("multi_delete", r.Form["mulf"])
 		return
 	case r.FormValue("mmovp") != "":
-		prompt(w, uDir, "", eSort, "multi_move", r.Form["mulf"])
+		wfm.prompt("multi_move", r.Form["mulf"])
 		return
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
@@ -52,62 +65,61 @@ func wfm(w http.ResponseWriter, r *http.Request) {
 			htErr(w, "upload", err)
 			return
 		}
-		uploadFile(w, uDir, eSort, h, f, rw)
+		wfm.uploadFile(h, f)
 		return
 	case r.FormValue("save") != "":
-		saveText(w, uDir, eSort, uFp, r.FormValue("text"), rw)
+		wfm.saveText(r.FormValue("text"))
 		return
 	case r.FormValue("home") != "":
-		listFiles(w, "/", eSort, user, hi, modern)
+		wfm.uDir = "/"
+		wfm.listFiles(filepath.Base(r.FormValue("hi")))
 		return
 	case r.FormValue("up") != "":
-		listFiles(w, filepath.Dir(uDir), eSort, hi, user, modern)
+		wfm.uDir = filepath.Dir(wfm.uDir)
+		wfm.listFiles(filepath.Base(r.FormValue("hi")))
 		return
 	case r.FormValue("cancel") != "":
-		listFiles(w, uDir, eSort, user, hi, modern)
+		wfm.listFiles(filepath.Base(r.FormValue("hi")))
 		return
 	}
 
-	// form action
+	// form action submitted
 	switch r.FormValue("fn") {
 	case "disp":
-		dispFile(w, uFp)
+		wfm.dispFile()
 	case "down":
-		downFile(w, uFp)
+		wfm.downFile()
 	case "edit":
-		editText(w, uFp, eSort)
+		wfm.editText()
 	case "mkdir":
-		mkdir(w, uDir, uBn, eSort, rw)
+		wfm.mkdir()
 	case "mkfile":
-		mkfile(w, uDir, uBn, eSort, rw)
+		wfm.mkfile()
 	case "mkurl":
-		mkurl(w, uDir, uBn, r.FormValue("url"), eSort, rw)
+		wfm.mkurl(r.FormValue("url"))
 	case "rename":
-		renFile(w, uDir, uBn, r.FormValue("dst"), eSort, rw)
+		wfm.renFile(r.FormValue("dst"))
 	case "renp":
-		prompt(w, uDir, r.FormValue("oldf"), eSort, "rename", nil)
+		wfm.uBn = r.FormValue("oldf")
+		wfm.prompt("rename", nil)
 	case "movp":
-		prompt(w, uDir, uBn, eSort, "move", nil)
+		wfm.prompt("move", nil)
 	case "delp":
-		prompt(w, uDir, uBn, eSort, "delete", nil)
+		wfm.prompt("delete", nil)
 	case "move":
-		log.Printf("move dir=%v file=%v user=%v@%v", uDir, uFp, user, r.RemoteAddr)
-		moveFiles(w, uDir, []string{uBn}, r.FormValue("dst"), eSort, rw)
+		wfm.moveFiles([]string{wfm.uBn}, r.FormValue("dst"))
 	case "delete":
-		log.Printf("delete dir=%v file=%v user=%v@%v", uDir, uBn, user, r.RemoteAddr)
-		deleteFiles(w, uDir, []string{uBn}, eSort, rw)
+		wfm.deleteFiles([]string{wfm.uBn})
 	case "multi_delete":
-		log.Printf("multi_delete dir=%v files=%+v user=%v@%v", uDir, r.Form["mulf"], user, r.RemoteAddr)
-		deleteFiles(w, uDir, r.Form["mulf"], eSort, rw)
+		wfm.deleteFiles(r.Form["mulf"])
 	case "multi_move":
-		log.Printf("multi_move dir=%v files=%+v dest=%v user=%v@%v", uDir, r.Form["mulf"], r.FormValue("dst"), user, r.RemoteAddr)
-		moveFiles(w, uDir, r.Form["mulf"], r.FormValue("dst"), eSort, rw)
+		wfm.moveFiles(r.Form["mulf"], r.FormValue("dst"))
 	case "logout":
 		logout(w)
 	case "about":
-		about(w, uDir, eSort, r.UserAgent())
+		wfm.about(r.UserAgent())
 	default:
-		listFiles(w, uDir, eSort, hi, user, modern)
+		wfm.listFiles(filepath.Base(r.FormValue("hi")))
 	}
 }
 

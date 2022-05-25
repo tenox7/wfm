@@ -29,6 +29,9 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * html as template
 
 ## File IO
+* basename/clean paths in mulf, dst
+* remove uFp, there should be always uDir and uBn
+* deniedPfx should be fired in handlers not in fileio???
 * file search function
 * path prefix, required for docker
 * path prefix per user

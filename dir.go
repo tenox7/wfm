@@ -14,36 +14,36 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) {
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+func (r wfmRequest) listFiles(hi string) {
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	i := icons(modern)
-	d, err := ioutil.ReadDir(uDir)
+	i := icons(r.modern)
+	d, err := ioutil.ReadDir(r.uDir)
 	if err != nil {
-		htErr(w, "Unable to read directory", err)
+		htErr(r.w, "Unable to read directory", err)
 		return
 	}
 	sl := []string{}
-	sortFiles(d, &sl, sort)
+	sortFiles(d, &sl, r.eSort)
 
-	header(w, uDir, sort, "")
-	toolbars(w, uDir, user, sl, i)
-	qeDir := url.QueryEscape(uDir)
+	header(r.w, r.uDir, r.eSort, "")
+	toolbars(r.w, r.uDir, r.user, sl, i)
+	qeDir := url.QueryEscape(r.uDir)
 
-	r := 0
+	z := 0
 	var total uint64
 
 	// List Directories First
 	for _, f := range d {
-		if deniedPfx(uDir + "/" + f.Name()) {
+		if deniedPfx(r.uDir + "/" + f.Name()) {
 			continue
 		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := os.Stat(uDir + "/" + f.Name())
+			ls, err := os.Stat(r.uDir + "/" + f.Name())
 			if err != nil {
 				continue
 			}
@@ -57,26 +57,26 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 			continue
 		}
 		if f.Name() == hi {
-			w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
-		} else if r%2 == 0 {
-			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+			r.w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+		} else if z%2 == 0 {
+			r.w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
 		} else {
-			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
-		r++
+		z++
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
-		w.Write([]byte(`
+		r.w.Write([]byte(`
         <TD NOWRAP ALIGN="left">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + sort + `">` + i["di"] + heFile + `/</A>` + li + `
+        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + r.eSort + `">` + i["di"] + heFile + `/</A>` + li + `
 		</TD>
         <TD NOWRAP>&nbsp;</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
 		</TD>
         </TR>
         `))
@@ -84,13 +84,13 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 
 	// List Files
 	for _, f := range d {
-		if deniedPfx(uDir + "/" + f.Name()) {
+		if deniedPfx(r.uDir + "/" + f.Name()) {
 			continue
 		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := os.Stat(uDir + "/" + f.Name())
+			ls, err := os.Stat(r.uDir + "/" + f.Name())
 			if err != nil {
 				continue
 			}
@@ -104,28 +104,28 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 			continue
 		}
 		if f.Name() == hi {
-			w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
-		} else if r%2 == 0 {
-			w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+			r.w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+		} else if z%2 == 0 {
+			r.w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
 		} else {
-			w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
-		r++
+		z++
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
-		w.Write([]byte(`
+		r.w.Write([]byte(`
         <TD NOWRAP ALIGN="LEFT">
 		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + fileIcon(qeFile, modern) + ` ` + heFile + `</A>` + li + `
+        <A HREF="` + *wfmPfx + `?fn=disp&amp;fp=` + qeDir + "/" + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
 		</TD>
         <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
         <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
         <TD NOWRAP ALIGN="right">
         <A HREF="` + *wfmPfx + `?fn=down&amp;fp=` + qeDir + "/" + qeFile + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + sort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + sort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + sort + `">` + i["rm"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=edit&amp;fp=` + qeDir + "/" + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;oldf=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
+        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
         </TD>
         </TR>
         `))
@@ -133,9 +133,9 @@ func listFiles(w http.ResponseWriter, uDir, sort, hi, user string, modern bool) 
 	}
 
 	// Footer
-	w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">Total ` +
+	r.w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">Total ` +
 		humanize.Bytes(total) + `</TD><TD></TD><TD></TD></TR></TABLE>`))
-	footer(w)
+	footer(r.w)
 }
 
 func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[string]string) {

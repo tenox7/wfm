@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -12,10 +11,10 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName []string) {
-	header(w, uDir, sort, "")
+func (r wfmRequest) prompt(action string, mul []string) {
+	header(r.w, r.uDir, r.eSort, "")
 
-	w.Write([]byte(`
+	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
     <BR>&nbsp;<BR><P>
     <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
@@ -25,74 +24,74 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName
 
 	switch action {
 	case "mkdir":
-		w.Write([]byte(`
+		r.w.Write([]byte(`
         &nbsp;<BR>Enter name for the new directory:<P>
         <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         `))
 	case "mkfile":
-		w.Write([]byte(`
+		r.w.Write([]byte(`
         &nbsp;<BR>Enter name for the new file:<P>
         <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         `))
 	case "mkurl":
-		w.Write([]byte(`
+		r.w.Write([]byte(`
         &nbsp;<BR>Enter name for the new url file:<P>
         <INPUT TYPE="TEXT" NAME="file" SIZE="40" VALUE="">
         &nbsp;<BR>Destination URL:<P>
         <INPUT TYPE="TEXT" NAME="url" SIZE="40" VALUE="">
         `))
 	case "rename":
-		eBn := html.EscapeString(uBaseName)
-		w.Write([]byte(`
+		eBn := html.EscapeString(r.uBn)
+		r.w.Write([]byte(`
         &nbsp;<BR>Enter new name for the file <B>` + eBn + `</B>:<P>
         <INPUT TYPE="TEXT" NAME="dst" SIZE="40" VALUE="` + eBn + `">
         <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
 	case "move":
-		eBn := html.EscapeString(uBaseName)
-		w.Write([]byte(`
+		eBn := html.EscapeString(r.uBn)
+		r.w.Write([]byte(`
 		&nbsp;<BR>Select destination folder for <B>` + eBn + `</B>:<P>
 		<SELECT NAME="dst">
-		` + upDnDir(uDir, "") + `</SELECT>
+		` + upDnDir(r.uDir, "") + `</SELECT>
 		<INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
 		`))
 	case "delete":
 		var a string
-		fi, _ := os.Stat(uDir + "/" + uBaseName)
+		fi, _ := os.Stat(r.uDir + "/" + r.uBn)
 		if fi.IsDir() {
 			a = "directory - recursively"
 		} else {
 			a = "file, size " + humanize.Bytes(uint64(fi.Size()))
 		}
-		eBn := html.EscapeString(uBaseName)
-		w.Write([]byte(`
+		eBn := html.EscapeString(r.uBn)
+		r.w.Write([]byte(`
         &nbsp;<BR>Are you sure you want to delete:<BR><B>` + eBn + `</B>
         (` + a + `)<P>
         <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
         `))
 	case "multi_delete":
-		fmt.Fprintf(w, "&nbsp;<BR>Are you sure you want to delete from <B>%v</B>:<P><UL>\n", html.EscapeString(uDir))
-		for _, f := range mulName {
+		fmt.Fprintf(r.w, "&nbsp;<BR>Are you sure you want to delete from <B>%v</B>:<P><UL>\n", html.EscapeString(r.uDir))
+		for _, f := range mul {
 			fE := html.EscapeString(f)
-			fmt.Fprintf(w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
+			fmt.Fprintf(r.w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
 				"<LI TYPE=\"square\">%v</LI>\n", fE, fE)
 		}
-		fmt.Fprintln(w, "</UL><P>")
+		fmt.Fprintln(r.w, "</UL><P>")
 	case "multi_move":
-		fmt.Fprintf(w, "&nbsp;<BR>Move from: <B>%v</B><P>\n"+
+		fmt.Fprintf(r.w, "&nbsp;<BR>Move from: <B>%v</B><P>\n"+
 			"To: <SELECT NAME=\"dst\">%v</SELECT><P>\n<UL>Items:<P>\n",
-			html.EscapeString(uDir),
-			upDnDir(uDir, uBaseName),
+			html.EscapeString(r.uDir),
+			upDnDir(r.uDir, r.uBn),
 		)
-		for _, f := range mulName {
+		for _, f := range mul {
 			fE := html.EscapeString(f)
-			fmt.Fprintf(w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
+			fmt.Fprintf(r.w, "<INPUT TYPE=\"HIDDEN\" NAME=\"mulf\" VALUE=\"%s\">\n"+
 				"<LI TYPE=\"square\">%v</LI>\n", fE, fE)
 		}
-		fmt.Fprintln(w, "</UL><P>")
+		fmt.Fprintln(r.w, "</UL><P>")
 	}
 
-	w.Write([]byte(`
+	r.w.Write([]byte(`
     </TD></TR>
     <TR><TD COLSPAN="2">
     <P><CENTER>
@@ -105,26 +104,27 @@ func prompt(w http.ResponseWriter, uDir, uBaseName, sort, action string, mulName
     </TD></TR></TABLE>
     `))
 
-	footer(w)
+	footer(r.w)
 }
 
-func editText(w http.ResponseWriter, uFilePath, sort string) {
+func (r wfmRequest) editText() {
+	uFilePath := r.uFp // TODO(tenox): uDir + uBn
 	fi, err := os.Stat(uFilePath)
 	if err != nil {
-		htErr(w, "Unable to get file attributes", err)
+		htErr(r.w, "Unable to get file attributes", err)
 		return
 	}
 	if fi.Size() > 1<<20 {
-		htErr(w, "edit", fmt.Errorf("the file is too large for editing"))
+		htErr(r.w, "edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
 	f, err := ioutil.ReadFile(uFilePath)
 	if err != nil {
-		htErr(w, "Unable to read file", err)
+		htErr(r.w, "Unable to read file", err)
 		return
 	}
-	header(w, filepath.Dir(uFilePath), sort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
-	w.Write([]byte(`
+	header(r.w, filepath.Dir(uFilePath), r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
+	r.w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
     <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(filepath.Base(uFilePath)) + `</TD>
@@ -138,13 +138,13 @@ func editText(w http.ResponseWriter, uFilePath, sort string) {
     <INPUT TYPE="HIDDEN" NAME="fp" VALUE="` + html.EscapeString(uFilePath) + `">
     </TD></TR></TABLE>
     `))
-	footer(w)
+	footer(r.w)
 }
 
-func about(w http.ResponseWriter, uDir, sort, ua string) {
-	header(w, uDir, sort, "")
+func (r wfmRequest) about(ua string) {
+	header(r.w, r.uDir, r.eSort, "")
 
-	w.Write([]byte(`
+	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
     <BR>&nbsp;<BR><P>
     <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
@@ -159,14 +159,14 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
 	`))
 
 	if *aboutRnt {
-		fmt.Fprintf(w, "Build: %v %v-%v<BR>Agent: %v<P>",
+		fmt.Fprintf(r.w, "Build: %v %v-%v<BR>Agent: %v<P>",
 			runtime.Version(),
 			runtime.GOARCH,
 			runtime.GOOS,
 			ua)
 	}
 
-	w.Write([]byte(`
+	r.w.Write([]byte(`
       </TD></TR>
     <TR><TD COLSPAN="2">
     <P><CENTER>
@@ -177,5 +177,5 @@ func about(w http.ResponseWriter, uDir, sort, ua string) {
     </TD></TR></TABLE>
     `))
 
-	footer(w)
+	footer(r.w)
 }

@@ -26,47 +26,49 @@ func deniedPfx(pfx string) bool {
 	return false
 }
 
-func dispFile(w http.ResponseWriter, uFilePath string) {
-	if deniedPfx(uFilePath) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+func (r wfmRequest) dispFile() {
+	fp := r.uFp // TODO(tenox): uDir + uBn
+	// TODO(tenox): deniedpfx should be in handlers???
+	if deniedPfx(fp) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	fp := filepath.Clean(uFilePath)
 	s := strings.Split(fp, ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
 	switch strings.ToLower(s[len(s)-1]) {
 	case "url", "desktop", "webloc":
-		gourl(w, fp)
+		gourl(r.w, fp)
 
 	case "zip":
-		listZip(w, fp)
+		listZip(r.w, fp)
 	case "7z":
-		list7z(w, fp)
+		list7z(r.w, fp)
 	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
-		listArchive(w, fp)
+		listArchive(r.w, fp)
 	case "iso":
-		listIso(w, fp)
+		listIso(r.w, fp)
 
 	default:
-		dispInline(w, fp)
+		dispInline(r.w, fp)
 	}
 }
 
-func downFile(w http.ResponseWriter, uFilePath string) {
-	if deniedPfx(uFilePath) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+func (r wfmRequest) downFile() {
+	fp := r.uFp // TODO(tenox): uDir + uBn
+	if deniedPfx(fp) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	f, err := os.Stat(uFilePath)
+	f, err := os.Stat(fp)
 	if err != nil {
-		htErr(w, "Unable to get file attributes", err)
+		htErr(r.w, "Unable to get file attributes", err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(uFilePath)+"\";")
-	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
-	w.Header().Set("Cache-Control", *cacheCtl)
-	streamFile(w, uFilePath)
+	r.w.Header().Set("Content-Type", "application/octet-stream")
+	r.w.Header().Set("Content-Disposition", "attachment; filename=\""+filepath.Base(fp)+"\";")
+	r.w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
+	r.w.Header().Set("Cache-Control", *cacheCtl)
+	streamFile(r.w, fp)
 }
 
 func dispInline(w http.ResponseWriter, uFilePath string) {
@@ -131,20 +133,20 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 	wb.Flush()
 }
 
-func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHeader, f multipart.File, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	defer f.Close()
 
-	o, err := os.OpenFile(uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
+	o, err := os.OpenFile(r.uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(w, "unable to write file", err)
+		htErr(r.w, "unable to write file", err)
 		return
 	}
 	defer o.Close()
@@ -155,7 +157,7 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 	for {
 		n, err := rb.Read(bu)
 		if err != nil && err != io.EOF {
-			htErr(w, "Unable to write file", err)
+			htErr(r.w, "Unable to write file", err)
 			return
 		}
 		if n == 0 {
@@ -164,190 +166,195 @@ func uploadFile(w http.ResponseWriter, uDir, eSort string, h *multipart.FileHead
 		wb.Write(bu[:n])
 	}
 	wb.Flush()
-	log.Printf("Uploaded Dir=%v File=%v Size=%v", uDir, h.Filename, h.Size)
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(h.Filename))
+	log.Printf("Uploaded Dir=%v File=%v Size=%v", r.uDir, h.Filename, h.Size)
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(h.Filename))
 }
 
-func saveText(w http.ResponseWriter, uDir, eSort, uFilePath, uData string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) saveText(uData string) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	if uData == "" {
-		htErr(w, "text save", fmt.Errorf("zero lenght data"))
+		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
 		return
 	}
-	err := ioutil.WriteFile(uFilePath+".tmp", []byte(uData), 0644)
+	fp := r.uFp // TODO(tenox): uDir + uBn
+	tmpName := fp + ".tmp"
+	err := ioutil.WriteFile(tmpName, []byte(uData), 0644)
 	if err != nil {
-		htErr(w, "text save", err)
+		htErr(r.w, "text save", err)
 		return
 	}
-	f, err := os.Stat(uFilePath + ".tmp")
+	f, err := os.Stat(tmpName)
 	if err != nil {
-		htErr(w, "text save", err)
+		htErr(r.w, "text save", err)
 		return
 	}
 	if f.Size() != int64(len(uData)) {
-		htErr(w, "text save", fmt.Errorf("temp file size != input size"))
+		htErr(r.w, "text save", fmt.Errorf("temp file size != input size"))
 		return
 	}
-	err = os.Rename(uFilePath+".tmp", uFilePath)
+	err = os.Rename(tmpName, r.uFp)
 	if err != nil {
-		htErr(w, "text save", err)
+		htErr(r.w, "text save", err)
 		return
 	}
-	log.Printf("Saved Text Dir=%v File=%v Size=%v", uDir, uFilePath, len(uData))
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(filepath.Base(uFilePath)))
+	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, r.uFp, len(uData))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(filepath.Base(r.uFp)))
 }
 
-func mkdir(w http.ResponseWriter, uDir, uNewd, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) mkdir() {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 
-	if uNewd == "" {
-		htErr(w, "mkdir", fmt.Errorf("directory name is empty"))
+	if r.uBn == "" {
+		htErr(r.w, "mkdir", fmt.Errorf("directory name is empty"))
 		return
 	}
-	uB := filepath.Base(uNewd)
-	err := os.Mkdir(uDir+"/"+uB, 0755)
+	uB := filepath.Base(r.uBn)
+	err := os.Mkdir(r.uDir+"/"+uB, 0755)
 	if err != nil {
-		htErr(w, "mkdir", err)
+		htErr(r.w, "mkdir", err)
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(uB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(uB))
 }
 
-func mkfile(w http.ResponseWriter, uDir, uNewf, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) mkfile() {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 
-	if uNewf == "" {
-		htErr(w, "mkfile", fmt.Errorf("file name is empty"))
+	if r.uBn == "" {
+		htErr(r.w, "mkfile", fmt.Errorf("file name is empty"))
 		return
 	}
-	fB := filepath.Base(uNewf)
-	f, err := os.OpenFile(uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	fB := filepath.Base(r.uBn)
+	f, err := os.OpenFile(r.uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(w, "mkfile", err)
+		htErr(r.w, "mkfile", err)
 		return
 	}
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
 }
 
-func mkurl(w http.ResponseWriter, uDir, uNewu, eUrl, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) mkurl(eUrl string) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
-	if uNewu == "" {
-		htErr(w, "mkurl", fmt.Errorf("url file name is empty"))
+	if r.uBn == "" {
+		htErr(r.w, "mkurl", fmt.Errorf("url file name is empty"))
 		return
 	}
-	if !strings.HasSuffix(uNewu, ".url") {
-		uNewu = uNewu + ".url"
+	fB := filepath.Base(r.uBn)
+	if !strings.HasSuffix(fB, ".url") {
+		fB = fB + ".url"
 	}
-	fB := filepath.Base(uNewu)
-	f, err := os.OpenFile(uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
+	f, err := os.OpenFile(r.uDir+"/"+fB, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(w, "mkfile", err)
+		htErr(r.w, "mkfile", err)
 		return
 	}
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
 }
 
-func renFile(w http.ResponseWriter, uDir, uBn, uNewf, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) renFile(uNewf string) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 
-	if uBn == "" || uNewf == "" {
-		htErr(w, "rename", fmt.Errorf("filename is empty"))
+	if r.uBn == "" || uNewf == "" {
+		htErr(r.w, "rename", fmt.Errorf("filename is empty"))
 		return
 	}
 	fB := filepath.Base(uNewf)
 	err := os.Rename(
-		uDir+"/"+uBn,
-		uDir+"/"+fB,
+		r.uDir+"/"+r.uBn,
+		r.uDir+"/"+fB,
 	)
 	if err != nil {
-		htErr(w, "rename", err)
+		htErr(r.w, "rename", err)
 		return
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort+"&hi="+url.QueryEscape(fB))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(fB))
 }
 
-func moveFiles(w http.ResponseWriter, uDir string, uFilePaths []string, uDst, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) moveFiles(uFilePaths []string, uDst string) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) || deniedPfx(uDst) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	uDst = filepath.Clean(uDst)
+	if deniedPfx(r.uDir) || deniedPfx(uDst) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
+	log.Printf("move dir=%v files=%+v dst=%v user=%v@%v", r.uDir, uFilePaths, uDst, r.user, r.remAddr)
 
 	lF := ""
 	for _, f := range uFilePaths {
 		fb := filepath.Base(f)
 		err := os.Rename(
-			uDir+"/"+fb,
+			r.uDir+"/"+fb,
 			filepath.Clean(uDst+"/"+fb),
 		)
 		if err != nil {
-			htErr(w, "move", err)
+			htErr(r.w, "move", err)
 			return
 		}
 		lF = fb
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+eSort+"&hi="+url.QueryEscape(lF))
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(uDst)+"&sort="+r.eSort+"&hi="+url.QueryEscape(lF))
 }
 
-func deleteFiles(w http.ResponseWriter, uDir string, uFilePaths []string, eSort string, rw bool) {
-	if !rw {
-		htErr(w, "permission", fmt.Errorf("read only"))
+func (r wfmRequest) deleteFiles(uFilePaths []string) {
+	if !r.rw {
+		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(uDir) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
+	if deniedPfx(r.uDir) {
+		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
+	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.user, r.remAddr)
 
 	for _, f := range uFilePaths {
-		err := os.RemoveAll(uDir + "/" + filepath.Base(f))
+		err := os.RemoveAll(r.uDir + "/" + filepath.Base(f))
 		if err != nil {
-			htErr(w, "delete", err)
+			htErr(r.w, "delete", err)
 			return
 		}
 	}
-	redirect(w, *wfmPfx+"?dir="+url.QueryEscape(uDir)+"&sort="+eSort)
+	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort)
 }
