@@ -147,7 +147,7 @@ func (r *wfmRequest) about(ua string) {
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
     <BR>&nbsp;<BR><P>
     <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
-      <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; About WFM</FONT></TD></TR>
+      <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; Web File Manager</FONT></TD></TR>
       <TR><TD WIDTH="30">&nbsp;</TD><TD><BR>
 	  WFM Version v` + vers + `<BR>
 	  Developed by Antoni Sawicki Et Al.<BR>
