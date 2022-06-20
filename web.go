@@ -85,9 +85,6 @@ func emit(s string, c int) string {
 }
 
 func upDnDir(uDir, uBn string) string {
-	if deniedPfx(uDir) {
-		return ""
-	}
 	o := strings.Builder{}
 	o.WriteString("<OPTION VALUE=\"/\">/ - Root</OPTION>\n")
 	p := "/"
@@ -109,7 +106,7 @@ func upDnDir(uDir, uBn string) string {
 		return o.String()
 	}
 	for _, n := range d {
-		if !n.IsDir() || strings.HasPrefix(n.Name(), ".") || deniedPfx(uDir+"/"+n.Name()) {
+		if !n.IsDir() || strings.HasPrefix(n.Name(), ".") {
 			continue
 		}
 		o.WriteString("<OPTION VALUE=\"" +

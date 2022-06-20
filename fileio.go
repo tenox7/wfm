@@ -16,23 +16,8 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-func deniedPfx(pfx string) bool {
-	cPfx := filepath.Clean(pfx)
-	for _, p := range denyPfxs {
-		if strings.HasPrefix(cPfx, p) {
-			return true
-		}
-	}
-	return false
-}
-
 func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
-	// TODO(tenox): deniedpfx should be in handlers???
-	if deniedPfx(fp) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	s := strings.Split(fp, ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
 	switch strings.ToLower(s[len(s)-1]) {
@@ -55,10 +40,6 @@ func (r *wfmRequest) dispFile() {
 
 func (r *wfmRequest) downFile() {
 	fp := r.uDir + "/" + r.uFbn
-	if deniedPfx(fp) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	f, err := os.Stat(fp)
 	if err != nil {
 		htErr(r.w, "Unable to get file attributes", err)
@@ -72,10 +53,6 @@ func (r *wfmRequest) downFile() {
 }
 
 func dispInline(w http.ResponseWriter, uFilePath string) {
-	if deniedPfx(uFilePath) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	f, err := os.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
@@ -102,10 +79,6 @@ func dispInline(w http.ResponseWriter, uFilePath string) {
 }
 
 func streamFile(w http.ResponseWriter, uFilePath string) {
-	if deniedPfx(uFilePath) {
-		htErr(w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	fi, err := os.Open(uFilePath)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
@@ -136,10 +109,6 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
-		return
-	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	defer f.Close()
@@ -173,10 +142,6 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 func (r *wfmRequest) saveText(uData string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
-		return
-	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	if uData == "" {
@@ -213,10 +178,6 @@ func (r *wfmRequest) mkdir() {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 
 	if r.uFbn == "" {
 		htErr(r.w, "mkdir", fmt.Errorf("directory name is empty"))
@@ -236,10 +197,6 @@ func (r *wfmRequest) mkfile() {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 
 	if r.uFbn == "" {
 		htErr(r.w, "mkfile", fmt.Errorf("file name is empty"))
@@ -257,10 +214,6 @@ func (r *wfmRequest) mkfile() {
 func (r *wfmRequest) mkurl(eUrl string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
-		return
-	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	if r.uFbn == "" {
@@ -286,10 +239,6 @@ func (r *wfmRequest) renFile(uNewf string) {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
 	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 
 	if r.uFbn == "" || uNewf == "" {
 		htErr(r.w, "rename", fmt.Errorf("filename is empty"))
@@ -313,10 +262,6 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 		return
 	}
 	uDst = filepath.Clean(uDst)
-	if deniedPfx(r.uDir) || deniedPfx(uDst) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	log.Printf("move dir=%v files=%+v dst=%v user=%v@%v", r.uDir, uFilePaths, uDst, r.userName, r.remAddr)
 
 	lF := ""
@@ -338,10 +283,6 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
-		return
-	}
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
 		return
 	}
 	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)

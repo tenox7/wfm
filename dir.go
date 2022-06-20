@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html"
 	"io/ioutil"
 	"net/http"
@@ -15,10 +14,6 @@ import (
 )
 
 func (r *wfmRequest) listFiles(hi string) {
-	if deniedPfx(r.uDir) {
-		htErr(r.w, "access", fmt.Errorf("forbidden"))
-		return
-	}
 	i := icons(r.modern)
 	d, err := ioutil.ReadDir(r.uDir)
 	if err != nil {
@@ -37,9 +32,6 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	// List Directories First
 	for _, f := range d {
-		if deniedPfx(r.uDir + "/" + f.Name()) {
-			continue
-		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
@@ -84,9 +76,6 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	// List Files
 	for _, f := range d {
-		if deniedPfx(r.uDir + "/" + f.Name()) {
-			continue
-		}
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {

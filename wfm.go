@@ -39,7 +39,6 @@ var (
 	acmDir      = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
 	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist   multiString // this flag set in main
-	denyPfxs    multiString
 	allowAcmDir = flag.Bool("allow_acm_dir", false, "allow access to acm cache dir (insecure!)")
 	f2bEnabled  = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
 	f2bDump     = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
@@ -88,7 +87,6 @@ func (z *multiString) Set(v string) error {
 func main() {
 	var err error
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
-	flag.Var(&denyPfxs, "deny_pfx", "deny access / hide this path prefix (multi)")
 	flag.Parse()
 
 	if flag.Arg(0) == "user" {
@@ -100,10 +98,6 @@ func main() {
 
 	if *passwdDb != "" {
 		loadUsers()
-	}
-
-	if !*allowAcmDir && *acmDir != "" {
-		denyPfxs = append(denyPfxs, *acmDir)
 	}
 
 	if *logFile != "" {
