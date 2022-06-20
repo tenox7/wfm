@@ -3,6 +3,7 @@
 ## Interfaces
 * WebDAV server
 * FastCGI Interface
+* Caddy module
 * Docker support - requires sub folder off root
 * Web folder with no index, on a separate port?
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
@@ -17,6 +18,8 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * f2b ddos prevention, sleep on too many bans?
 * qps throttling
 * download/upload throttling
+* use certmagic for acme? https://github.com/caddyserver/certmagic
+* use lego for acme? https://github.com/go-acme/lego
 
 ## Layout / UI
 * add flag to specify own favicon.ico
@@ -29,8 +32,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * html as template
 
 ## File IO
-* deniedPfx should be fired in handlers not in fileio???
-  this may be superseded by docker virtual path
 * file search function
 * path prefix, required for docker, afero?
 * path prefix per user
