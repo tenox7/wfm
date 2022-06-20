@@ -72,7 +72,7 @@ func dispInline(w http.ResponseWriter, uFilePath string) {
 	fi.Close()
 
 	w.Header().Set("Content-Type", mt.String())
-	w.Header().Set("Content-Disposition", "inline")
+	w.Header().Set("Content-Disposition", "inline; filename=\""+url.QueryEscape(filepath.Base(uFilePath))+"\";")
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(w, uFilePath)
