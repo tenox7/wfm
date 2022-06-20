@@ -21,27 +21,27 @@ import (
 type multiString []string
 
 var (
-	vers        = "2.0.2"
-	bindProto   = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
-	bindAddr    = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: :443")
-	bindExtra   = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
-	chrootDir   = flag.String("chroot", "", "Directory to chroot to")
-	suidUser    = flag.String("setuid", "", "Username to setuid to")
-	allowRoot   = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
-	logFile     = flag.String("logfile", "", "Log file name (default stdout)")
-	passwdDb    = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
-	noPwdDbRW   = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
-	aboutRnt    = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
-	showDot     = flag.Bool("show_dot", false, "show dot files and folders")
-	wfmPfx      = flag.String("prefix", "/", "Default url prefix for WFM access")
-	docSrv      = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
-	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	acmDir      = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
-	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
-	acmWhlist   multiString // this flag set in main
-	allowAcmDir = flag.Bool("allow_acm_dir", false, "allow access to acm cache dir (insecure!)")
-	f2bEnabled  = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
-	f2bDump     = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
+	vers       = "2.0.2"
+	bindProto  = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
+	bindAddr   = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: :443")
+	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
+	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
+	suidUser   = flag.String("setuid", "", "Username to setuid to")
+	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
+	logFile    = flag.String("logfile", "", "Log file name (default stdout)")
+	passwdDb   = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
+	noPwdDbRW  = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
+	aboutRnt   = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
+	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
+	listArc    = flag.Bool("list_archive_contents", true, "list contents of archives (expensive)")
+	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access")
+	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
+	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+	acmDir     = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
+	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
+	acmWhlist  multiString // this flag set in main
+	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
+	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
 )
 
 func userId(usr string) (int, int, error) {
