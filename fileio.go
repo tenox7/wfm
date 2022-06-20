@@ -20,10 +20,21 @@ func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	s := strings.Split(fp, ".")
 	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
-	switch strings.ToLower(s[len(s)-1]) {
+	ext := strings.ToLower(s[len(s)-1])
+	// inexpensive file handlers
+	switch ext {
 	case "url", "desktop", "webloc":
 		gourl(r.w, fp)
+		return
+	}
 
+	if !*listArc {
+		dispInline(r.w, fp)
+		return
+	}
+
+	// expensive file handlers
+	switch ext {
 	case "zip":
 		listZip(r.w, fp)
 	case "7z":

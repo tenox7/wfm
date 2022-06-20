@@ -33,7 +33,7 @@ var (
 	noPwdDbRW  = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
 	aboutRnt   = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
 	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
-	listArc    = flag.Bool("list_archive_contents", true, "list contents of archives (expensive)")
+	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive)")
 	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access")
 	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
