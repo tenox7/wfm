@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/juju/ratelimit"
 )
 
 func (r *wfmRequest) dispFile() {
@@ -98,23 +99,16 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 	}
 	defer fi.Close()
 
-	rb := bufio.NewReader(fi)
-	wb := bufio.NewWriter(w)
-	bu := make([]byte, 1<<20)
-
-	for {
-		n, err := rb.Read(bu)
-		if err != nil && err != io.EOF {
-			htErr(w, "Unable to read file", err)
-			log.Printf("unable to read file: %v", err)
-			return
-		}
-		if n == 0 {
-			break
-		}
-		wb.Write(bu[:n])
+	var r io.Reader = fi
+	if *rateLim != 0 {
+		r = ratelimit.Reader(fi, ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10))
 	}
-	wb.Flush()
+
+	_, err = io.Copy(w, r)
+	if err != nil {
+		htErr(w, "Error streaming file: ", err)
+		log.Printf("Error streaming file %v: %v", uFilePath, err)
+	}
 }
 
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {

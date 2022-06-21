@@ -8,6 +8,7 @@ require (
 	github.com/breml/rootcerts v0.2.4
 	github.com/dustin/go-humanize v1.0.0
 	github.com/gabriel-vasile/mimetype v1.4.0
+	github.com/juju/ratelimit v1.0.1
 	github.com/kdomanski/iso9660 v0.3.1
 	github.com/mholt/archiver/v4 v4.0.0-alpha.7
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e

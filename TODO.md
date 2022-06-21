@@ -47,4 +47,3 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * file locking https://github.com/gofrs/flock
 * support for different filesystems, S3, SMB, archive files as io/fs
 * archive files in main view / graphical/table form
-* download/upload rate limiter
