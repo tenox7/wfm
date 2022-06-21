@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
+
+	ico "github.com/biessek/golang-ico"
 )
 
 type wfmRequest struct {
@@ -120,8 +123,19 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func favicon(w http.ResponseWriter, r *http.Request) {
-	dispFavIcon(w)
+func dispFavIcon(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "image/x-icon")
+	ico.Encode(w, favIcn)
+}
+
+func dispRobots(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintln(w, "User-agent: *")
+	if *robots {
+		fmt.Fprintln(w, "Allow: /")
+		return
+	}
+	fmt.Fprintln(w, "Disallow: /")
 }
 
 func noText(m map[string][]string) map[string][]string {

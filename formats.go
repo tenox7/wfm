@@ -13,7 +13,6 @@ import (
 	"strings"
 	"syscall"
 
-	ico "github.com/biessek/golang-ico"
 	"github.com/bodgit/sevenzip"
 	"github.com/dustin/go-humanize"
 	"github.com/kdomanski/iso9660"
@@ -28,11 +27,6 @@ import (
 var (
 	favIcn = genFavIcon()
 )
-
-func dispFavIcon(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "image/x-icon")
-	ico.Encode(w, favIcn)
-}
 
 func genFavIcon() *image.NRGBA {
 	i := image.NewNRGBA(image.Rect(0, 0, 16, 16))

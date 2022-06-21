@@ -38,6 +38,7 @@ var (
 	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access")
 	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+	robots     = flag.Bool("robots", false, "allow robots")
 	acmDir     = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
@@ -159,7 +160,8 @@ func main() {
 	// http stuff
 	mux := http.NewServeMux()
 	mux.HandleFunc(*wfmPfx, wfmMain)
-	mux.HandleFunc("/favicon.ico", favicon)
+	mux.HandleFunc("/favicon.ico", dispFavIcon)
+	mux.HandleFunc("/robots.txt", dispRobots)
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)
 	}
