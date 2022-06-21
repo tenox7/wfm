@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -94,7 +93,6 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 	fi, err := os.Open(uFilePath)
 	if err != nil {
 		htErr(w, "Unable top open file", err)
-		log.Printf("unable to read file: %v", err)
 		return
 	}
 	defer fi.Close()
@@ -106,8 +104,7 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 
 	_, err = io.Copy(w, r)
 	if err != nil {
-		htErr(w, "Error streaming file: ", err)
-		log.Printf("Error streaming file %v: %v", uFilePath, err)
+		htErr(w, "streaming file", err)
 	}
 }
 
@@ -124,22 +121,15 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 		return
 	}
 	defer o.Close()
-	rb := bufio.NewReader(f)
-	wb := bufio.NewWriter(o)
-	bu := make([]byte, 1<<20)
 
-	for {
-		n, err := rb.Read(bu)
-		if err != nil && err != io.EOF {
-			htErr(r.w, "Unable to write file", err)
-			return
-		}
-		if n == 0 {
-			break
-		}
-		wb.Write(bu[:n])
+	oSize, err := io.Copy(o, f)
+	if err != nil {
+		htErr(r.w, "uploading file", err)
+		return
 	}
-	wb.Flush()
+	if oSize != h.Size {
+		htErr(r.w, "uploading file", fmt.Errorf("expected size=%v actual size=%v", h.Size, oSize))
+	}
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", r.uDir, h.Filename, h.Size)
 	redirect(r.w, *wfmPfx+"?dir="+url.QueryEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.QueryEscape(h.Filename))
 }
