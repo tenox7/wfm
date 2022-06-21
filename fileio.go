@@ -115,14 +115,19 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	}
 	defer f.Close()
 
-	o, err := os.OpenFile(r.uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
+	fi, err := os.OpenFile(r.uDir+"/"+filepath.Base(h.Filename), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(r.w, "unable to write file", err)
 		return
 	}
-	defer o.Close()
+	defer fi.Close()
 
-	oSize, err := io.Copy(o, f)
+	var w io.Writer = fi
+	if *rateLim != 0 {
+		w = ratelimit.Writer(fi, ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10))
+	}
+
+	oSize, err := io.Copy(w, f)
 	if err != nil {
 		htErr(r.w, "uploading file", err)
 		return
