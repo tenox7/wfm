@@ -34,7 +34,7 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## File IO
 * file search function
-* path prefix, required for docker, afero?
+* path prefix, required for docker, [afero](https://github.com/spf13/afero)?
 * path prefix per user
 * udf iso format https://github.com/mogaika/udf
 * zip/unzip archives
@@ -46,4 +46,5 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * git client https://github.com/go-git/go-git
 * file locking https://github.com/gofrs/flock
 * support for different filesystems, S3, SMB, archive files as io/fs
+  https://github.com/spf13/afero ?
 * archive files in main view / graphical/table form
