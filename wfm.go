@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	_ "github.com/breml/rootcerts"
+	"github.com/juju/ratelimit"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -156,6 +157,9 @@ func main() {
 		log.Fatal("you probably dont want to run wfm as root, use --allow_root flag to force it")
 	}
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
+
+	// rate limit setup
+	rlBu = ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10)
 
 	// http stuff
 	mux := http.NewServeMux()

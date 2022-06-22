@@ -16,6 +16,10 @@ import (
 	"github.com/juju/ratelimit"
 )
 
+var (
+	rlBu *ratelimit.Bucket
+)
+
 func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	s := strings.Split(fp, ".")
@@ -99,7 +103,7 @@ func streamFile(w http.ResponseWriter, uFilePath string) {
 
 	var r io.Reader = fi
 	if *rateLim != 0 {
-		r = ratelimit.Reader(fi, ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10))
+		r = ratelimit.Reader(fi, rlBu)
 	}
 
 	_, err = io.Copy(w, r)
@@ -124,7 +128,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 
 	var w io.Writer = fi
 	if *rateLim != 0 {
-		w = ratelimit.Writer(fi, ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10))
+		w = ratelimit.Writer(fi, rlBu)
 	}
 
 	oSize, err := io.Copy(w, f)
