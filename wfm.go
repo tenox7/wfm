@@ -41,6 +41,7 @@ var (
 	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	robots     = flag.Bool("robots", false, "allow robots")
+	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
 	acmDir     = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
@@ -122,6 +123,13 @@ func main() {
 
 	if *passwdDb != "" {
 		loadUsers()
+	}
+
+	if *favIcoFile != "" {
+		favIcn, err = os.ReadFile(*favIcoFile)
+		if err != nil {
+			log.Fatalf("unable to open %v: %v", *favIcoFile, err)
+		}
 	}
 
 	if *logFile != "" {
