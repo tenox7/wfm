@@ -133,7 +133,7 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
             <TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
-                <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;` + eDir + `</FONT>
+                <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</FONT>
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
 				<A HREF="` + *wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>
