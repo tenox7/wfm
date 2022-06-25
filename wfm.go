@@ -29,6 +29,7 @@ var (
 	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
 	suidUser   = flag.String("setuid", "", "Username to setuid to")
 	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
+	siteName   = flag.String("site_name", "WFM", "local site name to display")
 	logFile    = flag.String("logfile", "", "Log file name (default stdout)")
 	passwdDb   = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	noPwdDbRW  = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")

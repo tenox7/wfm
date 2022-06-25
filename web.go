@@ -39,7 +39,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string) {
 <META NAME="viewport" CONTENT="width=device-width">
 <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
 <LINK REL="shortcut icon" HREF="/favicon.ico?">
-<TITLE>WFM ` + eDir + `</TITLE>
+<TITLE>` + *siteName + ` ` + eDir + `</TITLE>
 <STYLE TYPE="text/css"><!--
 	A:link {text-decoration: none; color:#0000CE; }
 	A:visited {text-decoration: none; color:#0000CE; }
