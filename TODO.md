@@ -26,7 +26,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
   https://github.com/sethvargo/go-limiter
 
 ## Layout / UI
-* add flag to specify own favicon.ico
 * top bar too long on mobile/small screen
 * custom html login window - needed for two factor auth?
 * editable and non editable documents by extension, also for git checkins
