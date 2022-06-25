@@ -7,20 +7,23 @@ bookmarks, link and shortcut files, list inside archives and ISO files.
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
-You can use WFM as a web interface for a NAS box, a "personal cloud", document
-sharing site or a lightweight Content Management System (CMS). The app can also
-serve static html files from a directory which you can manage as an admin. See
-usage scenarios for more information.
+## Usage
+
+You can use it as a web interface for a NAS box, FTP server, a "personal cloud",
+document sharing site or a lightweight CMS. The app can also serve static html
+files from a directory which you can manage as an admin. See usage scenarios
+for more information.
 
 WFM is a standalone service with it's own web server. No need for Apache, Nginx or
-anything else. It runs directly from systemd, sysvinit, launchd, bsd rc or Docker.
+anything else. It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
-Written in Go language, much like Docker, Kubernetes, Hugo, etc. The binary is statically
-linked, fully self contained and has zero external dependencies. Icons are Unicode
-emojis. CA Certs are embedded at built time. No need for Python, PHP, SQL, JavaScript,
-Node or any other bloat. WFM works on both modern and legacy web browsers going back to
-Internet Explorer 2.x and Netscape 3.x. It outputs validated HTML 4.01 without JavaScript.
+Much like Docker, Kubernetes, Hugo, etc. WFM is written in Go language. The binary is
+statically linked, fully self contained and has zero external dependencies. Icons are
+unicode emojis. CA Certs are embedded at built time. No need for Python, PHP, SQL,
+JavaScript, Node or any other bloat. WFM outputs validated HTML 4.01 without JavaScript.
+It works on both modern and legacy web browsers going back to Internet Explorer 2.x and
+Netscape 3.x.
 
 ## Directory tree
 
