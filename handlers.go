@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-
-	ico "github.com/biessek/golang-ico"
 )
 
 type wfmRequest struct {
@@ -125,7 +123,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 
 func dispFavIcon(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/x-icon")
-	ico.Encode(w, favIcn)
+	w.Write(favIcn)
 }
 
 func dispRobots(w http.ResponseWriter, r *http.Request) {
