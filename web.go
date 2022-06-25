@@ -3,12 +3,22 @@ package main
 import (
 	"fmt"
 	"html"
+	"image"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/inconsolata"
+	"golang.org/x/image/math/fixed"
+)
+
+var (
+	favIcn = genFavIcon()
 )
 
 func htErr(w http.ResponseWriter, msg string, err error) {
@@ -111,4 +121,16 @@ func upDnDir(uDir, uBn string) string {
 			html.EscapeString(n.Name()) + "</OPTION>\n")
 	}
 	return o.String()
+}
+
+func genFavIcon() *image.NRGBA {
+	i := image.NewNRGBA(image.Rect(0, 0, 16, 16))
+	d := &font.Drawer{
+		Dst:  i,
+		Src:  image.NewUniform(color.RGBA{0, 64, 128, 255}),
+		Face: inconsolata.Bold8x16,
+		Dot:  fixed.Point26_6{fixed.Int26_6(4 * 64), fixed.Int26_6(13 * 64)},
+	}
+	d.DrawString("W")
+	return i
 }

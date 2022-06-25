@@ -3,8 +3,6 @@ package main
 import (
 	"archive/zip"
 	"fmt"
-	"image"
-	"image/color"
 	"io/fs"
 	"io/ioutil"
 	"log"
@@ -17,28 +15,9 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/kdomanski/iso9660"
 	"github.com/mholt/archiver/v4"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/inconsolata"
-	"golang.org/x/image/math/fixed"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
 )
-
-var (
-	favIcn = genFavIcon()
-)
-
-func genFavIcon() *image.NRGBA {
-	i := image.NewNRGBA(image.Rect(0, 0, 16, 16))
-	d := &font.Drawer{
-		Dst:  i,
-		Src:  image.NewUniform(color.RGBA{0, 64, 128, 255}),
-		Face: inconsolata.Bold8x16,
-		Dot:  fixed.Point26_6{fixed.Int26_6(4 * 64), fixed.Int26_6(13 * 64)},
-	}
-	d.DrawString("W")
-	return i
-}
 
 func gourl(w http.ResponseWriter, fp string) {
 	var url string
