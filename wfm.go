@@ -22,7 +22,7 @@ import (
 type multiString []string
 
 var (
-	vers       = "2.0.2"
+	vers       = "2.0.4"
 	bindProto  = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
 	bindAddr   = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: :443")
 	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
