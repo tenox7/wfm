@@ -77,15 +77,6 @@ func redirect(w http.ResponseWriter, uUrl string) {
     `))
 }
 
-func emit(s string, c int) string {
-	o := strings.Builder{}
-	for c > 0 {
-		o.WriteString(s)
-		c--
-	}
-	return o.String()
-}
-
 func upDnDir(uDir, uBn string) string {
 	o := strings.Builder{}
 	o.WriteString("<OPTION VALUE=\"/\">/ - Root</OPTION>\n")

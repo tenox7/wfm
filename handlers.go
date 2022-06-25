@@ -135,14 +135,3 @@ func dispRobots(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintln(w, "Disallow: /")
 }
-
-func noText(m map[string][]string) map[string][]string {
-	o := make(map[string][]string)
-	for k, v := range m {
-		if k == "text" {
-			continue
-		}
-		o[k] = v
-	}
-	return o
-}

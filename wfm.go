@@ -87,6 +87,26 @@ func (z *multiString) Set(v string) error {
 	return nil
 }
 
+func emit(s string, c int) string {
+	o := strings.Builder{}
+	for c > 0 {
+		o.WriteString(s)
+		c--
+	}
+	return o.String()
+}
+
+func noText(m map[string][]string) map[string][]string {
+	o := make(map[string][]string)
+	for k, v := range m {
+		if k == "text" {
+			continue
+		}
+		o[k] = v
+	}
+	return o
+}
+
 func main() {
 	var err error
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
