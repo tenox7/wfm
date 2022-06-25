@@ -159,7 +159,9 @@ func main() {
 	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	// rate limit setup
-	rlBu = ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10)
+	if *rateLim != 0 {
+		rlBu = ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10)
+	}
 
 	// http stuff
 	mux := http.NewServeMux()

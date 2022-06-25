@@ -21,6 +21,9 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * use certmagic for acme? https://github.com/caddyserver/certmagic
 * use lego for acme? https://github.com/go-acme/lego
 * qps rate limiter
+  https://github.com/didip/tollbooth
+  https://github.com/uber-go/ratelimit
+  https://github.com/sethvargo/go-limiter
 
 ## Layout / UI
 * add flag to specify own favicon.ico
