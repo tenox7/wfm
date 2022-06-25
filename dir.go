@@ -59,18 +59,18 @@ func (r *wfmRequest) listFiles(hi string) {
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
 		r.w.Write([]byte(`
-        <TD NOWRAP ALIGN="left">
-		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + r.eSort + `">` + i["di"] + heFile + `/</A>` + li + `
-		</TD>
-        <TD NOWRAP>&nbsp;</TD>
-        <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-        <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
-		</TD>
-        </TR>
+			<TD NOWRAP ALIGN="left">
+				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
+				<A HREF="` + *wfmPfx + `?dir=` + qeDir + `/` + qeFile + `&amp;sort=` + r.eSort + `">` + i["di"] + heFile + `/</A>` + li + `
+			</TD>
+			<TD NOWRAP>&nbsp;</TD>
+			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
+			<TD NOWRAP ALIGN="right">
+				<A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
+			</TD>
+		</TR>
         `))
 	}
 
@@ -103,19 +103,19 @@ func (r *wfmRequest) listFiles(hi string) {
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
 		r.w.Write([]byte(`
-        <TD NOWRAP ALIGN="LEFT">
-		<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-        <A HREF="` + *wfmPfx + `?fn=disp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
-		</TD>
-        <TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
-        <TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-        <TD NOWRAP ALIGN="right">
-        <A HREF="` + *wfmPfx + `?fn=down&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + i["dn"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=edit&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
-        <A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
-        </TD>
+			<TD NOWRAP ALIGN="LEFT">
+				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
+				<A HREF="` + *wfmPfx + `?fn=disp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
+			</TD>
+			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
+			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
+			<TD NOWRAP ALIGN="right">
+				<A HREF="` + *wfmPfx + `?fn=down&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + i["dn"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=edit&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
+			</TD>
         </TR>
         `))
 		total = total + uint64(f.Size())
@@ -123,7 +123,7 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	// Footer
 	r.w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">Total ` +
-		humanize.Bytes(total) + `</TD><TD></TD><TD></TD></TR></TABLE>`))
+		humanize.Bytes(total) + `</TD><TD></TD><TD></TD></TR>` + "\n\t</TABLE>\n"))
 	footer(r.w)
 }
 
