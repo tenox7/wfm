@@ -8,8 +8,10 @@
 * Web folder with no index, on a separate port?
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
 https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
+* use direct url path instead of ?dir=xxx&file=yyyy use /prefix/dir/file
 
 ## Security
+* seperate prefix for admin/rw users eg /admin with readonly on /
 * userless/guest read-only mode, user rw
   requires custom login window
 * two factor auth
@@ -33,6 +35,7 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * glob filter (*.*) in dir view
 * errors in dialog boxes instead of plain text
 * html as template
+* ro users do not show rw user controls like delete/rename/move/upload
 
 ## File IO
 * file search function

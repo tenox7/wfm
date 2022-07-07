@@ -272,8 +272,8 @@ func icons(b bool) map[string]string {
 	}
 
 	return map[string]string{
-		"fi": "&#183; ",
-		"di": "&#187; ",
+		"fi": " ",
+		"di": " ",
 		"li": " (link);",
 
 		"rm": "[rm]",

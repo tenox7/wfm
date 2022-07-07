@@ -128,11 +128,12 @@ func (r *wfmRequest) editText() {
     <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(r.uFbn) + `</TD>
     <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">&nbsp;</TD>
     </TR>
-    <TR STYLE="height:99%;">
+    <TR STYLE="height:98%;">
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
     <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
-    <INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" STYLE="float: left;">
-	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel" STYLE="float: left; margin-left: 10px">
+    </TD></TR><TR STYLE="height:1%;"><TD ALIGN="RIGHT">
+	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save">&nbsp;
+	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel">
     <INPUT TYPE="HIDDEN" NAME="dir" VALUE="` + html.EscapeString(r.uDir) + `">
     <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + html.EscapeString(r.uFbn) + `">
     </TD></TR></TABLE>
