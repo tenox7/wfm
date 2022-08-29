@@ -74,16 +74,23 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	case r.FormValue("save") != "":
 		wfm.saveText(r.FormValue("text"))
 		return
-	case r.FormValue("home") != "":
-		wfm.uDir = "/"
-		wfm.listFiles(filepath.Base(r.FormValue("hi")))
-		return
 	case r.FormValue("up") != "":
 		up := *wfmPfx + "/" + url.QueryEscape(filepath.Dir(wfm.uDir))
 		if wfm.eSort != "" {
 			up = up + "?sort=" + wfm.eSort
 		}
 		redirect(w, up)
+		return
+	case r.FormValue("refresh") != "":
+		re := *wfmPfx + "/" + url.QueryEscape(wfm.uDir)
+		if wfm.eSort != "" {
+			re = re + "?sort=" + wfm.eSort
+		}
+		redirect(w, re)
+		return
+	case r.FormValue("home") != "":
+		wfm.uDir = "/"
+		wfm.listFiles(filepath.Base(r.FormValue("hi")))
 		return
 	case r.FormValue("cancel") != "":
 		wfm.listFiles(filepath.Base(r.FormValue("hi")))
