@@ -37,9 +37,9 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 	wfm.uFbn = filepath.Base(r.FormValue("file"))
 	wfm.uDir = filepath.Clean(r.FormValue("dir"))
-	// directory can come from form value or URI
+	// directory can come from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
-		u, _ := url.QueryUnescape(r.RequestURI)
+		u, _ := url.QueryUnescape(r.URL.Path)
 		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, *wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
