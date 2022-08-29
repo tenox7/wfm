@@ -77,14 +77,14 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	case r.FormValue("up") != "":
 		up := *wfmPfx + "/" + url.QueryEscape(filepath.Dir(wfm.uDir))
 		if wfm.eSort != "" {
-			up = up + "?sort=" + wfm.eSort
+			up += "?sort=" + wfm.eSort
 		}
 		redirect(w, up)
 		return
 	case r.FormValue("refresh") != "":
 		re := *wfmPfx + "/" + url.QueryEscape(wfm.uDir)
 		if wfm.eSort != "" {
-			re = re + "?sort=" + wfm.eSort
+			re += "?sort=" + wfm.eSort
 		}
 		redirect(w, re)
 		return

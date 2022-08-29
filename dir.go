@@ -58,10 +58,14 @@ func (r *wfmRequest) listFiles(hi string) {
 		z++
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
+		nUrl := *wfmPfx + `/` + qeDir + `/` + qeFile
+		if r.eSort != "" {
+			nUrl += `?sort=` + r.eSort
+		}
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="left">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + *wfmPfx + `/` + qeDir + `/` + qeFile + `?sort=` + r.eSort + `">` + i["di"] + heFile + `/</A>` + li + `
+				<A HREF="` + nUrl + `">` + i["di"] + heFile + `/</A>` + li + `
 			</TD>
 			<TD NOWRAP>&nbsp;</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
