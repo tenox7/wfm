@@ -195,9 +195,9 @@ func main() {
 
 	// http stuff
 	mux := mux.NewRouter()
+	mux.Path("/favicon.ico").HandlerFunc(dispFavIcon)
+	mux.Path("/robots.txt").HandlerFunc(dispRobots)
 	mux.PathPrefix(*wfmPfx).HandlerFunc(wfmMain)
-	mux.HandleFunc("/favicon.ico", dispFavIcon)
-	mux.HandleFunc("/robots.txt", dispRobots)
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)
 	}
