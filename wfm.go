@@ -15,6 +15,7 @@ import (
 	"syscall"
 
 	_ "github.com/breml/rootcerts"
+	"github.com/gorilla/mux"
 	"github.com/juju/ratelimit"
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -193,8 +194,8 @@ func main() {
 	}
 
 	// http stuff
-	mux := http.NewServeMux()
-	mux.HandleFunc(*wfmPfx, wfmMain)
+	mux := mux.NewRouter()
+	mux.PathPrefix(*wfmPfx).HandlerFunc(wfmMain)
 	mux.HandleFunc("/favicon.ico", dispFavIcon)
 	mux.HandleFunc("/robots.txt", dispRobots)
 	if *f2bDump != "" {

@@ -37,11 +37,10 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 	wfm.uFbn = filepath.Base(r.FormValue("file"))
 	wfm.uDir = filepath.Clean(r.FormValue("dir"))
+	// directory can come from form value or URI
 	if wfm.uDir == "" || wfm.uDir == "." {
-		// this only works with empty/default prefix
-		// TODO(tenox): use different mux/router with glob/regex patterns
 		u, _ := url.QueryUnescape(r.RequestURI)
-		wfm.uDir = filepath.Clean(u)
+		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, *wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
 		wfm.uDir = "/"

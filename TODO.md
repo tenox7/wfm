@@ -9,7 +9,6 @@
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
 https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * use direct url path instead of ?dir=xxx&file=yyyy use /prefix/dir/file
-* use different mux/router with glob/regex patterns, required for above
 
 ## Security
 * seperate prefix for admin/rw users eg /admin with readonly on /
