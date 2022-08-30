@@ -31,7 +31,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 
 	wfm.w = w
 	wfm.remAddr = r.RemoteAddr
-	wfm.eSort = url.QueryEscape(r.FormValue("sort"))
+	wfm.eSort = r.FormValue("sort")
 	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
 		wfm.modern = true
 	}
@@ -39,7 +39,8 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	wfm.uDir = filepath.Clean(r.FormValue("dir"))
 	// directory can come from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
-		u, _ := url.QueryUnescape(r.URL.Path)
+		// TODO(tenox): use url.Parse() instead
+		u, _ := url.PathUnescape(r.URL.Path)
 		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, *wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
@@ -75,14 +76,22 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		wfm.saveText(r.FormValue("text"))
 		return
 	case r.FormValue("up") != "":
-		up := *wfmPfx + url.QueryEscape(filepath.Dir(wfm.uDir))
+		up, err := url.JoinPath(*wfmPfx, filepath.Dir(wfm.uDir))
+		if err != nil {
+			htErr(w, "up path build", err)
+			return
+		}
 		if wfm.eSort != "" {
 			up += "?sort=" + wfm.eSort
 		}
 		redirect(w, up)
 		return
 	case r.FormValue("refresh") != "":
-		re := *wfmPfx + url.QueryEscape(wfm.uDir)
+		re, err := url.JoinPath(*wfmPfx, wfm.uDir)
+		if err != nil {
+			htErr(w, "up path build", err)
+			return
+		}
 		if wfm.eSort != "" {
 			re += "?sort=" + wfm.eSort
 		}

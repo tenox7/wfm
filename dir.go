@@ -3,6 +3,7 @@ package main
 import (
 	"html"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,7 +26,7 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	header(r.w, r.uDir, r.eSort, "")
 	toolbars(r.w, r.uDir, r.userName, sl, i)
-	qeDir := url.QueryEscape(r.uDir)
+	qeDir := url.PathEscape(r.uDir)
 
 	z := 0
 	var total uint64
@@ -56,9 +57,12 @@ func (r *wfmRequest) listFiles(hi string) {
 			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		z++
-		qeFile := url.QueryEscape(f.Name())
+		qeFile := url.PathEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
-		nUrl := *wfmPfx + qeDir + `/` + qeFile
+		nUrl, err := url.JoinPath(*wfmPfx, qeDir, qeFile)
+		if err != nil {
+			log.Printf("Unable to parse url: %v", err)
+		}
 		if r.eSort != "" {
 			nUrl += `?sort=` + r.eSort
 		}
@@ -104,7 +108,7 @@ func (r *wfmRequest) listFiles(hi string) {
 			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
 		}
 		z++
-		qeFile := url.QueryEscape(f.Name())
+		qeFile := url.PathEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="LEFT">
@@ -133,7 +137,7 @@ func (r *wfmRequest) listFiles(hi string) {
 
 func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[string]string) {
 	eDir := html.EscapeString(uDir)
-	qeDir := url.QueryEscape(uDir)
+	qeDir := url.PathEscape(uDir)
 	// Topbar
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
