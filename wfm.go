@@ -38,7 +38,7 @@ var (
 	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
 	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
 	rateLim    = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
-	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access")
+	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access, eg.: /files")
 	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	robots     = flag.Bool("robots", false, "allow robots")

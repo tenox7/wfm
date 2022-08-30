@@ -58,7 +58,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		z++
 		qeFile := url.QueryEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
-		nUrl := *wfmPfx + `/` + qeDir + `/` + qeFile
+		nUrl := *wfmPfx + qeDir + `/` + qeFile
 		if r.eSort != "" {
 			nUrl += `?sort=` + r.eSort
 		}
