@@ -187,7 +187,7 @@ Get the encoded string and paste it into Hash: "" value.
 
 ### Fail to ban
 
-WFM monitor failed user login attempts and bans user for increasing period of
+WFM monitors failed user login attempts and bans user for increasing period of
 time with more bad attempts. This is enabled by default. You can disable this
 behavior with `-f2b=false` flag. In addition for debugging purposes you can
 enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2b`.
@@ -219,11 +219,6 @@ In this example WFM will serve html files from `/somedir` on / http prefix
 with `/admin` as a password protected admin interface where you can edit
 and manage the site.
 
-## Deny / hide dir
-
-You can deny access and hide any directory prefix. For example lets say
-you want to exclude `/priv` folder inside the chroot directory.
-Add `-deny_pfx=/priv` to your flags. This flag can be repeated.
 
 ## Flags
 
