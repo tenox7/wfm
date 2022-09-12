@@ -300,3 +300,18 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	}
 	redirect(r.w, *wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort)
 }
+
+func (r *wfmRequest) dispOrDir(hi string) {
+	f, err := os.Stat(r.uDir)
+	if err != nil {
+		htErr(r.w, "error checking file", err)
+		return
+	}
+	if f.IsDir() {
+		r.listFiles(hi)
+		return
+	}
+	r.uFbn = filepath.Base(r.uDir)
+	r.uDir = filepath.Dir(r.uDir)
+	r.dispFile()
+}

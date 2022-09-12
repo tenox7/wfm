@@ -141,7 +141,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	case "about":
 		wfm.about(r.UserAgent())
 	default:
-		wfm.listFiles(filepath.Base(r.FormValue("hi")))
+		wfm.dispOrDir(filepath.Base(r.FormValue("hi")))
 	}
 }
 
