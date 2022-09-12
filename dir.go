@@ -25,7 +25,7 @@ func (r *wfmRequest) listFiles(hi string) {
 	sortFiles(d, &sl, r.eSort)
 
 	header(r.w, r.uDir, r.eSort, "")
-	toolbars(r.w, r.uDir, r.userName, sl, i)
+	toolbars(r.w, r.uDir, r.userName, sl, i, r.rwAccess)
 	qeDir := url.PathEscape(r.uDir)
 
 	z := 0
@@ -74,10 +74,16 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP>&nbsp;</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 			<TD NOWRAP ALIGN="right">
+		`))
+		if r.rwAccess {
+			r.w.Write([]byte(`
 				<A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
 				<A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
 				<A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
-			</TD>
+		`))
+		}
+		r.w.Write([]byte(`
+					</TD>
 		</TR>
         `))
 	}
@@ -123,11 +129,17 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 			<TD NOWRAP ALIGN="right">
 				<A HREF="` + *wfmPfx + `?fn=down&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + i["dn"] + `</A>&nbsp;
+			`))
+		if r.rwAccess {
+			r.w.Write([]byte(`
 				<A HREF="` + *wfmPfx + `?fn=edit&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
 				<A HREF="` + *wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
 				<A HREF="` + *wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
 				<A HREF="` + *wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
-			</TD>
+			`))
+		}
+		r.w.Write([]byte(`
+				</TD>
         </TR>
         `))
 		total = total + uint64(f.Size())
@@ -139,7 +151,7 @@ func (r *wfmRequest) listFiles(hi string) {
 	footer(r.w)
 }
 
-func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[string]string) {
+func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[string]string, rw bool) {
 	eDir := html.EscapeString(uDir)
 	qeDir := url.PathEscape(uDir)
 	// Topbar
@@ -149,7 +161,8 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
                 <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</FONT>
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-				<A HREF="` + *wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>
+				` + rorw[rw] + `&nbsp;
+				<A HREF="` + *wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>&nbsp;
                 <A HREF="` + *wfmPfx + `?fn=about&amp;dir=` + qeDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
         </TR></TABLE>
@@ -168,23 +181,23 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
             <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">
         </TD>
             <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER" >
-        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb">
+        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
-            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
-            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb">
+            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb" ` + disTag[rw] + `>
         </TD>
         </TR></TABLE>
         `))

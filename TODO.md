@@ -35,7 +35,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * glob filter (*.*) in dir view
 * errors in dialog boxes instead of plain text
 * html as template
-* ro users do not show rw user controls like delete/rename/move/upload
 
 ## File IO
 * file search function

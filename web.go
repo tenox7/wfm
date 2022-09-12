@@ -15,6 +15,14 @@ import (
 var (
 	//go:embed favicon.ico
 	favIcn []byte
+	disTag = map[bool]string{
+		true:  "",
+		false: "DISABLED",
+	}
+	rorw = map[bool]string{
+		true:  "&#x1F511; rw",
+		false: "&#x1F512; ro",
+	}
 )
 
 func htErr(w http.ResponseWriter, msg string, err error) {

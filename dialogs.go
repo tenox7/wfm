@@ -94,7 +94,7 @@ func (r *wfmRequest) prompt(action string, mul []string) {
     </TD></TR>
     <TR><TD COLSPAN="2">
     <P><CENTER>
-    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK">&nbsp;
+    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK" ` + disTag[r.rwAccess] + `>&nbsp;
     <INPUT TYPE="SUBMIT" VALUE=" Cancel " NAME="cancel">
     <INPUT TYPE="HIDDEN" NAME="fn" VALUE="` + action + `">
     </CENTER>
@@ -132,7 +132,7 @@ func (r *wfmRequest) editText() {
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
     <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
     </TD></TR><TR STYLE="height:1%;"><TD ALIGN="RIGHT">
-	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save">&nbsp;
+	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" ` + disTag[r.rwAccess] + `>&nbsp;
 	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel">
     <INPUT TYPE="HIDDEN" NAME="dir" VALUE="` + html.EscapeString(r.uDir) + `">
     <INPUT TYPE="HIDDEN" NAME="file" VALUE="` + html.EscapeString(r.uFbn) + `">
