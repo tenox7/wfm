@@ -110,10 +110,14 @@ func (r *wfmRequest) listFiles(hi string) {
 		z++
 		qeFile := url.PathEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
+		nUrl, err := url.JoinPath(*wfmPfx, qeDir, qeFile)
+		if err != nil {
+			log.Printf("Unable to parse url: %v", err)
+		}
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="LEFT">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + *wfmPfx + `?fn=disp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
+				<A HREF="` + nUrl + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
 			</TD>
 			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
