@@ -26,7 +26,7 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	header(r.w, r.uDir, r.eSort, "")
 	toolbars(r.w, r.uDir, r.userName, sl, i, r.rwAccess)
-	qeDir := url.PathEscape(r.uDir)
+	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
 
 	z := 0
 	var total uint64
