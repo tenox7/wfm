@@ -64,7 +64,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string) {
 --></STYLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
-<FORM ACTION="` + *wfmPfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
+<FORM ACTION="` + wfmPfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
 <INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
 <INPUT TYPE="hidden" NAME="sort" VALUE="` + sort + `">
 `))

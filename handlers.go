@@ -32,8 +32,8 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.userName, r.RequestURI, noText(r.Form))
 
-	wfm.fs = afero.NewBasePathFs(afero.NewOsFs(), "/Volumes/tmp")
-	//wfm.fs = afero.NewOsFs()
+	// TODO(tenox): allow fs per user
+	wfm.fs = wfmFs
 	wfm.w = w
 	wfm.remAddr = r.RemoteAddr
 	wfm.eSort = r.FormValue("sort")
@@ -46,7 +46,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	if wfm.uDir == "" || wfm.uDir == "." {
 		// TODO(tenox): use url.Parse() instead
 		u, _ := url.PathUnescape(r.URL.Path)
-		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, *wfmPfx))
+		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
 		wfm.uDir = "/"
@@ -81,7 +81,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		wfm.saveText(r.FormValue("text"))
 		return
 	case r.FormValue("up") != "":
-		up, err := url.JoinPath(*wfmPfx, filepath.Dir(wfm.uDir))
+		up, err := url.JoinPath(wfmPfx, filepath.Dir(wfm.uDir))
 		if err != nil {
 			htErr(w, "up path build", err)
 			return
@@ -92,7 +92,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		redirect(w, up)
 		return
 	case r.FormValue("refresh") != "":
-		re, err := url.JoinPath(*wfmPfx, wfm.uDir)
+		re, err := url.JoinPath(wfmPfx, wfm.uDir)
 		if err != nil {
 			htErr(w, "up path build", err)
 			return

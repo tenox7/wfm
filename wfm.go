@@ -17,6 +17,7 @@ import (
 	_ "github.com/breml/rootcerts"
 	"github.com/gorilla/mux"
 	"github.com/juju/ratelimit"
+	"github.com/spf13/afero"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -38,8 +39,10 @@ var (
 	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
 	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
 	rateLim    = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
-	wfmPfx     = flag.String("prefix", "/", "Default url prefix for WFM access, eg.: /files")
-	docSrv     = flag.String("doc_srv", "", "Serve regular http files, fsdir:prefix, eg /var/www/:/home/")
+	prefix     = flag.String("prefix", "/:/", "Prefix for WFM access, /fsdir:/htpath eg.: /var/files:/myfiles")
+	wfmFs      afero.Fs
+	wfmPfx     string
+	docSrv     = flag.String("doc_srv", "", "Serve regular http files, /fsdir:/htpath, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	robots     = flag.Bool("robots", false, "allow robots")
 	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
@@ -193,11 +196,21 @@ func main() {
 		rlBu = ratelimit.NewBucketWithRate(float64(*rateLim<<20), 1<<10)
 	}
 
-	// http stuff
+	// http routing
 	mux := mux.NewRouter()
 	mux.Path("/favicon.ico").HandlerFunc(dispFavIcon)
 	mux.Path("/robots.txt").HandlerFunc(dispRobots)
-	mux.PathPrefix(*wfmPfx).HandlerFunc(wfmMain)
+	pfx := strings.Split(*prefix, ":")
+	if len(pfx) != 2 || pfx[0][0] != '/' || pfx[1][0] != '/' {
+		log.Fatal("--prefix must be in format '/dir:/path'")
+	}
+	log.Printf("Prefix fs=%v uri=%v", pfx[0], pfx[1])
+	wfmFs = afero.NewOsFs()
+	if pfx[0] != "/" {
+		wfmFs = afero.NewBasePathFs(wfmFs, pfx[0])
+	}
+	wfmPfx = pfx[1]
+	mux.PathPrefix(wfmPfx).HandlerFunc(wfmMain)
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)
 	}
