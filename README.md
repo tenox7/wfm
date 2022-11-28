@@ -241,22 +241,22 @@ Usage of wfm:
         Listen address, eg: :443 (default "127.0.0.1:8080")
   -addr_extra string
         Extra non-TLS listener address, eg: :8081
-  -allow_acm_dir
-        allow access to acm cache dir (insecure!)
   -allow_root
         allow to run as uid=0/root without setuid
   -cache_ctl string
         HTTP Header Cache Control (default "no-cache")
   -chroot string
         Directory to chroot to
-  -deny_pfx value
-        deny access / hide this path prefix (multi)
   -doc_srv string
-        Serve regular http files, fsdir:prefix, eg /var/www:/home
+        Serve regular http files, /fsdir:/htpath, eg /var/www/:/home/
   -f2b
         ban ip addresses on user/pass failures (default true)
   -f2b_dump string
         enable f2b dump at this prefix, eg. /f2bdump (default no)
+  -favicon string
+        custom favicon file, empty use default
+  -list_archive_contents
+        list contents of archives (expensive!)
   -logfile string
         Log file name (default stdout)
   -nopass_rw
@@ -264,13 +264,19 @@ Usage of wfm:
   -passwd string
         wfm password file, eg: /usr/local/etc/wfmpw.json
   -prefix string
-        Default prefix for WFM access (default "/")
+        Prefix for WFM access, /fsdir:/htpath eg.: /var/files:/myfiles (default "/:/")
   -proto string
         tcp, tcp4, tcp6, etc (default "tcp")
+  -rate_limit int
+        rate limit for upload/download in MB/s, 0 no limit
+  -robots
+        allow robots
   -setuid string
         Username to setuid to
   -show_dot
         show dot files and folders
+  -site_name string
+        local site name to display (default "WFM")
 ```
 
 ## History
