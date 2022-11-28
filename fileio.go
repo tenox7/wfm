@@ -47,7 +47,7 @@ func (r *wfmRequest) dispFile() {
 	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
 		listArchive(r.w, fp)
 	case "iso":
-		listIso(r.w, fp)
+		listIso(r.w, fp, r.fs)
 
 	default:
 		dispInline(r.w, fp, r.fs)

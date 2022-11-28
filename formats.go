@@ -89,14 +89,15 @@ func listZip(w http.ResponseWriter, fp string, wfs afero.Fs) {
 }
 
 // TODO(tenox): aferoize
-func listIso(w http.ResponseWriter, fp string) {
+func listIso(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	// TODO: recursive file list
-	f, err := os.Open(fp)
+	f, err := wfs.Open(fp)
 	if err != nil {
 		htErr(w, "isoread", err)
 		return
 	}
 	defer f.Close()
+	// TODO(tenox): add UDF support https://github.com/mogaika/udf
 	i, err := iso9660.OpenImage(f)
 	if err != nil {
 		htErr(w, "isoread", err)
