@@ -4,10 +4,10 @@ import (
 	"archive/zip"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -15,41 +15,40 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/kdomanski/iso9660"
 	"github.com/mholt/archiver/v4"
+	"github.com/spf13/afero"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
 )
 
-// TODO(tenox): aferoize
-func gourl(w http.ResponseWriter, fp string) {
+func gourl(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	var url string
-	if strings.HasSuffix(strings.ToLower(fp), ".url") {
-		i, err := ini.Load(fp)
+	f, err := afero.ReadFile(wfs, fp)
+	if err != nil {
+		htErr(w, "go2url", fmt.Errorf("unable to read link file: %v", err))
+		return
+	}
+
+	e := strings.ToLower(filepath.Ext(fp))
+	switch e {
+	case ".url":
+		i, err := ini.Load(f)
 		if err != nil {
 			htErr(w, "go2url", err)
 			return
 		}
 		url = i.Section("InternetShortcut").Key("URL").String()
-	}
-
-	if strings.HasSuffix(strings.ToLower(fp), ".desktop") {
-		i, err := ini.Load(fp)
+	case ".desktop":
+		i, err := ini.Load(f)
 		if err != nil {
 			htErr(w, "go2url", err)
 			return
 		}
 		url = i.Section("Desktop Entry").Key("URL").String()
-	}
-
-	if strings.HasSuffix(strings.ToLower(fp), ".webloc") {
-		x, err := ioutil.ReadFile(fp)
-		if err != nil {
-			htErr(w, "go2url", err)
-			return
-		}
+	case ".webloc":
 		var p struct {
 			URL string
 		}
-		_, err = plist.Unmarshal(x, &p)
+		_, err = plist.Unmarshal(f, &p)
 		if err != nil {
 			htErr(w, "go2url", err)
 			return

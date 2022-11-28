@@ -29,7 +29,7 @@ func (r *wfmRequest) dispFile() {
 	// inexpensive file handlers
 	switch ext {
 	case "url", "desktop", "webloc":
-		gourl(r.w, fp)
+		gourl(r.w, fp, r.fs)
 		return
 	}
 
