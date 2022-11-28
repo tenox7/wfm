@@ -88,7 +88,6 @@ func listZip(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	}
 }
 
-// TODO(tenox): aferoize
 func listIso(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	// TODO: recursive file list
 	f, err := wfs.Open(fp)
@@ -129,14 +128,23 @@ func listIso(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	}
 }
 
-// TODO(tenox): aferoize
-func list7z(w http.ResponseWriter, fp string) {
-	a, err := sevenzip.OpenReader(fp)
+func list7z(w http.ResponseWriter, fp string, wfs afero.Fs) {
+	f, err := wfs.Open(fp)
+	if err != nil {
+		htErr(w, "sevenzip: open: ", err)
+		return
+	}
+	defer f.Close()
+	s, err := f.Stat()
+	if err != nil {
+		htErr(w, "sevenzip: stat: ", err)
+		return
+	}
+	a, err := sevenzip.NewReader(f, s.Size())
 	if err != nil {
 		htErr(w, "sevenzip", err)
 		return
 	}
-	defer a.Close()
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", *cacheCtl)
 	for _, f := range a.File {

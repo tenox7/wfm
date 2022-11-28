@@ -43,7 +43,7 @@ func (r *wfmRequest) dispFile() {
 	case "zip":
 		listZip(r.w, fp, r.fs)
 	case "7z":
-		list7z(r.w, fp)
+		list7z(r.w, fp, r.fs)
 	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
 		listArchive(r.w, fp)
 	case "iso":
