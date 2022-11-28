@@ -64,14 +64,23 @@ func gourl(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	redirect(w, url)
 }
 
-// TODO(tenox): aferoize
-func listZip(w http.ResponseWriter, fp string) {
-	z, err := zip.OpenReader(fp)
+func listZip(w http.ResponseWriter, fp string, wfs afero.Fs) {
+	f, err := wfs.Open(fp)
 	if err != nil {
-		htErr(w, "unzip", err)
+		htErr(w, "unzip: open: ", err)
 		return
 	}
-	defer z.Close()
+	s, err := f.Stat()
+	if err != nil {
+		htErr(w, "unzip:  stat: ", err)
+		return
+	}
+	defer f.Close()
+	z, err := zip.NewReader(f, s.Size())
+	if err != nil {
+		htErr(w, "unzip: reader: ", err)
+		return
+	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", *cacheCtl)
 	for _, f := range z.File {

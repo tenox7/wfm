@@ -41,7 +41,7 @@ func (r *wfmRequest) dispFile() {
 	// expensive file handlers
 	switch ext {
 	case "zip":
-		listZip(r.w, fp)
+		listZip(r.w, fp, r.fs)
 	case "7z":
 		list7z(r.w, fp)
 	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
