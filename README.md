@@ -70,7 +70,17 @@ An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.
 
 ### Docker
 
-TBD.
+```shell
+$ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm
+```
+
+WFM docker container expects the data directory to be mounted in `/data` inside the
+container. This can be overridden with `--prefix` flag if necessary.
+
+TODO(tenox): password file in docker
+
+You may also need add `--nopass_rw` if running without password file and `--allow_root`
+if you don't specify `--user` in Docker run.
 
 ## SSL / TLS / Auto Cert Manager
 

@@ -26,7 +26,7 @@ type multiString []string
 var (
 	vers       = "2.0.7"
 	bindProto  = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
-	bindAddr   = flag.String("addr", "127.0.0.1:8080", "Listen address, eg: :443")
+	bindAddr   = flag.String("addr", ":8080", "Listen address, eg: :443")
 	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
 	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
 	suidUser   = flag.String("setuid", "", "Username to setuid to")
