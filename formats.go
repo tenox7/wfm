@@ -154,6 +154,7 @@ func list7z(w http.ResponseWriter, fp string, wfs afero.Fs) {
 
 // TODO(tenox): aferoize
 func listArchive(w http.ResponseWriter, fp string) {
+	return // doesnt work with afero
 	a, err := archiver.FileSystem(fp)
 	if err != nil {
 		htErr(w, "archiver", err)

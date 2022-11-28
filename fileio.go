@@ -22,13 +22,12 @@ var (
 
 func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
-	s := strings.Split(fp, ".")
-	log.Printf("Dsiposition file=%v ext=%v", fp, s[len(s)-1])
-	ext := strings.ToLower(s[len(s)-1])
+	ext := strings.ToLower(filepath.Ext(fp))
+	log.Printf("Dsiposition file=%v ext=%v", fp, ext)
 
 	// inexpensive file handlers
 	switch ext {
-	case "url", "desktop", "webloc":
+	case ".url", ".desktop", ".webloc":
 		gourl(r.w, fp, r.fs)
 		return
 	}
@@ -40,13 +39,14 @@ func (r *wfmRequest) dispFile() {
 
 	// expensive file handlers
 	switch ext {
-	case "zip":
+	case ".zip":
 		listZip(r.w, fp, r.fs)
-	case "7z":
+	case ".7z":
 		list7z(r.w, fp, r.fs)
-	case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
-		listArchive(r.w, fp)
-	case "iso":
+	// currently doesnt work with afero fs
+	// case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
+	//listArchive(r.w, fp)
+	case ".iso":
 		listIso(r.w, fp, r.fs)
 
 	default:
