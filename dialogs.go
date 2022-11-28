@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"html"
-	"io/ioutil"
-	"os"
 	"runtime"
 
 	"github.com/dustin/go-humanize"
+	"github.com/spf13/afero"
 )
 
 func (r *wfmRequest) prompt(action string, mul []string) {
@@ -51,12 +50,12 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 		r.w.Write([]byte(`
 		&nbsp;<BR>Select destination folder for <B>` + eBn + `</B>:<P>
 		<SELECT NAME="dst">
-		` + upDnDir(r.uDir, "") + `</SELECT>
+		` + upDnDir(r.uDir, "", r.fs) + `</SELECT>
 		<INPUT TYPE="HIDDEN" NAME="file" VALUE="` + eBn + `">
 		`))
 	case "delete":
 		var a string
-		fi, _ := os.Stat(r.uDir + "/" + r.uFbn)
+		fi, _ := r.fs.Stat(r.uDir + "/" + r.uFbn)
 		if fi.IsDir() {
 			a = "directory - recursively"
 		} else {
@@ -80,7 +79,7 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 		fmt.Fprintf(r.w, "&nbsp;<BR>Move from: <B>%v</B><P>\n"+
 			"To: <SELECT NAME=\"dst\">%v</SELECT><P>\n<UL>Items:<P>\n",
 			html.EscapeString(r.uDir),
-			upDnDir(r.uDir, r.uFbn),
+			upDnDir(r.uDir, r.uFbn, r.fs),
 		)
 		for _, f := range mul {
 			fE := html.EscapeString(f)
@@ -107,7 +106,7 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 }
 
 func (r *wfmRequest) editText() {
-	fi, err := os.Stat(r.uDir + "/" + r.uFbn)
+	fi, err := r.fs.Stat(r.uDir + "/" + r.uFbn)
 	if err != nil {
 		htErr(r.w, "Unable to get file attributes", err)
 		return
@@ -116,7 +115,7 @@ func (r *wfmRequest) editText() {
 		htErr(r.w, "edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
-	f, err := ioutil.ReadFile(r.uDir + "/" + r.uFbn)
+	f, err := afero.ReadFile(r.fs, r.uDir+"/"+r.uFbn)
 	if err != nil {
 		htErr(r.w, "Unable to read file", err)
 		return

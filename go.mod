@@ -11,6 +11,7 @@ require (
 	github.com/juju/ratelimit v1.0.2
 	github.com/kdomanski/iso9660 v0.3.2
 	github.com/mholt/archiver/v4 v4.0.0-alpha.7
+	github.com/spf13/afero v1.9.3
 	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 	gopkg.in/ini.v1 v1.67.0
 	howett.net/plist v1.0.0
@@ -22,7 +23,6 @@ require (
 	github.com/bodgit/windows v1.0.0 // indirect
 	github.com/connesc/cipherio v0.2.1 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
-	github.com/golang/mock v1.4.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

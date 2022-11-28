@@ -19,6 +19,7 @@ import (
 	"howett.net/plist"
 )
 
+// TODO(tenox): aferoize
 func gourl(w http.ResponseWriter, fp string) {
 	var url string
 	if strings.HasSuffix(strings.ToLower(fp), ".url") {
@@ -64,6 +65,7 @@ func gourl(w http.ResponseWriter, fp string) {
 	redirect(w, url)
 }
 
+// TODO(tenox): aferoize
 func listZip(w http.ResponseWriter, fp string) {
 	z, err := zip.OpenReader(fp)
 	if err != nil {
@@ -78,6 +80,7 @@ func listZip(w http.ResponseWriter, fp string) {
 	}
 }
 
+// TODO(tenox): aferoize
 func listIso(w http.ResponseWriter, fp string) {
 	// TODO: recursive file list
 	f, err := os.Open(fp)
@@ -117,6 +120,7 @@ func listIso(w http.ResponseWriter, fp string) {
 	}
 }
 
+// TODO(tenox): aferoize
 func list7z(w http.ResponseWriter, fp string) {
 	a, err := sevenzip.OpenReader(fp)
 	if err != nil {
@@ -131,6 +135,7 @@ func list7z(w http.ResponseWriter, fp string) {
 	}
 }
 
+// TODO(tenox): aferoize
 func listArchive(w http.ResponseWriter, fp string) {
 	a, err := archiver.FileSystem(fp)
 	if err != nil {
@@ -153,6 +158,7 @@ func listArchive(w http.ResponseWriter, fp string) {
 	}
 }
 
+// TODO(tenox): aferoize
 func du() {
 	rf, err := os.Stat("/")
 	if err != nil {

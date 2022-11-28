@@ -7,9 +7,12 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 type wfmRequest struct {
+	fs       afero.Fs
 	w        http.ResponseWriter
 	userName string
 	remAddr  string
@@ -29,6 +32,8 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	}
 	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.userName, r.RequestURI, noText(r.Form))
 
+	//wfm.fs = afero.NewOsFs()
+	wfm.fs = afero.NewBasePathFs(afero.NewOsFs(), "/Volumes/tmp")
 	wfm.w = w
 	wfm.remAddr = r.RemoteAddr
 	wfm.eSort = r.FormValue("sort")

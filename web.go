@@ -4,12 +4,13 @@ import (
 	_ "embed"
 	"fmt"
 	"html"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/afero"
 )
 
 var (
@@ -85,7 +86,7 @@ func redirect(w http.ResponseWriter, uUrl string) {
     `))
 }
 
-func upDnDir(uDir, uBn string) string {
+func upDnDir(uDir, uBn string, wfs afero.Fs) string {
 	o := strings.Builder{}
 	o.WriteString("<OPTION VALUE=\"/\">/ - Root</OPTION>\n")
 	p := "/"
@@ -102,7 +103,7 @@ func upDnDir(uDir, uBn string) string {
 			emit("&nbsp;&nbsp;", i) + " L " +
 			html.EscapeString(n) + "</OPTION>\n")
 	}
-	d, err := ioutil.ReadDir(uDir)
+	d, err := afero.ReadDir(wfs, uDir)
 	if err != nil {
 		return o.String()
 	}

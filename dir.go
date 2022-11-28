@@ -2,7 +2,6 @@ package main
 
 import (
 	"html"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,11 +11,12 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/spf13/afero"
 )
 
 func (r *wfmRequest) listFiles(hi string) {
 	i := icons(r.modern)
-	d, err := ioutil.ReadDir(r.uDir)
+	d, err := afero.ReadDir(r.fs, r.uDir)
 	if err != nil {
 		htErr(r.w, "Unable to read directory", err)
 		return
@@ -36,7 +36,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := os.Stat(r.uDir + "/" + f.Name())
+			ls, err := r.fs.Stat(r.uDir + "/" + f.Name())
 			if err != nil {
 				continue
 			}
@@ -93,7 +93,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		var ldir bool
 		var li string
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := os.Stat(r.uDir + "/" + f.Name())
+			ls, err := r.fs.Stat(r.uDir + "/" + f.Name())
 			if err != nil {
 				continue
 			}
