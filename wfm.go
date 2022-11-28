@@ -123,7 +123,7 @@ func main() {
 		return
 	}
 
-	log.Print("WFM Starting up")
+	log.Printf("WFM %v Starting up", vers)
 
 	if *passwdDb != "" {
 		loadUsers()
