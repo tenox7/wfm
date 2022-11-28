@@ -1,6 +1,7 @@
 # WFM - Web File Manager
+
 WFM is a lightweight web based file manager. It allows to perform
-typical file and folder operations such as upload, download, rename, move,
+basic file and folder operations such as upload, download, rename, move,
 delete files and organize directory tree structure. Text, markup and markdown
 files can be edited directly in the browser. WFM can also create and open
 bookmarks, link and shortcut files, list inside archives and ISO files.
@@ -14,8 +15,8 @@ document sharing site or a lightweight CMS. The app can also serve static html
 files from a directory which you can manage as an admin. See usage scenarios
 for more information.
 
-WFM is a standalone service with it's own web server. No need for Apache, Nginx or
-anything else. It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
+WFM is a standalone service with it's own web server. No need for Apache, Nginx, etc.
+It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
 Much like Docker, Kubernetes, Hugo, etc. WFM is written in Go language. The binary is
@@ -27,10 +28,14 @@ Netscape 3.x.
 
 ## Directory tree
 
-WFM exposes a directory tree via web based interface. For security it relies entirely
-on `chroot(2)` for selection and restriction which path to use. Chroot can be set by
-WFM's own `-chroot=/dir` flag, or by your service manager. For example Systemd service
-file `RootDirectory=` directive. WFM is not intended to be used without chroot.
+WFM exposes a directory tree via web based interface. The primary method of specifying
+the root directory is chroot via `-chroot=/dir` flag, or by your service manager. For
+example Systemd service file `RootDirectory=` directive. WFM is not intended to be used
+without chroot.
+
+For some services like Docker, a subdirectory must be used, this can be specified by
+`--prefix=/subdir:/` flag. A subdirectory should not be considered secure and you should
+assume users can access files above the prefix up to chroot.
 
 ## Deployment scenarios
 
@@ -196,7 +201,7 @@ enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2
 
 By default WFM serves requests from "/" prefix of the built in web server.
 You can move it to a different prefix for example "/data" or "/wfm" with the
-flag `-prefix=/pfx`.
+flag `-prefix=/:/httppath`.
 
 ## Doc dir
 
