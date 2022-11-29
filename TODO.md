@@ -5,10 +5,10 @@
 * WebDAV server
 * FastCGI Interface
 * Caddy module
-* Docker support - requires sub folder off root
 * Web folder with no index, on a separate port?
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
 https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
+  maybe afero?
 * use url.Parse to get correct url/path
 
 ## Security
@@ -21,7 +21,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
   https://github.com/vkuznet/2fa-server
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
-* download/upload throttling
 * use certmagic for acme? https://github.com/caddyserver/certmagic
 * use lego for acme? https://github.com/go-acme/lego
 * qps rate limiter
@@ -43,14 +42,11 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 * redirects to use new uri paths
 * file search function
-* path prefix, required for docker, [afero](https://github.com/spf13/afero)?
-* path prefix per user
-* udf iso format https://github.com/mogaika/udf
+* path prefix per user, defined in json
 * zip/unzip archives
+* udf iso format https://github.com/mogaika/udf
 * iso files recursive list
 * zipped iso like .iso.gz, .iso.xz, .iso.lz
-* auto unpack via mime type...
-* add more formats like tgz/txz, etc
 * du with xdev as a go routine
 * git client https://github.com/go-git/go-git
 * file locking https://github.com/gofrs/flock
