@@ -133,25 +133,25 @@ Note that any changes to the password file require restart of wfm daemon
 to take effect. This is because the file is read once on startup before
 chroot(2) is performed.
 
-### Create new blank password file
+Create new blank password file:
 
 ```shell
 $ wfm -passwd=/path/users.json user newfile
 ```
 
-### Add user
+Add user:
 
 ```shell
 $ wfm -passwd=/path/users.json user add myuser rw
 ```
 
-### Delete user
+Delete user:
 
 ```shell
 $ wfm -passwd=/path/users.json user delete myuser
 ```
 
-### Change password
+Change password:
 
 ```shell
 $ wfm -passwd=/path/users.json user passwd myuser
@@ -290,10 +290,12 @@ Usage of wfm:
 ```
 
 ## History
-WFM begun its life around 1994 as a CGI Perl script for CERN httpd server, to allow
-uploading and managing customer logs by field support engineers over the web and
-as a front end to FTP server. Later rewritten in C language, when CGIC library and
-Apache httpd were released. Up to 2015 WFM has been a closed source commercial
-application used for lightweight document management and supported by a few customers.
-It has since been open sourced. In 2022 WFM has been rewritten in Go as a stand-alone
-application with built-in web server for more modern deployment scenarios.
+
+WFM begun its life around 1994 as a Perl CGI script for CERN httpd server. It was
+developed to allow uploading logs, dumps and other case data by field support engineers,
+customers, etc. over the web and as a front end to FTP server. Later rewritten in C
+language, when CGIC library and Apache httpd were released. Up to 2015 WFM has been a
+closed source commercial application used for lightweight document management and
+supported by a few customers. It has since been open sourced. In 2022 WFM has been
+rewritten in Go as a stand-alone application with built-in web server for more modern
+deployment scenarios.
