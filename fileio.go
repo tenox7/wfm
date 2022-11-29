@@ -23,7 +23,7 @@ var (
 func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	ext := strings.ToLower(filepath.Ext(fp))
-	log.Printf("Dsiposition file=%v ext=%v", fp, ext)
+	log.Printf("Disposition file=%v ext=%v", fp, ext)
 
 	// inexpensive file handlers
 	switch ext {
