@@ -1,7 +1,6 @@
 package main
 
 import (
-	"archive/zip"
 	"fmt"
 	"io"
 	"io/fs"
@@ -63,30 +62,6 @@ func gourl(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	}
 	log.Print("Redirecting to: ", url)
 	redirect(w, url)
-}
-
-func listZip(w http.ResponseWriter, fp string, wfs afero.Fs) {
-	f, err := wfs.Open(fp)
-	if err != nil {
-		htErr(w, "unzip: open: ", err)
-		return
-	}
-	s, err := f.Stat()
-	if err != nil {
-		htErr(w, "unzip:  stat: ", err)
-		return
-	}
-	defer f.Close()
-	z, err := zip.NewReader(f, s.Size())
-	if err != nil {
-		htErr(w, "unzip: reader: ", err)
-		return
-	}
-	w.Header().Set("Content-Type", "text/plain")
-	w.Header().Set("Cache-Control", *cacheCtl)
-	for _, f := range z.File {
-		fmt.Fprintf(w, "%v  %v\n", f.Name, humanize.Bytes(f.UncompressedSize64))
-	}
 }
 
 func listIso(w http.ResponseWriter, fp string, wfs afero.Fs) {
