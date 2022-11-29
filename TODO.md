@@ -2,6 +2,8 @@
 
 ## Interfaces
 
+* Multiple --prefix instances, this should be possible with map of afero.FS
+  indexed by prefix name so it can be looked up inside wfmMain 
 * WebDAV server
 * FastCGI Interface
 * Caddy module

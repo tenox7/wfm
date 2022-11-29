@@ -77,10 +77,20 @@ $ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm
 WFM docker container expects the data directory to be mounted in `/data` inside the
 container. This can be overridden with `--prefix` flag if necessary.
 
-TODO(tenox): password file in docker
+To supply json password file to the docker container you can mount it:
 
-You may also need add `--nopass_rw` if running without password file and `--allow_root`
-if you don't specify `--user` in Docker run.
+```shell
+$ docker run -d -p 8080:8080 \
+      --user 1234:1234 \
+      -v /some/host/dir:/data \
+      -v /some/dir/wfmpasswd.json:/etc/wfmusers.json
+      tenox7/wfm -passwd=/etc/wfmusers.json
+```
+
+If not using password file you may also need add `--nopass_rw`.
+
+If you don't specify `--user` in Docker run you may also need `--allow_root` since the
+wfm will be running as user id 0 inside the container.
 
 ## SSL / TLS / Auto Cert Manager
 
@@ -92,7 +102,7 @@ Example deployment with SSL:
 ```text
 ExecStart=/usr/local/sbin/wfm \
 	-passwd=/usr/local/etc/wfmpasswd.json \
-	-chroot=/home/user \
+	-chroot=/var/www/html \
 	-setuid=user \
 	-addr=:443 \
 	-acm_addr=:80 \
@@ -104,6 +114,8 @@ The flag `-addr=:443` makes WFM listen on port 443 for https requests.
 Flag `-acm_addr=:80` is used for Auto Cert Manager to obtain the cert
 and then redirect to port 443/https. `-acm_dir=/.certs` is where the
 certificate and key are stored. This directory is inside chroot jail.
+You may want to use `--prefix` inside chroot to hide it.
+
 The `-acm_host=` is a repeated flag that adds specific host to a whitelist.
 ACM will only obtain certificates for whitelisted hosts. If your WFM
 site has multiple names in DNS you need to add them to the whitelist.
