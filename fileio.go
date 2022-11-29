@@ -43,9 +43,8 @@ func (r *wfmRequest) dispFile() {
 		listZip(r.w, fp, r.fs)
 	case ".7z":
 		list7z(r.w, fp, r.fs)
-	// currently doesnt work with afero fs
-	// case "tar", "rar", "gz", "bz2", "xz", "tgz", "tbz2", "txz":
-	//listArchive(r.w, fp)
+	case ".tar", ".rar", ".gz", ".bz2", ".xz", ".tgz", ".tbz2", ".txz":
+		listArchive(r.w, fp, r.fs)
 	case ".iso":
 		listIso(r.w, fp, r.fs)
 

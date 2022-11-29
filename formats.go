@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -152,14 +153,34 @@ func list7z(w http.ResponseWriter, fp string, wfs afero.Fs) {
 	}
 }
 
-// TODO(tenox): aferoize
-func listArchive(w http.ResponseWriter, fp string) {
-	return // doesnt work with afero
-	a, err := archiver.FileSystem(fp)
+func listArchive(w http.ResponseWriter, fp string, wfs afero.Fs) {
+	f, err := wfs.Open(fp)
 	if err != nil {
-		htErr(w, "archiver", err)
+		htErr(w, "archive: open: ", err)
 		return
 	}
+
+	defer f.Close()
+	s, err := f.Stat()
+	if err != nil {
+		htErr(w, "archive: stat: ", err)
+		return
+	}
+
+	af, _, err := archiver.Identify(f.Name(), f)
+	if err != nil {
+		htErr(w, "archive: identify: ", err)
+		return
+	}
+
+	aa := &archiver.ArchiveFS{Stream: io.NewSectionReader(f, 0, s.Size()), Format: af.(archiver.Archival)}
+
+	a, err := aa.Sub(".")
+	if err != nil {
+		htErr(w, "archive: FS: ", err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Cache-Control", *cacheCtl)
 
@@ -176,6 +197,7 @@ func listArchive(w http.ResponseWriter, fp string) {
 	}
 }
 
+// TODO(tenox): finish implementing
 // TODO(tenox): aferoize
 func du() {
 	rf, err := os.Stat("/")
