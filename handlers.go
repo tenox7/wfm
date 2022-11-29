@@ -24,25 +24,26 @@ type wfmRequest struct {
 }
 
 func wfmMain(w http.ResponseWriter, r *http.Request) {
-	wfm := new(wfmRequest)
 	r.ParseMultipartForm(10 << 20)
-	wfm.userName, wfm.rwAccess = auth(w, r)
-	if wfm.userName == "" {
+	uName, uAccess := auth(w, r)
+	if uName == "" {
 		return
 	}
-	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, wfm.userName, r.RequestURI, noText(r.Form))
+	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form))
 
-	// TODO(tenox): allow fs per user
-	wfm.fs = wfmFs
-	wfm.w = w
-	wfm.remAddr = r.RemoteAddr
-	wfm.eSort = r.FormValue("sort")
-	if strings.HasPrefix(r.UserAgent(), "Mozilla/5") {
-		wfm.modern = true
+	wfm := &wfmRequest{
+		userName: uName,
+		rwAccess: uAccess,
+		remAddr:  r.RemoteAddr,
+		w:        w,
+		eSort:    r.FormValue("sort"),
+		modern:   strings.HasPrefix(r.UserAgent(), "Mozilla/5"),
+		fs:       wfmFs, // TODO(tenox): per user FS/homedir
+		uFbn:     filepath.Base(r.FormValue("file")),
+		uDir:     filepath.Clean(r.FormValue("dir")),
 	}
-	wfm.uFbn = filepath.Base(r.FormValue("file"))
-	wfm.uDir = filepath.Clean(r.FormValue("dir"))
-	// directory can come from form value or URI Path
+
+	// directory can come either from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
 		// TODO(tenox): use url.Parse() instead
 		u, _ := url.PathUnescape(r.URL.Path)
