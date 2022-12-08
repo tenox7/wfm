@@ -148,6 +148,7 @@ func listArchive(w http.ResponseWriter, fp string, wfs afero.Fs) {
 		return
 	}
 
+	// TODO(tenox): https://github.com/mholt/archiver/issues/358
 	aa := &archiver.ArchiveFS{Stream: io.NewSectionReader(f, 0, s.Size()), Format: af.(archiver.Archival)}
 
 	a, err := aa.Sub(".")
