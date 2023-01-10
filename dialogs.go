@@ -150,10 +150,10 @@ func (r *wfmRequest) about(ua string) {
       <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; Web File Manager</FONT></TD></TR>
       <TR><TD WIDTH="30">&nbsp;</TD><TD><BR>
 	  WFM Version v` + vers + `<BR>
-	  Developed by Antoni Sawicki Et Al.<BR>
 	  <A HREF="https://github.com/tenox7/wfm/">https://github.com/tenox7/wfm/</A><BR>
+	  Written by Antoni Sawicki Et Al.<BR>
 	  Copyright &copy; 1994-2018 by Antoni Sawicki<BR>
-	  Copyright &copy; 2018-2022 by Google LLC<BR>
+	  Copyright &copy; 2018-2023 by Google LLC<BR>
 	  This is not an official Google product.<P>
 	`))
 
