@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html"
 	"log"
 	"net/http"
@@ -30,6 +31,7 @@ func (r *wfmRequest) listFiles(hi string) {
 
 	z := 0
 	var total uint64
+	var totItems int
 
 	// List Directories First
 	for _, f := range d {
@@ -86,6 +88,7 @@ func (r *wfmRequest) listFiles(hi string) {
 					</TD>
 		</TR>
         `))
+		totItems++
 	}
 
 	// List Files
@@ -143,11 +146,12 @@ func (r *wfmRequest) listFiles(hi string) {
         </TR>
         `))
 		total = total + uint64(f.Size())
+		totItems++
 	}
 
 	// Footer
-	r.w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">Total ` +
-		humanize.Bytes(total) + `</TD><TD></TD><TD></TD></TR>` + "\n\t</TABLE>\n"))
+	r.w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">` + fmt.Sprint(totItems) + ` items, ` +
+		humanize.Bytes(total) + ` total </TD><TD></TD><TD></TD></TR>` + "\n\t</TABLE>\n"))
 	footer(r.w)
 }
 
