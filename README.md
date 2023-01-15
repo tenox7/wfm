@@ -15,7 +15,7 @@ document sharing site or a lightweight CMS. The app can also serve static html
 files from a directory which you can manage as an admin. See usage scenarios
 for more information.
 
-WFM is a standalone service with it's own web server. No need for Apache, Nginx, etc.
+WFM is a standalone service with it's own web server. No need for Apache, Nginx, PHP, etc.
 It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
@@ -39,17 +39,12 @@ assume users can access files above the prefix up to chroot.
 
 ## Deployment scenarios
 
-Setting chroot(2) and binding to ports below 1024 requires root user or capability
-set on the binary file. Depending on whether you bind to port :80, :443 or :8080
-and whether chroot is performed by wfm itself or service manager you can run it
-as a regular user or root user.
-
 ### Systemd
 
-An example service file is provided [here](service/systemd/wfm80.service). By default it
-starts the process as root to allow to bind to port 80. You can specify destination
-directory in `-chroot=/datadir` and user to run as in `-setuid=myuser`. WFM will
-automatically chroot and setuid after port bind is complete.
+An example service file is provided [here](service/systemd/wfm80.service). Much like
+other web servers, WFM starts the process as `root` to bind to port 80. Then it
+setuids to a desired user specified with `-setuid=myuser`. Similarly the process performs
+chroot to a directory specified with `-chroot=/datadir`. 
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
 chroot and use non privileged port (above 1024, eg 8080), or your binary has adequate
@@ -60,8 +55,7 @@ configuration and run:
 
 ```shell
 $ sudo systemctl daemon-reload
-$ sudo systemctl enable wfm
-$ sudo systemctl start wfm
+$ sudo systemctl enable --now wfm
 ```
 
 ### Launchd
@@ -85,7 +79,8 @@ container. This can be overridden with `--prefix` flag if necessary.
 To supply json password file to the docker container you can mount it:
 
 ```shell
-$ docker run -d -p 8080:8080 \
+$ docker run -d \
+      -p 8080:8080 \
       --user 1234:1234 \
       -v /some/host/dir:/data \
       -v /some/dir/wfmpasswd.json:/etc/wfmusers.json
