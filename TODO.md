@@ -2,9 +2,6 @@
 
 ## Interfaces
 
-* Multiple --prefix instances, this should be possible with map of afero.FS
-  indexed by prefix name so it can be looked up inside wfmMain;
-  also auth/noauth at different prefixes
 * WebDAV server
 * FastCGI Interface
 * Caddy module
@@ -16,9 +13,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## Security
 
-* seperate prefix for admin/rw users eg /admin with readonly on /
-* userless/guest read-only mode, user rw
-  requires custom login window
 * two factor auth
   requires custom login window
   https://github.com/vkuznet/2fa-server
@@ -33,9 +27,9 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## Layout / UI
 
+* render issues on old browsers
 * top bar too long on mobile/small screen
-* custom html login window - needed for two factor auth?
-* editable and non editable documents by extension, also for git checkins
+* custom html login window
 * thumbnail / icon view for pictures (cache thumbnails on server?)
 * glob filter (*.*) in dir view
 * errors in dialog boxes instead of plain text
@@ -43,9 +37,13 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## File IO
 
+* multiple --prefix'es, this should be possible with map of afero.FS
+  indexed by prefix name so it can be looked up inside wfmMain;
+  or prefix per user?
+* path prefix per user, defined in json
 * redirects to use new uri paths
 * file search function
-* path prefix per user, defined in json
+* editable and non editable documents by extension, also for git checkins
 * zip/unzip archives
 * udf iso format https://github.com/mogaika/udf
 * iso files recursive list
