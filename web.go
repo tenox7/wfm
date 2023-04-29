@@ -71,7 +71,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string) {
 }
 
 func footer(w http.ResponseWriter) {
-	w.Write([]byte("\n</FORM></BODY></HTML>\n"))
+	w.Write([]byte(`\n</FORM></BODY></HTML>\n`))
 }
 
 func redirect(w http.ResponseWriter, uUrl string) {
