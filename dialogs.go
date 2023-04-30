@@ -10,7 +10,7 @@ import (
 )
 
 func (r *wfmRequest) prompt(action string, mul []string) {
-	header(r.w, r.uDir, r.eSort, "")
+	header(r.w, r.uDir, r.eSort, "", r.modern)
 
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
@@ -120,7 +120,7 @@ func (r *wfmRequest) editText() {
 		htErr(r.w, "Unable to read file", err)
 		return
 	}
-	header(r.w, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`)
+	header(r.w, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`, r.modern)
 	r.w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
@@ -141,7 +141,7 @@ func (r *wfmRequest) editText() {
 }
 
 func (r *wfmRequest) about(ua string) {
-	header(r.w, r.uDir, r.eSort, "")
+	header(r.w, r.uDir, r.eSort, "", r.modern)
 
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">

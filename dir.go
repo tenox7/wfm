@@ -25,7 +25,7 @@ func (r *wfmRequest) listFiles(hi string) {
 	sl := []string{}
 	sortFiles(d, &sl, r.eSort)
 
-	header(r.w, r.uDir, r.eSort, "")
+	header(r.w, r.uDir, r.eSort, "", r.modern)
 	toolbars(r.w, r.uDir, r.userName, sl, i, r.rwAccess)
 	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
 
@@ -78,6 +78,7 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP ALIGN="right">
 		`))
 		if r.rwAccess {
+			// TODO(tenox): use query builder instead
 			r.w.Write([]byte(`
 				<A HREF="` + wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
 				<A HREF="` + wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
@@ -272,8 +273,8 @@ func sortFiles(f []os.FileInfo, l *[]string, by string) {
 	}
 }
 
-func icons(b bool) map[string]string {
-	if b {
+func icons(m bool) map[string]string {
+	if m {
 		return map[string]string{
 			"fi": "&#x1F5D2; ",
 			"di": "&#x1F4C2; ",

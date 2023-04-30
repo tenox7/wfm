@@ -24,6 +24,10 @@ var (
 		true:  "&#x1F511; rw",
 		false: "&#x1F512; ro",
 	}
+	charset = map[bool]string{
+		true:  "UTF-8",
+		false: "ISO-8859-1",
+	}
 )
 
 func htErr(w http.ResponseWriter, msg string, err error) {
@@ -33,18 +37,18 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	log.Printf("error: %v : %v", msg, err)
 }
 
-func header(w http.ResponseWriter, uDir, sort, extraCSS string) {
+func header(w http.ResponseWriter, uDir, sort, extraCSS string, modern bool) {
 	eDir := html.EscapeString(uDir)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Cache-Control", *cacheCtl)
 	w.Write([]byte(`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML LANG="en">
 <HEAD>
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=UTF-8">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=` + charset[modern] + `">
 <META HTTP-EQUIV="Content-Language" CONTENT="en-US">
 <META HTTP-EQUIV="google" CONTENT="notranslate">
-<META HTTP-EQUIV="charset" CONTENT="UTF-8">
-<META HTTP-EQUIV="encoding" CONTENT="UTF-8">
+<META HTTP-EQUIV="charset" CONTENT="` + charset[modern] + `">
+<META HTTP-EQUIV="encoding" CONTENT="` + charset[modern] + `">
 <META NAME="viewport" CONTENT="width=device-width">
 <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
 <LINK REL="shortcut icon" HREF="/favicon.ico?">
