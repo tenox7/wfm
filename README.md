@@ -152,7 +152,7 @@ specified password json file.
 
 Note that any changes to the password file require restart of wfm daemon
 to take effect. This is because the file is read once on startup before
-chroot(2) is performed.
+`chroot(2)` is performed.
 
 Create new blank password file:
 
