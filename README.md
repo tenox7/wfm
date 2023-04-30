@@ -46,7 +46,7 @@ port 80 (and/or 443), you need to start WFM as root.
 
 #### WFM as root
 
-Like any other web server, WFM starts the process as `root` to bind to port 80 or 443. Then
+Like any other web server, WFM starts the process as `root` to binds to port 80 or 443. Then
 it setuids to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
 chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
 [here](service/systemd/wfm80.service).
