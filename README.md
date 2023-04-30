@@ -41,14 +41,23 @@ assume users can access files above the prefix up to chroot.
 
 ### Systemd
 
-An example service file is provided [here](service/systemd/wfm80.service). Much like
-other web servers, WFM starts the process as `root` to bind to port 80. Then it
-setuids to a desired user specified with `-setuid=myuser`. Similarly the process performs
-chroot to a directory specified with `-chroot=/datadir`. 
+You can have either Systemd, or WFM perform chroot and setuid. If you are binding to
+port 80 (and/or 443), you need to start WFM as root.
+
+### WFM as root
+
+Like any other web server, WFM starts the process as `root` to bind to port 80 or 443. Then
+it setuids to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
+chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
+[here](service/systemd/wfm80.service).
+
+### WFM as user
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
-chroot and use non privileged port (above 1024, eg 8080), or your binary has adequate
+chroot and use non privileged port (above 1024, eg. 8080), or your binary has adequate
 capabilities set. Example [here](service/systemd/wfm8080.service).
+
+### Systemd Install
 
 To install wfm service file copy it to `/etc/systemd/system/wfm.service` edit the
 configuration and run:
@@ -89,8 +98,8 @@ $ docker run -d \
 
 If not using password file you may also need add `--nopass_rw`.
 
-If you don't specify `--user` in Docker run you may also need `--allow_root` since the
-wfm will be running as user id 0 inside the container.
+If you don't specify `--user` in Docker run, you may also need `--allow_root` since 
+WFM will be running as user id 0 inside the container.
 
 ## SSL / TLS / Auto Cert Manager
 
