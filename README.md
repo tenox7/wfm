@@ -44,20 +44,20 @@ assume users can access files above the prefix up to chroot.
 You can have either Systemd, or WFM perform chroot and setuid. If you are binding to
 port 80 (and/or 443), you need to start WFM as root.
 
-### WFM as root
+#### WFM as root
 
 Like any other web server, WFM starts the process as `root` to bind to port 80 or 443. Then
 it setuids to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
 chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
 [here](service/systemd/wfm80.service).
 
-### WFM as user
+#### WFM as user
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
 chroot and use non privileged port (above 1024, eg. 8080), or your binary has adequate
 capabilities set. Example [here](service/systemd/wfm8080.service).
 
-### Systemd Install
+#### Systemd Install
 
 To install wfm service file copy it to `/etc/systemd/system/wfm.service` edit the
 configuration and run:
