@@ -28,6 +28,10 @@ var (
 		true:  "UTF-8",
 		false: "ISO-8859-1",
 	}
+	padding = map[bool]string{
+		true:  "2px",
+		false: "0px",
+	}
 )
 
 func htErr(w http.ResponseWriter, msg string, err error) {
@@ -59,7 +63,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string, modern bool) {
 	A:active {text-decoration: none; color:#FF0000; }
 	A:hover {text-decoration: none; background-color: #FF8000; color: #FFFFFF; }
 	html, body, table { margin:0px; padding:0px; border:none;  }
-	td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:2px; border:none; }
+	td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:` + padding[modern] + `; border:none; }
 	input { border-color:#000000; border-style:solid; font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
 	.thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
 	.tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
