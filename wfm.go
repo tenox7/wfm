@@ -216,6 +216,7 @@ func main() {
 	}
 	if *docSrv != "" {
 		ds := strings.Split(*docSrv, ":")
+		// TODO(tenox): use afero HttpFs
 		log.Printf("Starting doc handler for dir %v at %v", ds[0], ds[1])
 		mux.Handle(ds[1], http.StripPrefix(ds[1], http.FileServer(http.Dir(ds[0]))))
 	}
