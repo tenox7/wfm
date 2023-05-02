@@ -20,10 +20,6 @@ var (
 		true:  "",
 		false: "DISABLED",
 	}
-	rorw = map[bool]string{
-		true:  "&#x1F511; rw",
-		false: "&#x1F512; ro",
-	}
 	charset = map[bool]string{
 		true:  "UTF-8",
 		false: "ISO-8859-1",

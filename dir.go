@@ -15,6 +15,13 @@ import (
 	"github.com/spf13/afero"
 )
 
+var (
+	rorw = map[bool]string{
+		true:  "rw",
+		false: "ro",
+	}
+)
+
 func (r *wfmRequest) listFiles(hi string) {
 	i := icons(r.modern)
 	d, err := afero.ReadDir(r.fs, r.uDir)
@@ -166,7 +173,7 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
                 <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</FONT>
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-				` + rorw[rw] + `&nbsp;
+				` + i[rorw[rw]] + `&nbsp;
 				<A HREF="` + wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>&nbsp;
                 <A HREF="` + wfmPfx + `?fn=about&amp;dir=` + qeDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
@@ -299,6 +306,9 @@ func icons(m bool) map[string]string {
 
 			"tid": "&#x1F3AB; ",
 			"tve": "&#x1F9F0; ",
+
+			"rw": "&#x1F511; rw",
+			"ro": "&#x1F512; ro",
 		}
 	}
 
@@ -318,6 +328,9 @@ func icons(m bool) map[string]string {
 		"tre": "&reg; ",
 		"tid": "User: ",
 		"tve": "WFM ",
+
+		"rw": "[rw]",
+		"ro": "[ro]",
 	}
 }
 
