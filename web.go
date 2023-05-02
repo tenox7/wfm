@@ -84,9 +84,15 @@ func redirect(w http.ResponseWriter, uUrl string) {
 	w.Header().Set("Cache-Control", *cacheCtl)
 	w.WriteHeader(302)
 
-	w.Write([]byte(`<HTML><BODY>
-	<A HREF="` + html.EscapeString(uUrl) + `">Go here...</A>
-    </BODY></HTML>
+	u := html.EscapeString(uUrl)
+	w.Write([]byte(`<HTML>
+	<HEAD>
+	<META HTTP-EQUIV="refresh" CONTENT="0; URL=` + u + `">
+	</HEAD>
+	<BODY>
+	If you see this, your browser did not redirect. <A HREF="` + u + `">Click here...</A>
+    </BODY>
+	</HTML>
     `))
 }
 
