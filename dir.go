@@ -158,7 +158,7 @@ func (r *wfmRequest) listFiles(hi string) {
 	}
 
 	// Footer
-	r.w.Write([]byte(`<TR><TD></TD><TD ALIGN="right" STYLE="border-top:1px solid grey">` + fmt.Sprint(totItems) + ` items, ` +
+	r.w.Write([]byte(`<TR><TD></TD><TD NOWRAP ALIGN="right" STYLE="border-top:1px solid grey">` + fmt.Sprint(totItems) + ` items, ` +
 		humanize.Bytes(total) + ` total </TD><TD></TD><TD></TD></TR>` + "\n\t</TABLE>\n"))
 	footer(r.w)
 }
