@@ -173,7 +173,7 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
                 <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</FONT>
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-				` + i[rorw[rw]] + `&nbsp;
+				&nbsp;` + i[rorw[rw]] + `&nbsp;
 				<A HREF="` + wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>&nbsp;
                 <A HREF="` + wfmPfx + `?fn=about&amp;dir=` + qeDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
