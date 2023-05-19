@@ -1,19 +1,15 @@
 # WFM - Web File Manager
 
-WFM is a lightweight web based file manager. It allows to perform
-basic file and folder operations such as upload, download, rename, move,
-delete files and organize directory tree structure. Text, markup and markdown
-files can be edited directly in the browser. WFM can also create and open
-bookmarks, link and shortcut files, list inside archives and ISO files.
+WFM is a lightweight web based, file manager. You can use it as a web interface
+for a NAS box, FTP server, a "personal cloud", document sharing site or a
+lightweight CMS. It allows to perform basic file and folder operations such as 
+download, upload, rename, move, delete files and organize directory tree structure.
+Text files, such as markup and markdown files can be edited directly in the browser.
+WFM can also create and open bookmarks, link and shortcut files, etc. 
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
 ## Usage
-
-You can use it as a web interface for a NAS box, FTP server, a "personal cloud",
-document sharing site or a lightweight CMS. The app can also serve static html
-files from a directory which you can manage as an admin. See usage scenarios
-for more information.
 
 WFM is a standalone service with it's own web server. No need for Apache, Nginx, PHP, etc.
 It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
@@ -23,7 +19,7 @@ Much like Docker, Kubernetes, Hugo, etc. WFM is written in Go language. The bina
 statically linked, fully self contained and has zero external dependencies. Icons are
 unicode emojis. CA Certs are embedded at built time. No need for Python, PHP, SQL,
 JavaScript, Node or any other bloat. WFM outputs validated HTML 4.01 without JavaScript.
-It works on both modern and legacy web browsers going back to Internet Explorer 2.x and
+It works on both modern and legacy web browsers going back to Internet Explorer 1.x and
 Netscape 3.x.
 
 ## Directory tree
@@ -234,27 +230,6 @@ By default WFM serves requests from "/" prefix of the built in web server.
 You can move it to a different prefix for example "/data" or "/wfm" with the
 flag `-prefix=/:/httppath`.
 
-## Doc dir
-
-In addition to it's own Web UI, WFM can also act as a simple web server for
-static html files, etc. To enable this you can use `-doc_srv=/var/www/html:/docs`
-flag. You can serve it on `/` prefix if you move WFM prefix to another location
-via `-prefix`. The physical directory is inside chroot jail.
-
-With this you can create a trivial content management server. For example:
-
-```shell
-$ wfm \
-  -doc_srv=/:/ \
-  -prefix=/admin \
-  -passwd=/path/users.json /
-  -chroot=/somedir
-```
-
-In this example WFM will serve html files from `/somedir` on / http prefix
-with `/admin` as a password protected admin interface where you can edit
-and manage the site.
-
 
 ## Flags
 
@@ -278,8 +253,6 @@ Usage of wfm:
         HTTP Header Cache Control (default "no-cache")
   -chroot string
         Directory to chroot to
-  -doc_srv string
-        Serve regular http files, /fsdir:/htpath, eg /var/www/:/home/
   -f2b
         ban ip addresses on user/pass failures (default true)
   -f2b_dump string

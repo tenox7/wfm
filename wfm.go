@@ -42,7 +42,6 @@ var (
 	prefix     = flag.String("prefix", "/:/", "Prefix for WFM access, /fsdir:/htpath eg.: /var/files:/myfiles")
 	wfmFs      afero.Fs
 	wfmPfx     string
-	docSrv     = flag.String("doc_srv", "", "Serve regular http files, /fsdir:/htpath, eg /var/www/:/home/")
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	robots     = flag.Bool("robots", false, "allow robots")
 	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
@@ -213,12 +212,6 @@ func main() {
 	mux.PathPrefix(wfmPfx).HandlerFunc(wfmMain)
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)
-	}
-	if *docSrv != "" {
-		ds := strings.Split(*docSrv, ":")
-		// TODO(tenox): use afero HttpFs
-		log.Printf("Starting doc handler for dir %v at %v", ds[0], ds[1])
-		mux.Handle(ds[1], http.StripPrefix(ds[1], http.FileServer(http.Dir(ds[0]))))
 	}
 
 	if *bindExtra != "" {
