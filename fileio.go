@@ -117,6 +117,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	}
 	defer f.Close()
 
+	h.Filename = strings.ReplaceAll(h.Filename, "\\", string(os.PathSeparator))
 	fi, err := r.fs.OpenFile(filepath.Join(r.uDir, "/", filepath.Base(h.Filename)), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		htErr(r.w, "unable to write file", err)
