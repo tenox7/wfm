@@ -113,9 +113,10 @@ func noText(m map[string][]string) map[string][]string {
 }
 
 func main() {
-	var err error
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
 	flag.Parse()
+	var err error
 
 	if flag.Arg(0) == "user" {
 		manageUsers()
