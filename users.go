@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"log"
 	"math/rand"
 	"time"
@@ -23,7 +23,7 @@ var (
 )
 
 func loadUsers() {
-	pwd, err := ioutil.ReadFile(*passwdDb)
+	pwd, err := os.ReadFile(*passwdDb)
 	if err != nil {
 		log.Fatal("unable to read password file: ", err)
 	}
@@ -40,7 +40,7 @@ func saveUsers() {
 		log.Fatal(err)
 	}
 	// TODO: pretty format file
-	err = ioutil.WriteFile(*passwdDb, u, 600)
+	err = os.WriteFile(*passwdDb, u, 600)
 	if err != nil {
 		log.Fatal(err)
 	}
