@@ -1,10 +1,10 @@
 # WFM - Web File Manager
 
-WFM is a lightweight web based, file manager. You can use it as a web interface
+WFM is a lightweight, web based, file manager. You can use it as a web interface
 for a NAS box, FTP server, a "personal cloud", document sharing site or a
 lightweight CMS. It allows to perform basic file and folder operations such as 
 download, upload, rename, move, delete files and organize directory tree structure.
-Text files, such as markup and markdown files can be edited directly in the browser.
+Text files, such as markup, markdown, config, etc can be edited directly in the browser.
 WFM can also create and open bookmarks, link and shortcut files, etc. 
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
@@ -190,32 +190,6 @@ or read write access.
 
 Password file can also be hardcoded inside the binary at compile time.
 To add hardcoded users add entries in to `users` var in `auth.go`.
-
-### Generating password hash
-
-```sh
-$ echo -n "SaltMyPassword" | shasum -a 256 | cut -f 1 -d" "
-```
-
-### Example adding user
-
-For example you want to add user `customer` with password `gh34j3n1`.
-
-Add a new entry in the json file. Pick a unique salt, eg `zzx`:
-
-```json
-[
-  { "User": "customer", "Salt": "zzx", "Hash": "", "RW": true }
-]
-```
-
-Run:
-
-```sh
-$ echo -n "zzxgh34j3n1" | shasum -a 256 | cut -f 1 -d" "
-```
-
-Get the encoded string and paste it into Hash: "" value.
 
 ### Fail to ban
 
