@@ -154,7 +154,7 @@ func (r *wfmRequest) about(ua string) {
 	  Written by Antoni Sawicki Et Al.<BR>
 	  Copyright &copy; 1994-2018 by Antoni Sawicki<BR>
 	  Copyright &copy; 2018-2023 by Google LLC<BR>
-	  This is not an official Google product.<P>
+	  Copyright &copy; 2024 by Antoni Sawicki<BR>
 	`))
 
 	if *aboutRnt {
