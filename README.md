@@ -117,9 +117,8 @@ ExecStart=/usr/local/sbin/wfm \
 
 The flag `-addr=:443` makes WFM listen on port 443 for https requests.
 Flag `-acm_addr=:80` is used for Auto Cert Manager to obtain the cert
-and then redirect to port 443/https. `-acm_file=/var/cache/wfm-certs.json`
-is where the certificate and key are stored. This file is opened before
-chroot.
+and then redirect to port 443/https. Flag  `-acm_file=/var/cache/wfm-certs.json`
+is where the certificates and keys are stored. This file is opened before chroot.
 
 The `-acm_host=` is a repeated flag that adds hosts to a whitelist.
 ACM will only obtain certificates for whitelisted hosts. If your WFM
