@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/juju/ratelimit"
 	"github.com/spf13/afero"
+	"github.com/tenox7/tkvs"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -45,7 +46,7 @@ var (
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	robots     = flag.Bool("robots", false, "allow robots")
 	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
-	acmDir     = flag.String("acm_dir", "", "autocert cache, eg: /var/cache (inside chroot)")
+	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
 	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
@@ -158,11 +159,10 @@ func main() {
 	}
 
 	// run autocert manager before chroot/setuid
-	// however it doesn't matter for chroot as certs will land in chroot *adir anyway
 	acm := autocert.Manager{}
-	if *bindAddr != "" && *acmDir != "" && len(acmWhlist) > 0 {
+	if *bindAddr != "" && *acmFile != "" && len(acmWhlist) > 0 {
 		acm.Prompt = autocert.AcceptTOS
-		acm.Cache = autocert.DirCache(*acmDir)
+		acm.Cache = tkvs.NewJsonCache(*acmFile, autocert.ErrCacheMiss)
 		acm.HostPolicy = autocert.HostWhitelist(acmWhlist...)
 		go http.ListenAndServe(*acmBind, acm.HTTPHandler(nil))
 		log.Printf("Autocert enabled for %v", acmWhlist)
@@ -222,7 +222,7 @@ func main() {
 		log.Printf("Listening (extra) on %q", *bindAddr)
 		go http.ListenAndServe(*bindExtra, mux)
 	}
-	if *bindAddr != "" && *acmDir != "" && len(acmWhlist) > 0 {
+	if *bindAddr != "" && *acmFile != "" && len(acmWhlist) > 0 {
 		https := &http.Server{
 			Addr:      *bindAddr,
 			Handler:   mux,
