@@ -111,7 +111,7 @@ ExecStart=/usr/local/sbin/wfm \
 	-setuid=user \
 	-addr=:443 \
 	-acm_addr=:80 \
-	-acm_dir=/.certs \
+	-acm_file=/var/cache/wfm-certs.json \
 	-acm_host=www.snakeoil.com
 ```
 
@@ -212,12 +212,12 @@ Usage of wfm:
         Display runtime info in About Dialog (default true)
   -acm_addr string
         autocert manager listen address, eg: :80
-  -acm_dir string
-        autocert cache, eg: /var/cache (inside chroot)
+  -acm_file string
+        autocert cache, eg: /var/cache/wfm-acme.json
   -acm_host value
         autocert manager allowed hostname (multi)
   -addr string
-        Listen address, eg: :443 (default "127.0.0.1:8080")
+        Listen address, eg: :443 (default ":8080")
   -addr_extra string
         Extra non-TLS listener address, eg: :8081
   -allow_root
