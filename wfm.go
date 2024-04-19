@@ -113,11 +113,10 @@ func noText(m map[string][]string) map[string][]string {
 	return o
 }
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-}
-
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Printf("WFM %v Starting up", vers)
+
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
 	flag.Parse()
 	var err error
@@ -127,7 +126,6 @@ func main() {
 		return
 	}
 
-	log.Printf("WFM %v Starting up", vers)
 
 	if *passwdDb != "" {
 		loadUsers()
