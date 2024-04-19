@@ -222,7 +222,7 @@ func main() {
 		log.Printf("Listening (extra) on %q", *bindAddr)
 		go http.ListenAndServe(*bindExtra, mux)
 	}
-	if *bindAddr != "" && *acmFile != "" && len(acmWhlist) > 0 {
+	if *acmBind != "" && *acmFile != "" && len(acmWhlist) > 0 {
 		https := &http.Server{
 			Addr:      *bindAddr,
 			Handler:   mux,
