@@ -183,14 +183,16 @@ func main() {
 	log.Printf("Listening on %q", *bindAddr)
 
 	// setuid now
-	err = setUid(suid, sgid)
-	if err != nil {
-		log.Fatalf("unable to suid for %v: %v", *suidUser, err)
+	if *suidUser != "" {
+		err = setUid(suid, sgid)
+		if err != nil {
+			log.Fatalf("unable to suid for %v: %v", *suidUser, err)
+		}
+		if !*allowRoot && os.Getuid() == 0 {
+			log.Fatal("you probably dont want to run wfm as root, use --allow_root flag to force it")
+		}
+		log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 	}
-	if !*allowRoot && os.Getuid() == 0 {
-		log.Fatal("you probably dont want to run wfm as root, use --allow_root flag to force it")
-	}
-	log.Printf("Setuid UID=%d GID=%d", os.Geteuid(), os.Getgid())
 
 	// rate limit setup
 	if *rateLim != 0 {
