@@ -29,7 +29,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	if uName == "" {
 		return
 	}
-	go log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form))
+	log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form))
 
 	wfm := &wfmRequest{
 		userName: uName,
