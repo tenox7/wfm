@@ -126,7 +126,6 @@ func main() {
 		return
 	}
 
-
 	if *passwdDb != "" {
 		loadUsers()
 	}
@@ -160,7 +159,7 @@ func main() {
 	acm := autocert.Manager{}
 	if *bindAddr != "" && *acmFile != "" && len(acmWhlist) > 0 {
 		acm.Prompt = autocert.AcceptTOS
-		acm.Cache = tkvs.NewJsonCache(*acmFile, autocert.ErrCacheMiss)
+		acm.Cache = tkvs.New(*acmFile, autocert.ErrCacheMiss)
 		acm.HostPolicy = autocert.HostWhitelist(acmWhlist...)
 		go http.ListenAndServe(*acmBind, acm.HTTPHandler(nil))
 		log.Printf("Autocert enabled for %v", acmWhlist)
