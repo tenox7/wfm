@@ -24,7 +24,7 @@ type wfmRequest struct {
 }
 
 func wfmMain(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(10 << 20)
+	r.ParseMultipartForm(*formMaxMem)
 	uName, uAccess := auth(w, r)
 	if uName == "" {
 		return

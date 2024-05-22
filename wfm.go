@@ -40,6 +40,7 @@ var (
 	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
 	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
 	rateLim    = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
+	formMaxMem = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
 	prefix     = flag.String("prefix", "/:/", "Prefix for WFM access, /fsdir:/htpath eg.: /var/files:/myfiles")
 	wfmFs      afero.Fs
 	wfmPfx     string
