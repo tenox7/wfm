@@ -12,8 +12,8 @@ require (
 	github.com/kdomanski/iso9660 v0.4.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
 	github.com/spf13/afero v1.11.0
-	github.com/tenox7/tkvs v0.0.0-20240427051706-1c6b7322b3d2
-	golang.org/x/crypto v0.22.0
+	github.com/tenox7/tkvs v0.0.0-20240512204442-e0179b1f2b31
+	golang.org/x/crypto v0.23.0
 	gopkg.in/ini.v1 v1.67.0
 	howett.net/plist v1.0.1
 )
@@ -35,7 +35,7 @@ require (
 	github.com/therootcompany/xz v1.0.1 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 )
