@@ -1,11 +1,11 @@
 # WFM - Web File Manager
 
-WFM is a lightweight, web based, file manager. You can use it as a web interface
+WFM is a simple, web based file manager. You can use it as a web interface
 for a NAS box, FTP server, a "personal cloud", document sharing site or a
-lightweight CMS. It allows to perform basic file and folder operations such as 
+lightweight CMS. It allows to perform basic file and folder operations such as
 download, upload, rename, move, delete files and organize directory tree structure.
 Text files, such as markup, markdown, config, etc can be edited directly in the browser.
-WFM can also create and open bookmarks, link and shortcut files, etc. 
+WFM can also create and open bookmarks, link and shortcut files, etc.
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
@@ -94,7 +94,7 @@ $ docker run -d \
 
 If not using password file you may also need add `--nopass_rw`.
 
-If you don't specify `--user` in Docker run, you may also need `--allow_root` since 
+If you don't specify `--user` in Docker run, you may also need `--allow_root` since
 WFM will be running as user id 0 inside the container.
 
 ## SSL / TLS / Auto Cert Manager
@@ -119,6 +119,8 @@ The flag `-addr=:443` makes WFM listen on port 443 for https requests.
 Flag `-acm_addr=:80` is used for Auto Cert Manager to obtain the cert
 and then redirect to port 443/https. Flag  `-acm_file=/var/cache/wfm-certs.json`
 is where the certificates and keys are stored. This file is opened before chroot.
+As such it's desired for WFM to be started as root, then setuid and chroot on it's
+own rather than through systemd/launchd.
 
 The `-acm_host=` is a repeated flag that adds hosts to a whitelist.
 ACM will only obtain certificates for whitelisted hosts. If your WFM
