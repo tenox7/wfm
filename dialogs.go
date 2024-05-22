@@ -1,13 +1,26 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"html"
 	"runtime"
+	"strings"
 
 	"github.com/dustin/go-humanize"
 	"github.com/spf13/afero"
 )
+
+func selOpt(s string, f ...struct{ v, n string }) string {
+	var o []string
+	var m = make(map[string]string)
+	m[s] = "SELECTED"
+	m[""] = "DISABLED"
+	for _, i := range f {
+		o = append(o, fmt.Sprintf("<OPTION VALUE=\"%v\" %v>%v</OPTION>", i.v, m[i.v], i.n))
+	}
+	return strings.Join(o, "\n")
+}
 
 func (r *wfmRequest) prompt(action string, mul []string) {
 	header(r.w, r.uDir, r.eSort, "", r.modern)
@@ -120,17 +133,29 @@ func (r *wfmRequest) editText() {
 		htErr(r.w, "Unable to read file", err)
 		return
 	}
+	le := *defLe
+	if bytes.IndexByte(f, '\r') != -1 {
+		le = "CRLF"
+	}
 	header(r.w, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`, r.modern)
 	r.w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
     <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: ` + html.EscapeString(r.uFbn) + `</TD>
-    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">&nbsp;</TD>
+    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">
+	Line Endings:
+	<SELECT NAME="crlf">
+	` + selOpt(le, []struct{ v, n string }{
+		{"LF", "LF (Unix)"},
+		{"CRLF", "CRLF (Windows)"},
+	}...) + `
+	</SELECT>
+	</TD>
     </TR>
     <TR STYLE="height:98%;">
     <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
     <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">` + html.EscapeString(string(f)) + `</TEXTAREA><P>
-    </TD></TR><TR STYLE="height:1%;"><TD ALIGN="RIGHT">
+    </TD></TR><TR STYLE="height:1%;"><TD>&nbsp;</TD><TD ALIGN="RIGHT">
 	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" ` + disTag[r.rwAccess] + `>&nbsp;
 	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel">
     <INPUT TYPE="HIDDEN" NAME="dir" VALUE="` + html.EscapeString(r.uDir) + `">

@@ -142,7 +142,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(h.Filename))
 }
 
-func (r *wfmRequest) saveText(uData string) {
+func (r *wfmRequest) saveText(uData, crlf string) {
 	if !r.rwAccess {
 		htErr(r.w, "permission", fmt.Errorf("read only"))
 		return
@@ -150,6 +150,12 @@ func (r *wfmRequest) saveText(uData string) {
 	if uData == "" {
 		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
 		return
+	}
+	switch crlf {
+	case "CRLF":
+		uData = strings.ReplaceAll(uData, "\n", "\r\n")
+	case "LF":
+		uData = strings.ReplaceAll(uData, "\r\n", "\n")
 	}
 	fp := r.uDir + "/" + r.uFbn
 	tmpName := fp + ".tmp"
