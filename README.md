@@ -74,7 +74,7 @@ Docker hub: `tenox7/wfm:latest`
 Hello World:
 
 ```shell
-$ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm -prefix /data:/
+$ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm:latest -prefix /data:/
 ```
 
 If not using password file you may also need add `--nopass_rw`.
@@ -91,7 +91,7 @@ $ docker run -d \
       -p 443:8443 \
       -v /some/host/datadir:/data \
       -v /some/dir/wfmpasswd.json:/etc/wfmusers.json
-      tenox7/wfm \
+      tenox7/wfm:latest \
       -passwd /etc/wfmusers.json \
       -addr :8443 \
       -acm_addr :8080 \
