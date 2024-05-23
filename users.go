@@ -6,10 +6,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"os"
 	"log"
 	"math/rand"
+	"os"
 	"time"
+
+	"golang.org/x/term"
 )
 
 type userDB struct {
@@ -78,9 +80,10 @@ func addUser(usr string, rw bool) {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
 	loadUsers()
-	fmt.Print("Password: ")
-	var pwd string
-	fmt.Scanln(&pwd)
+	pwd, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		log.Fatal(err)
+	}
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
 	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: rw})
@@ -108,9 +111,10 @@ func pwdUser(usr string) {
 		log.Fatal("user passwd requires username\n")
 	}
 	loadUsers()
-	fmt.Print("Password: ")
-	var pwd string
-	fmt.Scanln(&pwd)
+	pwd, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		log.Fatal(err)
+	}
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
 	chg := false
