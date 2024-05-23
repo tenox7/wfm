@@ -1,4 +1,5 @@
 FROM scratch
-ADD wfm /wfm
-ENTRYPOINT ["/wfm", "--prefix", "/data:/"]
+ARG TARGETARCH
+ADD wfm-${TARGETARCH}-linux /wfm
+ENTRYPOINT ["/wfm"]
 LABEL maintainer="as@tenoware.com"

@@ -12,12 +12,9 @@ cross:
 	GOOS=openbsd GOARCH=amd64 go build -a -o wfm-amd64-openbsd .
 
 docker: wfm
-	strip wfm
-	cp wfm service/docker/
-	docker build -t tenox7/wfm:latest service/docker/
-
-dockerhub:
-	docker push tenox7/wfm:latest
+	GOOS=linux GOARCH=amd64 go build -a -o wfm-amd64-linux .
+	GOOS=linux GOARCH=arm64 go build -a -o wfm-arm64-linux .
+	docker buildx build --platform linux/amd64,linux/arm64 -t tenox7/wfm:latest --push .
 
 gcrio:
 	docker tag tenox7/wfm:latest gcr.io/tenox7/wfm

@@ -72,30 +72,34 @@ An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.
 Docker hub: `tenox7/wfm:latest`
 GCR.io: `gcr.io/tenox7/wrp:latest`
 
-Run:
+Hello World:
 
 ```shell
-$ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm
-```
-
-WFM docker container expects the data directory to be mounted in `/data` inside the
-container. This can be overridden with `--prefix` flag if necessary.
-
-To supply json password file to the docker container you can mount it:
-
-```shell
-$ docker run -d \
-      -p 8080:8080 \
-      --user 1234:1234 \
-      -v /some/host/dir:/data \
-      -v /some/dir/wfmpasswd.json:/etc/wfmusers.json
-      tenox7/wfm -passwd=/etc/wfmusers.json
+$ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm -prefix /data:/
 ```
 
 If not using password file you may also need add `--nopass_rw`.
 
 If you don't specify `--user` in Docker run, you may also need `--allow_root` since
 WFM will be running as user id 0 inside the container.
+
+Advanced deployment with passwords and autocert:
+
+```shell
+$ docker run -d \
+      --restart=always \
+      -p 80:8080 \
+      -p 443:8443 \
+      -v /some/host/datadir:/data \
+      -v /some/dir/wfmpasswd.json:/etc/wfmusers.json
+      tenox7/wfm \
+      -passwd /etc/wfmusers.json \
+      -addr :8443 \
+      -acm_addr :8080 \
+      -acm_host www.snakeoil.com \
+      -chroot /data \
+      -setuid $(id -u):$(id -g)
+```
 
 ## SSL / TLS / Auto Cert Manager
 
