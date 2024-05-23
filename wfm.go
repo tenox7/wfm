@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/user"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -30,7 +31,7 @@ var (
 	bindAddr   = flag.String("addr", ":8080", "Listen address, eg: :443")
 	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
 	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
-	suidUser   = flag.String("setuid", "", "Username to setuid to")
+	suidUser   = flag.String("setuid", "", "Username or uid:gid pair to setuid to")
 	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
 	siteName   = flag.String("site_name", "WFM", "local site name to display")
 	logFile    = flag.String("logfile", "", "Log file name (default stdout)")
@@ -115,6 +116,14 @@ func noText(m map[string][]string) map[string][]string {
 	return o
 }
 
+func atoiOrFatal(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return i
+}
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("WFM %v Starting up", vers)
@@ -151,10 +160,18 @@ func main() {
 	// find uid/gid for setuid before chroot
 	var suid, sgid int
 	if *suidUser != "" {
-		suid, sgid, err = userId(*suidUser)
-		if err != nil {
-			log.Fatal("unable to find setuid user", err)
+		uidSm := regexp.MustCompile(`^(\d+):(\d+)$`).FindStringSubmatch(*suidUser)
+		switch len(uidSm) {
+		case 3:
+			suid = atoiOrFatal(uidSm[1])
+			sgid = atoiOrFatal(uidSm[2])
+		default:
+			suid, sgid, err = userId(*suidUser)
+			if err != nil {
+				log.Fatal("unable to find setuid user", err)
+			}
 		}
+		log.Printf("Requested setuid for %q suid=%v sgid=%v", *suidUser, suid, sgid)
 	}
 
 	// run autocert manager before chroot/setuid
