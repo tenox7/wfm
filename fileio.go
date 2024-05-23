@@ -151,10 +151,7 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
 		return
 	}
-	switch crlf {
-	case "CRLF":
-		uData = strings.ReplaceAll(uData, "\n", "\r\n")
-	case "LF":
+	if crlf == "LF" {
 		uData = strings.ReplaceAll(uData, "\r\n", "\n")
 	}
 	fp := r.uDir + "/" + r.uFbn
