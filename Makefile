@@ -16,9 +16,5 @@ docker: wfm
 	GOOS=linux GOARCH=arm64 go build -a -o wfm-arm64-linux .
 	docker buildx build --platform linux/amd64,linux/arm64 -t tenox7/wfm:latest --push .
 
-gcrio:
-	docker tag tenox7/wfm:latest gcr.io/tenox7/wfm
-	docker push gcr.io/tenox7/wfm
-
 clean:
 	rm -rf wfm-* wfm

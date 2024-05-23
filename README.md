@@ -70,7 +70,6 @@ An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.
 ### Docker
 
 Docker hub: `tenox7/wfm:latest`
-GCR.io: `gcr.io/tenox7/wrp:latest`
 
 Hello World:
 
