@@ -238,6 +238,8 @@ Usage of wfm:
         enable f2b dump at this prefix, eg. /f2bdump (default no)
   -favicon string
         custom favicon file, empty use default
+  -form_maxmem int
+        maximum memory used for form parsing, increase for large uploads (default 10485760)
   -list_archive_contents
         list contents of archives (expensive!)
   -logfile string
@@ -247,7 +249,7 @@ Usage of wfm:
   -passwd string
         wfm password file, eg: /usr/local/etc/wfmpw.json
   -prefix string
-        Prefix for WFM access, /fsdir:/htpath eg.: /var/files:/myfiles (default "/:/")
+        Prefix for WFM access, /fsdir:/httppath eg.: /var/files:/myfiles (default "/:/")
   -proto string
         tcp, tcp4, tcp6, etc (default "tcp")
   -rate_limit int
@@ -255,11 +257,13 @@ Usage of wfm:
   -robots
         allow robots
   -setuid string
-        Username to setuid to
+        Username or uid:gid pair to setuid to
   -show_dot
         show dot files and folders
   -site_name string
         local site name to display (default "WFM")
+  -txt_le string
+        default line endings when editing text files (default "LF")
 ```
 
 ## History
