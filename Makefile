@@ -5,7 +5,6 @@ wfm: *.go
 
 cross:
 	GOOS=linux GOARCH=amd64 go build -a -o wfm-amd64-linux .
-	GOOS=linux GOARCH=arm go build -a -o wfm-arm-linux .
 	GOOS=linux GOARCH=arm64 go build -a -o wfm-arm64-linux .
 	GOOS=darwin GOARCH=amd64 go build -a -o wfm-amd64-macos .
 	GOOS=darwin GOARCH=arm64 go build -a -o wfm-arm64-macos .
