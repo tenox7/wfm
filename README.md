@@ -194,7 +194,8 @@ or read write access.
 ### Binary hardcoded
 
 Password file can also be hardcoded inside the binary at compile time.
-To add hardcoded users add entries in to `users` var in `auth.go`.
+This may be useful in embedded operations. To add hardcoded users add
+entries in to `users` var in `auth.go`.
 
 ### Fail to ban
 
@@ -205,10 +206,18 @@ enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2
 
 ## Prefix
 
-By default WFM serves requests from "/" prefix of the built in web server.
-You can move it to a different prefix for example "/data" or "/wfm" with the
-flag `-prefix=/:/httppath`.
+The `-prefix` flag takes two directories separated by a colon. The one on the
+left is a filesystem directory, the one on the right is http path. The fsdir
+is affected by `-chroot` flag. If you chroot to some directory for example
+`-chroot /home/ubuntu/dir` then the prefix should probably just use root dir
+of that folder `-prefix /:/` - which also happens to be the default.
 
+The httppath part controls URL suffix, by default it's `/`, however you can
+move it to a different path for example "/data" or "/wfm" with the
+flag `-prefix=/:/httppath`. This may be useful for hiding default location
+or if routing from another service like reverse proxy.
+
+In future WFM should support multiple prefix pairs.
 
 ## Flags
 
@@ -276,3 +285,8 @@ closed source commercial application used for lightweight document management an
 supported by a few customers. It has since been open sourced. In 2022 WFM has been
 rewritten in Go as a stand-alone application with built-in web server for more modern
 deployment scenarios.
+
+## Legal
+
+- Copyright (c) 1994-2024 by Antoni Sawicki
+- Licensed under Apache 2.0
