@@ -85,7 +85,7 @@ func addUser(usr string, rw bool) {
 		log.Fatal(err)
 	}
 	salt := rndStr(8)
-	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
+	hash := fmt.Sprintf("%x", sha256.Sum256(append([]byte(salt), pwd...)))
 	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: rw})
 	saveUsers()
 }
@@ -116,7 +116,7 @@ func pwdUser(usr string) {
 		log.Fatal(err)
 	}
 	salt := rndStr(8)
-	hash := fmt.Sprintf("%x", sha256.Sum256([]byte(salt+pwd)))
+	hash := fmt.Sprintf("%x", sha256.Sum256(append([]byte(salt), pwd...)))
 	chg := false
 	for i, u := range users {
 		if u.User != usr {
