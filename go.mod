@@ -12,8 +12,9 @@ require (
 	github.com/kdomanski/iso9660 v0.4.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
 	github.com/spf13/afero v1.11.0
-	github.com/tenox7/tkvs v0.0.0-20240512204442-e0179b1f2b31
+	github.com/tenox7/tkvs v1.0.0
 	golang.org/x/crypto v0.23.0
+	golang.org/x/term v0.20.0
 	gopkg.in/ini.v1 v1.67.0
 	howett.net/plist v1.0.1
 )
