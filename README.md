@@ -100,6 +100,14 @@ $ docker run -d \
       -setuid $(id -u):$(id -g)
 ```
 
+## FastCGI
+
+Untested, but you would need something like this:
+
+```sh
+wfm -addr 127.0.0.1:9000 -fastcgi
+```
+
 ## SSL / TLS / Auto Cert Manager
 
 You can use WFM as a SSL / TLS / https secure web server with Lets Encrypt Auto Cert Manager.

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/fcgi"
 	"os"
 	"os/user"
 	"regexp"
@@ -52,6 +53,7 @@ var (
 	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
+	fastCgi    = flag.Bool("fastcgi", false, "enable FastCGI mode")
 	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
 	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
 )
@@ -240,7 +242,8 @@ func main() {
 		log.Printf("Listening (extra) on %q", *bindAddr)
 		go http.ListenAndServe(*bindExtra, mux)
 	}
-	if *acmBind != "" && *acmFile != "" && len(acmWhlist) > 0 {
+	switch {
+	case *acmBind != "" && *acmFile != "" && len(acmWhlist) > 0:
 		https := &http.Server{
 			Addr:      *bindAddr,
 			Handler:   mux,
@@ -248,7 +251,10 @@ func main() {
 		}
 		log.Printf("Starting HTTPS TLS Server")
 		err = https.ServeTLS(l, "", "")
-	} else {
+	case *fastCgi:
+		log.Print("Starting FastCGI Server")
+		fcgi.Serve(l, http.DefaultServeMux)
+	default:
 		log.Printf("Starting HTTP Server")
 		err = http.Serve(l, mux)
 	}
