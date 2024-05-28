@@ -6,13 +6,13 @@ require (
 	github.com/bodgit/sevenzip v1.5.1
 	github.com/breml/rootcerts v0.2.16
 	github.com/dustin/go-humanize v1.0.1
-	github.com/gabriel-vasile/mimetype v1.4.3
+	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/gorilla/mux v1.8.1
 	github.com/juju/ratelimit v1.0.2
 	github.com/kdomanski/iso9660 v0.4.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
 	github.com/spf13/afero v1.11.0
-	github.com/tenox7/tkvs v1.0.0
+	github.com/tenox7/tkvs v1.0.1
 	golang.org/x/crypto v0.23.0
 	golang.org/x/term v0.20.0
 	gopkg.in/ini.v1 v1.67.0
