@@ -46,7 +46,11 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	// directory can come either from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
 		// TODO(tenox): use url.Parse() instead
-		u, _ := url.PathUnescape(r.URL.Path)
+		u, err := url.PathUnescape(r.URL.Path)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
