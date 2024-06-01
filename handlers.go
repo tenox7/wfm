@@ -39,8 +39,8 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		eSort:    r.FormValue("sort"),
 		modern:   strings.HasPrefix(r.UserAgent(), "Mozilla/5"),
 		fs:       wfmFs, // TODO(tenox): per user FS/homedir
-		uFbn:     filepath.Base(r.FormValue("file")),
-		uDir:     filepath.Clean(r.FormValue("dir")),
+		uFbn:     filepath.Base(unescapeOrEmpty(r.FormValue("file"))),
+		uDir:     filepath.Clean(unescapeOrEmpty(r.FormValue("dir"))),
 	}
 
 	// directory can come either from form value or URI Path
@@ -168,4 +168,13 @@ func dispRobots(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintln(w, "Disallow: /")
+}
+
+func unescapeOrEmpty(s string) string {
+	u, err := url.QueryUnescape(s)
+	if err != nil {
+		log.Printf("unescape: %q err=%v", s, err)
+		return ""
+	}
+	return u
 }
