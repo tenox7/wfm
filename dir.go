@@ -336,7 +336,7 @@ func icons(m bool) map[string]string {
 
 func fileIcon(f string, m bool) string {
 	if !m {
-		return "&#183;"
+		return ""
 	}
 	s := strings.Split(f, ".")
 	switch strings.ToLower(s[len(s)-1]) {
