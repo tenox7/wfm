@@ -50,6 +50,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string, modern bool) {
 <META HTTP-EQUIV="charset" CONTENT="` + charset[modern] + `">
 <META HTTP-EQUIV="encoding" CONTENT="` + charset[modern] + `">
 <META NAME="viewport" CONTENT="width=device-width">
+<META NAME="description" CONTENT="` + *siteDesc + `">
 <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
 <LINK REL="shortcut icon" HREF="/favicon.ico?">
 <TITLE>` + *siteName + ` : ` + eDir + `</TITLE>
