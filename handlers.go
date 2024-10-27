@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -30,6 +31,13 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form))
+
+	if *dumpHeader {
+		dump, err := httputil.DumpRequest(r, false)
+		if err == nil {
+			log.Printf("debug: %v", string(dump))
+		}
+	}
 
 	wfm := &wfmRequest{
 		userName: uName,

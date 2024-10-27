@@ -46,6 +46,7 @@ var (
 	formMaxMem = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
 	prefix     = flag.String("prefix", "/:/", "Prefix for WFM access, /fsdir:/httppath eg.: /var/files:/myfiles")
 	defLe      = flag.String("txt_le", "LF", "default line endings when editing text files")
+	dumpHeader = flag.Bool("dump_headers", false, "dump headers sent by client")
 	wfmFs      afero.Fs
 	wfmPfx     string
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
