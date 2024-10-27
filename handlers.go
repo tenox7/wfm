@@ -45,10 +45,12 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		remAddr:  r.RemoteAddr,
 		w:        w,
 		eSort:    r.FormValue("sort"),
-		modern:   strings.HasPrefix(r.UserAgent(), "Mozilla/5"),
-		fs:       wfmFs, // TODO(tenox): per user FS/homedir
-		uFbn:     filepath.Base(unescapeOrEmpty(r.FormValue("file"))),
-		uDir:     filepath.Clean(unescapeOrEmpty(r.FormValue("dir"))),
+		modern: func() bool {
+			return strings.HasPrefix(r.UserAgent(), "Mozilla/5") && r.Header.Get("Accept-Charset") == ""
+		}(),
+		fs:   wfmFs, // TODO(tenox): per user FS/homedir
+		uFbn: filepath.Base(unescapeOrEmpty(r.FormValue("file"))),
+		uDir: filepath.Clean(unescapeOrEmpty(r.FormValue("dir"))),
 	}
 
 	// directory can come either from form value or URI Path
