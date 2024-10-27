@@ -26,8 +26,8 @@ Netscape 3.x.
 
 WFM exposes a directory tree via web based interface. The primary method of specifying
 the root directory is chroot via `-chroot=/dir` flag, or by your service manager. For
-example Systemd service file `RootDirectory=` directive. WFM is not intended to be used
-without chroot.
+example Systemd service file `RootDirectory=` directive. **WFM is not intended to be used
+without chroot.**
 
 For some services like Docker, a subdirectory must be used, this can be specified by
 `--prefix=/subdir:/` flag. A subdirectory should not be considered secure and you should
@@ -35,19 +35,15 @@ assume users can access files above the prefix up to chroot.
 
 ## Deployment scenarios
 
+Like any other web server, WFM starts the process as `root` to bind to the port 80 or 443. Then
+setuid to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
+chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
+[here](service/systemd/wfm80.service).
+
 ### Systemd
 
 You can have either Systemd, or WFM perform chroot and setuid. If you are binding to
 port 80 (and/or 443), you need to start WFM as root.
-
-#### WFM as root
-
-Like any other web server, WFM starts the process as `root` to binds to port 80 or 443. Then
-it setuids to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
-chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
-[here](service/systemd/wfm80.service).
-
-#### WFM as user
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
 chroot and use non privileged port (above 1024, eg. 8080), or your binary has adequate
@@ -100,6 +96,21 @@ $ docker run -d \
       -setuid $(id -u):$(id -g)
 ```
 
+## Prefix
+
+The `-prefix` flag takes two directories separated by a colon. The one on the
+left is a filesystem directory, the one on the right is http path. The fsdir
+is affected by `-chroot` flag. If you chroot to some directory for example
+`-chroot /home/ubuntu/dir` then the prefix should probably just use root dir
+of that folder `-prefix /:/` - which also happens to be the default.
+
+The httppath part controls URL suffix, by default it's `/`, however you can
+move it to a different path for example "/data" or "/wfm" with the
+flag `-prefix=/:/httppath`. This may be useful for hiding default location
+or if routing from another service like reverse proxy.
+
+In future WFM should support multiple prefix pairs.
+
 ## FastCGI
 
 Untested, but you would need something like this:
@@ -151,7 +162,8 @@ mode (like a regular web server) unless you specify `-nopass_rw` flag.
 
 To enable authentication, specify password file via `-passwd=/path/users.json`
 flag. Passwords are read on startup and therefore can be placed outside of
-chroot directory. Passwords can also be hardcoded in the binary, se below.
+chroot directory. Passwords can also be hardcoded in the binary at the compile
+time, se below.
 
 ## User Management
 
@@ -211,20 +223,6 @@ time with more bad attempts. This is enabled by default. You can disable this
 behavior with `-f2b=false` flag. In addition for debugging purposes you can
 enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2b`.
 
-## Prefix
-
-The `-prefix` flag takes two directories separated by a colon. The one on the
-left is a filesystem directory, the one on the right is http path. The fsdir
-is affected by `-chroot` flag. If you chroot to some directory for example
-`-chroot /home/ubuntu/dir` then the prefix should probably just use root dir
-of that folder `-prefix /:/` - which also happens to be the default.
-
-The httppath part controls URL suffix, by default it's `/`, however you can
-move it to a different path for example "/data" or "/wfm" with the
-flag `-prefix=/:/httppath`. This may be useful for hiding default location
-or if routing from another service like reverse proxy.
-
-In future WFM should support multiple prefix pairs.
 
 ## Flags
 
