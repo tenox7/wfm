@@ -12,7 +12,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/juju/ratelimit v1.0.2
 	github.com/kdomanski/iso9660 v0.4.0
-	github.com/mholt/archiver/v4 v4.0.0-alpha.9
+	github.com/mholt/archives v0.1.0
 	github.com/spf13/afero v1.12.0
 	github.com/tenox7/tkvs v1.0.1
 	golang.org/x/crypto v0.33.0
@@ -28,7 +28,6 @@ require (
 	github.com/bodgit/windows v1.0.1 // indirect
 	github.com/danjacques/gofslock v0.0.0-20240212154529-d899e02bfe22 // indirect
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect

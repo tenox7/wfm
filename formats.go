@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/fs"
@@ -14,7 +15,7 @@ import (
 	"github.com/bodgit/sevenzip"
 	"github.com/dustin/go-humanize"
 	"github.com/kdomanski/iso9660"
-	"github.com/mholt/archiver/v4"
+	"github.com/mholt/archives"
 	"github.com/spf13/afero"
 	"gopkg.in/ini.v1"
 	"howett.net/plist"
@@ -142,15 +143,14 @@ func listArchive(w http.ResponseWriter, fp string, wfs afero.Fs) {
 		return
 	}
 
-	af, _, err := archiver.Identify(f.Name(), f)
+	af, _, err := archives.Identify(context.TODO(), f.Name(), f)
 	if err != nil {
 		htErr(w, "archive: identify: ", err)
 		return
 	}
 
 	// TODO(tenox): https://github.com/mholt/archiver/issues/358
-	aa := &archiver.ArchiveFS{Stream: io.NewSectionReader(f, 0, s.Size()), Format: af.(archiver.Archival)}
-
+	aa := &archives.ArchiveFS{Stream: io.NewSectionReader(f, 0, s.Size()), Format: af.(archives.Archival)}
 	a, err := aa.Sub(".")
 	if err != nil {
 		htErr(w, "archive: FS: ", err)
