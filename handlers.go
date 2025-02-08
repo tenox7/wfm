@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+
 	"fmt"
 	"log"
 	"net/http"
@@ -11,6 +13,12 @@ import (
 
 	"github.com/spf13/afero"
 )
+
+//go:embed favicon.ico
+var favIcn []byte
+
+// #go:embed robots.txt
+var robotsTxt []byte
 
 type wfmRequest struct {
 	fs       afero.Fs
@@ -172,6 +180,10 @@ func dispFavIcon(w http.ResponseWriter, r *http.Request) {
 
 func dispRobots(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
+	if robotsTxt != nil {
+		w.Write(robotsTxt)
+		return
+	}
 	fmt.Fprintln(w, "User-agent: *")
 	if *robots {
 		fmt.Fprintln(w, "Allow: /")

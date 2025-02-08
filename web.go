@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"fmt"
 	"html"
 	"log"
@@ -14,8 +13,6 @@ import (
 )
 
 var (
-	//go:embed favicon.ico
-	favIcn []byte
 	disTag = map[bool]string{
 		true:  "",
 		false: "DISABLED",

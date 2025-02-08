@@ -50,7 +50,7 @@ var (
 	wfmFs      afero.Fs
 	wfmPfx     string
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	robots     = flag.Bool("robots", false, "allow robots")
+	robots     = flag.Bool("robots", false, "allow/disallow robots, ignored if robots.txt is embedded")
 	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
 	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
