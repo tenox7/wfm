@@ -38,7 +38,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	if uName == "" {
 		return
 	}
-	log.Printf("req from=%q user=%q uri=%q form=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form))
+	log.Printf("req from=%q user=%q uri=%q form=%v agent=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form), r.UserAgent())
 
 	if *dumpHeader {
 		dump, err := httputil.DumpRequest(r, false)
