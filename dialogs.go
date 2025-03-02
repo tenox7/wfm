@@ -177,7 +177,7 @@ func (r *wfmRequest) about(ua string) {
 	  WFM Version v` + vers + `<BR>
 	  <A HREF="https://github.com/tenox7/wfm/">https://github.com/tenox7/wfm/</A><BR>
 	  Written by Antoni Sawicki Et Al.<BR>
-	  Copyright &copy; 1994-2024 by Antoni Sawicki<BR>
+	  Copyright &copy; 1994-2025 by Antoni Sawicki<BR>
 	`))
 
 	if *aboutRnt {
