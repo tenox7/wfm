@@ -216,14 +216,14 @@ Password file can also be hardcoded inside the binary at compile time.
 This may be useful in embedded operations. To add hardcoded users add
 entries in to `users` var in `users.go`.
 
-### Fail to ban
+## Fail to ban
 
 WFM monitors failed user login attempts and bans user for increasing period of
 time with more bad attempts. This is enabled by default. You can disable this
 behavior with `-f2b=false` flag. In addition for debugging purposes you can
 enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2b`.
 
-### Favicon.ico and Robots.txt
+## Favicon.ico and Robots.txt
 
 If `favicon.ico` and/or `robots.txt` are present in the root directory, they will
 be served as any other file. In case they are not present an embedded version will
