@@ -218,8 +218,9 @@ entries in to `users` var in `users.go`.
 
 ## Fail to ban
 
-WFM monitors failed user login attempts and bans users with exponential backoff.
-This is enabled by default. You can disable this behavior with `-f2b=false` flag.
+WFM monitors failed user login attempts and bans offending IP addresses
+with an exponential backoff. This is enabled by default.
+You can disable this behavior with `-f2b=false` flag.
 For debugging fail2ban, you can enable a prefix where ban database will
 be dumped for example: `-f2b_dump=/dumpf2b`.
 
