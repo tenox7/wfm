@@ -50,8 +50,6 @@ var (
 	wfmFs      afero.Fs
 	wfmPfx     string
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	robots     = flag.Bool("robots", false, "allow/disallow robots, ignored if robots.txt is embedded")
-	favIcoFile = flag.String("favicon", "", "custom favicon file, empty use default")
 	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
@@ -145,13 +143,6 @@ func main() {
 		loadUsers()
 	}
 
-	if *favIcoFile != "" {
-		favIcn, err = os.ReadFile(*favIcoFile)
-		if err != nil {
-			log.Fatalf("unable to open %v: %v", *favIcoFile, err)
-		}
-	}
-
 	if *logFile != "" {
 		lf, err := os.OpenFile(*logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
@@ -223,8 +214,6 @@ func main() {
 
 	// http routing
 	mux := mux.NewRouter()
-	mux.Path("/favicon.ico").HandlerFunc(dispFavIcon)
-	mux.Path("/robots.txt").HandlerFunc(dispRobots)
 	pfx := strings.Split(*prefix, ":")
 	if len(pfx) != 2 || pfx[0][0] != '/' || pfx[1][0] != '/' {
 		log.Fatal("--prefix must be in format '/dir:/path'")

@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "embed"
+
 	"fmt"
 	"io"
 	"log"
@@ -15,6 +17,12 @@ import (
 	"github.com/juju/ratelimit"
 	"github.com/spf13/afero"
 )
+
+//go:embed favicon.ico
+var favIcn []byte
+
+//go:embed robots.txt
+var robotsTxt []byte
 
 var (
 	rlBu *ratelimit.Bucket
@@ -306,7 +314,23 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 func (r *wfmRequest) dispOrDir(hi string) {
 	f, err := r.fs.Stat(r.uDir)
 	if err != nil {
-		htErr(r.w, "error checking file", err)
+		switch r.uDir {
+		case "/favicon.ico":
+			if len(favIcn) == 0 {
+				break
+			}
+			r.w.Header().Set("Content-Type", "image/x-icon")
+			r.w.Write(favIcn)
+			return
+		case "/robots.txt":
+			if len(robotsTxt) == 0 {
+				break
+			}
+			r.w.Header().Set("Content-Type", "text/plain")
+			r.w.Write(robotsTxt)
+			return
+		}
+		htErr(r.w, "error stat() file", err)
 		return
 	}
 	if f.IsDir() {

@@ -35,10 +35,9 @@ assume users can access files above the prefix up to chroot.
 
 ## Deployment scenarios
 
-Like any other web server, WFM starts the process as `root` to bind to the port 80 or 443. Then
-setuid to a desired user specified with `-setuid=myuser`. Similarly the WFM performs
-chroot to a directory specified with `-chroot=/datadir`. An example service file is provided
-[here](service/systemd/wfm80.service).
+Like any other web server, WFM starts the process as `root` in order to bind to the
+privileged ports. Then `setuid()` to a desired user specified with `-setuid=myuser`.
+Finally WFM performs `chroot()` to a directory specified with `-chroot=/datadir`.
 
 ### Systemd
 
@@ -73,7 +72,7 @@ Hello World:
 $ docker run -d -p 8080:8080 --user 1234:1234 -v /some/host/dir:/data tenox7/wfm:latest -prefix /data:/
 ```
 
-If not using password file you may also need add `--nopass_rw`.
+If not using password file, you may also need add `--nopass_rw`.
 
 If you don't specify `--user` in Docker run, you may also need `--allow_root` since
 WFM will be running as user id 0 inside the container.
@@ -100,16 +99,19 @@ $ docker run -d \
 
 The `-prefix` flag takes two directories separated by a colon. The one on the
 left is a filesystem directory, the one on the right is http path. The fsdir
-is affected by `-chroot` flag. If you chroot to some directory for example
+is affected by `-chroot` flag. If you chroot to some directory, for example
 `-chroot /home/ubuntu/dir` then the prefix should probably just use root dir
-of that folder `-prefix /:/` - which also happens to be the default.
+of that folder `-prefix /:/` - which is the default. The fsdir other than root
+only exists because of Docker and it's not otherwise considered safe.
 
 The httppath part controls URL suffix, by default it's `/`, however you can
-move it to a different path for example "/data" or "/wfm" with the
+move it to a different path, for example "/data" or "/wfm" with the
 flag `-prefix=/:/httppath`. This may be useful for hiding default location
 or if routing from another service like reverse proxy.
 
-In future WFM should support multiple prefix pairs.
+Most typically you would just use the default `/:/`.
+
+In future WFM may support multiple prefix pairs.
 
 ## FastCGI
 
@@ -223,6 +225,17 @@ time with more bad attempts. This is enabled by default. You can disable this
 behavior with `-f2b=false` flag. In addition for debugging purposes you can
 enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2b`.
 
+### Favicon.ico and Robots.txt
+
+If `favicon.ico` and/or `robots.txt` are present in the root directory, they will
+be served as any other file. In case they are not present an embedded version will
+be served, if the file was compiled in. These can be controlled in `fileio.go`. If
+you don't want the embeds just remove one of these comment lines:
+
+```go
+//go:embed favicon.ico
+//go:embed robots.txt
+```
 
 ## Flags
 
@@ -250,8 +263,6 @@ Usage of wfm:
         ban ip addresses on user/pass failures (default true)
   -f2b_dump string
         enable f2b dump at this prefix, eg. /f2bdump (default no)
-  -favicon string
-        custom favicon file, empty use default
   -form_maxmem int
         maximum memory used for form parsing, increase for large uploads (default 10485760)
   -list_archive_contents
@@ -268,8 +279,6 @@ Usage of wfm:
         tcp, tcp4, tcp6, etc (default "tcp")
   -rate_limit int
         rate limit for upload/download in MB/s, 0 no limit
-  -robots
-        allow robots
   -setuid string
         Username or uid:gid pair to setuid to
   -show_dot
@@ -293,5 +302,5 @@ deployment scenarios.
 
 ## Legal
 
-- Copyright (c) 1994-2024 by Antoni Sawicki
+- Copyright (c) 1994-2025 by Antoni Sawicki
 - Licensed under Apache 2.0
