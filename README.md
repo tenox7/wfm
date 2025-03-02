@@ -229,13 +229,8 @@ enable a prefix where ban database will be dumped for example `-f2b_dump=/dumpf2
 
 If `favicon.ico` and/or `robots.txt` are present in the root directory, they will
 be served as any other file. In case they are not present an embedded version will
-be served, if the file was compiled in. These can be controlled in `fileio.go`. If
-you don't want the embeds just remove one of these comment lines:
-
-```go
-//go:embed favicon.ico
-//go:embed robots.txt
-```
+be served, if the file was compiled in. This is also useful if you don't want them
+displayed in the directory listing. The embeds can be controlled in `fileio.go`.
 
 ## Flags
 

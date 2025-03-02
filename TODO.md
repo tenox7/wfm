@@ -1,8 +1,5 @@
 # WFM TODO
 
-Refactor favicon and robots
-- if local file found, override embeds, do not use any flags
-
 ## Interfaces
 
 * WebDAV server
