@@ -214,7 +214,7 @@ or read write access.
 
 Password file can also be hardcoded inside the binary at compile time.
 This may be useful in embedded operations. To add hardcoded users add
-entries in to `users` var in `auth.go`.
+entries in to `users` var in `users.go`.
 
 ### Fail to ban
 
