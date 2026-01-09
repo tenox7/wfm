@@ -9,14 +9,16 @@ WFM can also create and open bookmarks, link and shortcut files, etc.
 
 ![wfm screenshot](screenshot.png "WFM Screenshot")
 
-## Usage
+## No Bloat
 
-WFM is a standalone service with it's own web server. No need for Apache, Nginx, PHP, etc.
+WFM is a standalone service with built-in web server. No need for Apache, Nginx, PHP, etc.
 It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
 
 The binary is statically linked, fully self contained and has zero external dependencies.
-Icons are unicode emojis. No need for Python, PHP, SQL, JavaScript, Node or any other bloat.
+No images! All icons are unicode emojis. No JavaScript!
+
+No frameworks. No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any other bloat.
 WFM outputs validated HTML 4.01 without JavaScript. It works on both modern and legacy web
 browsers going back to Internet Explorer 1.x and Netscape 3.x.
 
@@ -174,27 +176,10 @@ Note that any changes to the password file require restart of wfm daemon
 to take effect. This is because the file is read once on startup before
 `chroot(2)` is performed.
 
-Create new blank password file:
-
 ```shell
 $ wfm -passwd=/path/users.json user newfile
-```
-
-Add user:
-
-```shell
 $ wfm -passwd=/path/users.json user add myuser rw
-```
-
-Delete user:
-
-```shell
 $ wfm -passwd=/path/users.json user delete myuser
-```
-
-Change password:
-
-```shell
 $ wfm -passwd=/path/users.json user passwd myuser
 ```
 
@@ -295,5 +280,5 @@ with a built-in web server for modern deployment scenarios.
 
 ## Legal
 
-- Copyright (c) 1994-2025 by Antoni Sawicki
+- Copyright (c) 1994-2026 by Antoni Sawicki
 - Licensed under Apache 2.0
