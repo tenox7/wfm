@@ -73,7 +73,7 @@ func (r *wfmRequest) listFiles(hi string) {
 			log.Printf("Unable to parse url: %v", err)
 		}
 		if r.eSort != "" {
-			nUrl += `?sort=` + r.eSort
+			nUrl = wfmURL(nUrl, url.Values{"sort": {r.eSort}})
 		}
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="left">
@@ -85,11 +85,17 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP ALIGN="right">
 		`))
 		if r.rwAccess {
-			// TODO(tenox): use query builder instead
+			q := url.Values{"dir": {r.uDir}, "file": {f.Name()}, "sort": {r.eSort}}
+			q.Set("fn", "renp")
+			renp := wfmHref(wfmPfx, q)
+			q.Set("fn", "movp")
+			movp := wfmHref(wfmPfx, q)
+			q.Set("fn", "delp")
+			delp := wfmHref(wfmPfx, q)
 			r.w.Write([]byte(`
-				<A HREF="` + wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
-				<A HREF="` + wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
+				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
+				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
+				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;
 		`))
 		}
 		r.w.Write([]byte(`
@@ -131,6 +137,9 @@ func (r *wfmRequest) listFiles(hi string) {
 		if err != nil {
 			log.Printf("Unable to parse url: %v", err)
 		}
+		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}}
+		q.Set("fn", "down")
+		down := wfmHref(wfmPfx, q)
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="LEFT">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
@@ -139,14 +148,23 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 			<TD NOWRAP ALIGN="right">
-				<A HREF="` + wfmPfx + `?fn=down&amp;dir=` + qeDir + `&amp;file=` + qeFile + `">` + i["dn"] + `</A>&nbsp;
+				<A HREF="` + down + `">` + i["dn"] + `</A>&nbsp;
 			`))
 		if r.rwAccess {
+			q.Set("sort", r.eSort)
+			q.Set("fn", "edit")
+			edit := wfmHref(wfmPfx, q)
+			q.Set("fn", "renp")
+			renp := wfmHref(wfmPfx, q)
+			q.Set("fn", "movp")
+			movp := wfmHref(wfmPfx, q)
+			q.Set("fn", "delp")
+			delp := wfmHref(wfmPfx, q)
 			r.w.Write([]byte(`
-				<A HREF="` + wfmPfx + `?fn=edit&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["ed"] + `</A>&nbsp;
-				<A HREF="` + wfmPfx + `?fn=renp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["re"] + `</A>&nbsp;
-				<A HREF="` + wfmPfx + `?fn=movp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + wfmPfx + `?fn=delp&amp;dir=` + qeDir + `&amp;file=` + qeFile + `&amp;sort=` + r.eSort + `">` + i["rm"] + `</A>&nbsp;
+				<A HREF="` + edit + `">` + i["ed"] + `</A>&nbsp;
+				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
+				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
+				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;
 			`))
 		}
 		r.w.Write([]byte(`
@@ -174,8 +192,8 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
             </TD>
             <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
 				&nbsp;` + i[rorw[rw]] + `&nbsp;
-				<A HREF="` + wfmPfx + `?fn=logout">` + i["tid"] + user + `</A>&nbsp;
-                <A HREF="` + wfmPfx + `?fn=about&amp;dir=` + qeDir + `&amp;sort=">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
+				<A HREF="` + wfmHref(wfmPfx, url.Values{"fn": {"logout"}}) + `">` + i["tid"] + user + `</A>&nbsp;
+                <A HREF="` + wfmHref(wfmPfx, url.Values{"fn": {"about"}, "dir": {uDir}}) + `">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
         </TR></TABLE>
         `))
@@ -218,13 +236,13 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
         <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmPfx + `/` + qeDir + `?sort=` + sl[0] + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[0]}}) + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmPfx + `/` + qeDir + `?sort=` + sl[2] + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[2]}}) + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmPfx + `/` + qeDir + `?sort=` + sl[4] + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[4]}}) + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
         </TD>
         <TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
             &nbsp;

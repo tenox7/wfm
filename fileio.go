@@ -147,7 +147,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 		htErr(r.w, "uploading file", fmt.Errorf("expected size=%v actual size=%v", h.Size, oSize))
 	}
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", r.uDir, h.Filename, h.Size)
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(h.Filename))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {h.Filename}}))
 }
 
 func (r *wfmRequest) saveText(uData, crlf string) {
@@ -184,7 +184,7 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 		return
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, fp, len(uData))
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(r.uFbn))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
 }
 
 func (r *wfmRequest) mkdir() {
@@ -203,7 +203,7 @@ func (r *wfmRequest) mkdir() {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(r.uFbn))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
 }
 
 func (r *wfmRequest) mkfile() {
@@ -222,7 +222,7 @@ func (r *wfmRequest) mkfile() {
 		return
 	}
 	f.Close()
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(r.uFbn))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
 }
 
 func (r *wfmRequest) mkurl(eUrl string) {
@@ -245,7 +245,7 @@ func (r *wfmRequest) mkurl(eUrl string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(r.uFbn))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
 }
 
 func (r *wfmRequest) renFile(uNewf string) {
@@ -267,7 +267,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 		htErr(r.w, "rename", err)
 		return
 	}
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort+"&hi="+url.PathEscape(newB))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {newB}}))
 }
 
 func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
@@ -291,7 +291,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 		}
 		lF = fb
 	}
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(uDst)+"&sort="+r.eSort+"&hi="+url.PathEscape(lF))
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {uDst}, "sort": {r.eSort}, "hi": {lF}}))
 }
 
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
@@ -308,7 +308,7 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 			return
 		}
 	}
-	redirect(r.w, wfmPfx+"?dir="+url.PathEscape(r.uDir)+"&sort="+r.eSort)
+	redirect(r.w, wfmURL(wfmPfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}}))
 }
 
 func (r *wfmRequest) dispOrDir(hi string) {

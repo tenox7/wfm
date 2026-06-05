@@ -100,10 +100,11 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 			htErr(w, "up path build", err)
 			return
 		}
+		q := url.Values{}
 		if wfm.eSort != "" {
-			up += "?sort=" + wfm.eSort
+			q.Set("sort", wfm.eSort)
 		}
-		redirect(w, up)
+		redirect(w, wfmURL(up, q))
 		return
 	case r.FormValue("refresh") != "":
 		re, err := url.JoinPath(wfmPfx, wfm.uDir)
@@ -111,10 +112,11 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 			htErr(w, "up path build", err)
 			return
 		}
+		q := url.Values{}
 		if wfm.eSort != "" {
-			re += "?sort=" + wfm.eSort
+			q.Set("sort", wfm.eSort)
 		}
-		redirect(w, re)
+		redirect(w, wfmURL(re, q))
 		return
 	case r.FormValue("home") != "":
 		wfm.uDir = "/"

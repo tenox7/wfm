@@ -5,6 +5,7 @@ import (
 	"html"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,6 +27,18 @@ var (
 		false: "0px",
 	}
 )
+
+func wfmURL(base string, q url.Values) string {
+	e := q.Encode()
+	if e == "" {
+		return base
+	}
+	return base + "?" + e
+}
+
+func wfmHref(base string, q url.Values) string {
+	return html.EscapeString(wfmURL(base, q))
+}
 
 func htErr(w http.ResponseWriter, msg string, err error) {
 	w.Header().Set("Content-Type", "text/plain")
