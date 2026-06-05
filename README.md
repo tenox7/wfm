@@ -62,6 +62,43 @@ $ sudo systemctl enable --now wfm
 
 An example launchd service file is provided [here](service/launchd/tc.tenox.wfm.plist).
 
+### FreeBSD / rc
+
+An example rc script is provided [here](service/freebsd/wfm). Copy it to
+`/usr/local/etc/rc.d/wfm`, then enable and configure it in `/etc/rc.conf`:
+
+```shell
+wfm_enable="YES"
+wfm_args="-chroot=/home/ftp -setuid=ftp -addr=:80"
+```
+
+By default WFM starts as root to bind the privileged port and then drops to
+the `-setuid` user. Alternatively you can avoid starting as root and let the
+`wfm` user bind privileged ports directly with
+[portacl](https://man.freebsd.org/cgi/man.cgi?mac_portacl):
+
+```shell
+pkg install -y security/portacl-rc
+```
+
+Then in `/etc/rc.conf`:
+
+```shell
+portacl_users=wfm
+portacl_user_wfm_tcp="http https"
+portacl_user_wfm_udp="https"
+portacl_enable="YES"
+wfm_user="wfm"
+```
+
+Set `wfm_user` to run the daemon as that user instead of root. With portacl
+granting the ports there is no need for `-setuid`.
+
+Since `-chroot` also requires root, use a FreeBSD
+[jail](https://man.freebsd.org/cgi/man.cgi?jail) for filesystem isolation
+instead. The jail is created by the rc system at boot (as root), while WFM
+runs unprivileged inside it under `wfm_user`.
+
 ### Docker
 
 Docker hub: `tenox7/wfm:latest`

@@ -11,6 +11,9 @@
 #                         Set it to YES to enable wfm.
 # wfm_args (flags):       Check WFM manual for flags. Example:
 # wfm_args="-logfile=/var/log/wfm.log -chroot=/home/ftp -setuid=ftp -addr=:80"
+# wfm_user (user):        Optional user to run as instead of root. Use with
+#                         portacl (security/portacl-rc) to bind privileged
+#                         ports without root. See README for details.
 
 . /etc/rc.subr
 
@@ -24,7 +27,7 @@ load_rc_config $name
 pidfile="/var/run/wfm.pid"
 procname="/usr/local/sbin/wfm"
 command="/usr/sbin/daemon"
-command_args="-f -p ${pidfile} ${procname} ${wfm_args}"
+command_args="-f -p ${pidfile} ${wfm_user:+-u ${wfm_user}} ${procname} ${wfm_args}"
 
 start_precmd=wfm_startprecmd
 
