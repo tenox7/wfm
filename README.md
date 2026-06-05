@@ -115,11 +115,24 @@ In future WFM may support multiple prefix pairs.
 
 ## FastCGI
 
-Untested, but you would need something like this:
+Run WFM with `-fastcgi` behind nginx. The http path in `-prefix` must match the
+nginx `location`.
 
 ```sh
-wfm -addr 127.0.0.1:9000 -fastcgi
+wfm -fastcgi -addr 127.0.0.1:9000 -prefix /var/www/files:/files
 ```
+
+```nginx
+location /files {
+    include fastcgi_params;
+    fastcgi_pass 127.0.0.1:9000;
+}
+```
+
+`include fastcgi_params` is all that's needed; it passes `REQUEST_URI`, which WFM
+routes on. Add `client_max_body_size 0;` to the `server` block for large uploads.
+For a unix socket use `-proto unix -addr /run/wfm.sock` and
+`fastcgi_pass unix:/run/wfm.sock;`.
 
 ## SSL / TLS / Auto Cert Manager
 
