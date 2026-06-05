@@ -48,19 +48,13 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 			return strings.HasPrefix(r.UserAgent(), "Mozilla/5") && r.Header.Get("Accept-Charset") == ""
 		}(),
 		fs:   wfmFs, // TODO(tenox): per user FS/homedir
-		uFbn: filepath.Base(unescapeOrEmpty(r.FormValue("file"))),
-		uDir: filepath.Clean(unescapeOrEmpty(r.FormValue("dir"))),
+		uFbn: filepath.Base(r.FormValue("file")),
+		uDir: filepath.Clean(r.FormValue("dir")),
 	}
 
 	// directory can come either from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
-		// TODO(tenox): use url.Parse() instead
-		u, err := url.PathUnescape(r.URL.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(u, wfmPfx))
+		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, wfmPfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
 		wfm.uDir = "/"
@@ -164,13 +158,4 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 	default:
 		wfm.dispOrDir(filepath.Base(r.FormValue("hi")))
 	}
-}
-
-func unescapeOrEmpty(s string) string {
-	u, err := url.QueryUnescape(s)
-	if err != nil {
-		log.Printf("unescape: %q err=%v", s, err)
-		return ""
-	}
-	return u
 }
