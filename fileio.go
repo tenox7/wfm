@@ -59,6 +59,27 @@ func (r *wfmRequest) dispFile() {
 	}
 }
 
+func dispoHeader(disp, name string) string {
+	var ascii strings.Builder
+	utf8 := false
+	for _, c := range name {
+		switch {
+		case c > 0x7e:
+			utf8 = true
+			ascii.WriteByte('_')
+		case c < 0x20, c == '"', c == '\\':
+			ascii.WriteByte('_')
+		default:
+			ascii.WriteRune(c)
+		}
+	}
+	h := disp + `; filename="` + ascii.String() + `"`
+	if utf8 {
+		h += `; filename*=UTF-8''` + strings.ReplaceAll(url.PathEscape(name), "'", "%27")
+	}
+	return h
+}
+
 func (r *wfmRequest) downFile() {
 	fp := r.uDir + "/" + r.uFbn
 	f, err := r.fs.Stat(fp)
@@ -67,7 +88,7 @@ func (r *wfmRequest) downFile() {
 		return
 	}
 	r.w.Header().Set("Content-Type", "application/octet-stream")
-	r.w.Header().Set("Content-Disposition", "attachment; filename=\""+url.PathEscape(r.uFbn)+"\";")
+	r.w.Header().Set("Content-Disposition", dispoHeader("attachment", r.uFbn))
 	r.w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	r.w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(r.w, fp, r.fs)
@@ -93,7 +114,7 @@ func dispInline(w http.ResponseWriter, uFilePath string, wfs afero.Fs) {
 	fi.Close()
 
 	w.Header().Set("Content-Type", mt.String())
-	w.Header().Set("Content-Disposition", "inline; filename=\""+url.PathEscape(filepath.Base(uFilePath))+"\";")
+	w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
 	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	w.Header().Set("Cache-Control", *cacheCtl)
 	streamFile(w, uFilePath, wfs)

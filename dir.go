@@ -78,7 +78,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="left">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + nUrl + `">` + i["di"] + heFile + `/</A>` + li + `
+				<A HREF="` + html.EscapeString(nUrl) + `">` + i["di"] + heFile + `/</A>` + li + `
 			</TD>
 			<TD NOWRAP>&nbsp;</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
@@ -143,7 +143,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		r.w.Write([]byte(`
 			<TD NOWRAP ALIGN="LEFT">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + nUrl + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
+				<A HREF="` + html.EscapeString(nUrl) + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
 			</TD>
 			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
@@ -236,13 +236,13 @@ func toolbars(w http.ResponseWriter, uDir, user string, sl []string, i map[strin
 	w.Write([]byte(`
         <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
         <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[0]}}) + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
+            <A HREF="` + wfmHref(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[0]}}) + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[2]}}) + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
+            <A HREF="` + wfmHref(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[2]}}) + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmURL(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[4]}}) + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
+            <A HREF="` + wfmHref(wfmPfx+`/`+qeDir, url.Values{"sort": {sl[4]}}) + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
         </TD>
         <TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
             &nbsp;

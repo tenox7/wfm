@@ -185,7 +185,7 @@ func (r *wfmRequest) about(ua string) {
 			runtime.Version(),
 			runtime.GOARCH,
 			runtime.GOOS,
-			ua)
+			html.EscapeString(ua))
 	}
 
 	r.w.Write([]byte(`
