@@ -22,6 +22,15 @@ No frameworks. No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any oth
 WFM outputs validated HTML 4.01 without JavaScript. It works on both modern and legacy web
 browsers going back to Internet Explorer 1.x and Netscape 3.x.
 
+No config files. All configuration is entirely based of `--flags`, rc/init/Docker friendly.
+In fact no files other than the binary are required.
+
+If you have Go installed, you don't even need the binary, you can simply run it like this:
+
+```sh
+go run github.com/tenox7/wfm@latest --flags...
+```
+
 ## Directory tree
 
 WFM exposes a directory tree via web based interface. The primary method of specifying
