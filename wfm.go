@@ -244,7 +244,7 @@ func main() {
 		err = https.ServeTLS(l, "", "")
 	case *fastCgi:
 		log.Print("Starting FastCGI Server")
-		fcgi.Serve(l, http.DefaultServeMux)
+		err = fcgi.Serve(l, mux)
 	default:
 		log.Printf("Starting HTTP Server")
 		err = http.Serve(l, mux)
