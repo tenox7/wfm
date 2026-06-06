@@ -13,7 +13,8 @@ WFM can also create and open bookmarks, link and shortcut files, etc.
 
 WFM is a standalone service with built-in web server. No need for Apache, Nginx, PHP, etc.
 It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
-TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot.
+TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot,
+or with your own certificate and key files.
 
 The binary is statically linked, fully self contained and has zero external dependencies.
 No images! All icons are unicode emojis. No JavaScript!
@@ -213,6 +214,19 @@ If the https site is exposed externally outside of your firewall its
 sometimes desired to have a local http (non-SSL) listener as well. To
 enable this use `-addr_extra=:8080` flag.
 
+### Own certificate and key
+
+Instead of Auto Cert Manager you can supply your own PEM certificate and key
+with `-tls_cert` and `-tls_key` (both required together):
+
+```text
+wfm -addr=:443 -tls_cert=/etc/ssl/wfm.crt -tls_key=/etc/ssl/wfm.key
+```
+
+Concatenate any chain/intermediate certs after the leaf in the `-tls_cert` file.
+The key must be unencrypted. Files are read before `chroot(2)` so they may live
+outside the chroot. Autocert takes precedence if both are configured.
+
 ## Authentication
 
 Authentication is performed by HTTP Basic Auth (in future a custom login
@@ -323,6 +337,10 @@ Usage of wfm:
         show dot files and folders
   -site_name string
         local site name to display (default "WFM")
+  -tls_cert string
+        TLS certificate file (PEM), eg: /etc/ssl/wfm.crt
+  -tls_key string
+        TLS private key file (PEM), eg: /etc/ssl/wfm.key
   -txt_le string
         default line endings when editing text files (default "LF")
 ```

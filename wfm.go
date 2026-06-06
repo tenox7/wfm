@@ -53,6 +53,8 @@ var (
 	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
 	acmWhlist  multiString // this flag set in main
+	tlsCert    = flag.String("tls_cert", "", "TLS certificate file (PEM), eg: /etc/ssl/wfm.crt")
+	tlsKey     = flag.String("tls_key", "", "TLS private key file (PEM), eg: /etc/ssl/wfm.key")
 	fastCgi    = flag.Bool("fastcgi", false, "enable FastCGI mode")
 	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
 	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
@@ -179,6 +181,20 @@ func main() {
 		log.Printf("Autocert enabled for %v", acmWhlist)
 	}
 
+	// load TLS keypair before chroot/setuid, files may live outside chroot
+	var keyPair *tls.Certificate
+	switch {
+	case *tlsCert != "" && *tlsKey != "":
+		c, err := tls.LoadX509KeyPair(*tlsCert, *tlsKey)
+		if err != nil {
+			log.Fatalf("unable to load TLS cert/key: %v", err)
+		}
+		keyPair = &c
+		log.Printf("Loaded TLS certificate %q key %q", *tlsCert, *tlsKey)
+	case *tlsCert != "" || *tlsKey != "":
+		log.Fatal("both -tls_cert and -tls_key must be specified together")
+	}
+
 	// chroot now
 	if *chrootDir != "" {
 		err := syscall.Chroot(*chrootDir)
@@ -240,7 +256,15 @@ func main() {
 			Handler:   mux,
 			TLSConfig: &tls.Config{GetCertificate: acm.GetCertificate},
 		}
-		log.Printf("Starting HTTPS TLS Server")
+		log.Printf("Starting HTTPS TLS Server (autocert)")
+		err = https.ServeTLS(l, "", "")
+	case keyPair != nil:
+		https := &http.Server{
+			Addr:      *bindAddr,
+			Handler:   mux,
+			TLSConfig: &tls.Config{Certificates: []tls.Certificate{*keyPair}},
+		}
+		log.Printf("Starting HTTPS TLS Server (cert/key)")
 		err = https.ServeTLS(l, "", "")
 	case *fastCgi:
 		log.Print("Starting FastCGI Server")
