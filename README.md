@@ -158,7 +158,20 @@ or if routing from another service like reverse proxy.
 
 Most typically you would just use the default `/:/`.
 
-In future WFM may support multiple prefix pairs.
+The `-prefix` flag can be repeated to expose several filesystem directories under
+different http paths from a single instance:
+
+```sh
+wfm -prefix /srv/pub:/pub -prefix /srv/docs:/docs -prefix /srv:/
+```
+
+Each pair gets its own filesystem rooted at its fsdir. The most specific (longest)
+http path is matched first, so a catch-all `/:/` can coexist with more specific
+prefixes, and prefixes can nest (`/a/b` is served by its own pair, not `/a`).
+Matching is on path boundaries, so a `/pub` prefix does not capture `/public`.
+Requests not matching any prefix return 404. Note that a prefix shadows any real
+directory of the same path in a less specific pair (eg. with a `/docs` prefix, a
+`docs` folder inside the `/:/` fsdir is not reachable).
 
 ## FastCGI
 
@@ -325,8 +338,8 @@ Usage of wfm:
         allow read-write access if there is no password file
   -passwd string
         wfm password file, eg: /usr/local/etc/wfmpw.json
-  -prefix string
-        Prefix for WFM access, /fsdir:/httppath eg.: /var/files:/myfiles (default "/:/")
+  -prefix value
+        Prefix for WFM access /fsdir:/httppath eg.: /var/files:/myfiles (multi, default /:/)
   -proto string
         tcp, tcp4, tcp6, etc (default "tcp")
   -rate_limit int

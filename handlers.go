@@ -13,6 +13,7 @@ import (
 
 type wfmRequest struct {
 	fs       afero.Fs
+	pfx      string
 	w        http.ResponseWriter
 	userName string
 	remAddr  string
@@ -23,7 +24,7 @@ type wfmRequest struct {
 	uFbn     string // unescaped file base name
 }
 
-func wfmMain(w http.ResponseWriter, r *http.Request) {
+func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	r.ParseMultipartForm(*formMaxMem)
 	uName, uAccess := auth(w, r)
 	if uName == "" {
@@ -47,14 +48,15 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		modern: func() bool {
 			return strings.HasPrefix(r.UserAgent(), "Mozilla/5") && r.Header.Get("Accept-Charset") == ""
 		}(),
-		fs:   wfmFs, // TODO(tenox): per user FS/homedir
+		fs:   p.fs,
+		pfx:  p.uri,
 		uFbn: filepath.Base(r.FormValue("file")),
 		uDir: filepath.Clean(r.FormValue("dir")),
 	}
 
 	// directory can come either from form value or URI Path
 	if wfm.uDir == "" || wfm.uDir == "." {
-		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, wfmPfx))
+		wfm.uDir = filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, wfm.pfx))
 	}
 	if wfm.uDir == "" || wfm.uDir == "." {
 		wfm.uDir = "/"
@@ -89,7 +91,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		wfm.saveText(r.FormValue("text"), r.FormValue("crlf"))
 		return
 	case r.FormValue("up") != "":
-		up, err := url.JoinPath(wfmPfx, filepath.Dir(wfm.uDir))
+		up, err := url.JoinPath(wfm.pfx, filepath.Dir(wfm.uDir))
 		if err != nil {
 			htErr(w, "up path build", err)
 			return
@@ -101,7 +103,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request) {
 		redirect(w, wfmURL(up, q))
 		return
 	case r.FormValue("refresh") != "":
-		re, err := url.JoinPath(wfmPfx, wfm.uDir)
+		re, err := url.JoinPath(wfm.pfx, wfm.uDir)
 		if err != nil {
 			htErr(w, "up path build", err)
 			return

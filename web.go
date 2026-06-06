@@ -47,7 +47,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 	log.Printf("error: %v : %v", msg, err)
 }
 
-func header(w http.ResponseWriter, uDir, sort, extraCSS string, modern bool) {
+func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool) {
 	eDir := html.EscapeString(uDir)
 	w.Header().Set("Content-Type", "text/html")
 	w.Header().Set("Cache-Control", *cacheCtl)
@@ -79,7 +79,7 @@ func header(w http.ResponseWriter, uDir, sort, extraCSS string, modern bool) {
 --></STYLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF">
-<FORM ACTION="` + wfmPfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
+<FORM ACTION="` + pfx + `" METHOD="POST" ENCTYPE="multipart/form-data">
 <INPUT TYPE="hidden" NAME="dir" VALUE="` + eDir + `">
 <INPUT TYPE="hidden" NAME="sort" VALUE="` + html.EscapeString(sort) + `">
 `))

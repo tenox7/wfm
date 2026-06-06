@@ -23,7 +23,7 @@ func selOpt(s string, f ...struct{ v, n string }) string {
 }
 
 func (r *wfmRequest) prompt(action string, mul []string) {
-	header(r.w, r.uDir, r.eSort, "", r.modern)
+	header(r.w, r.pfx, r.uDir, r.eSort, "", r.modern)
 
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
@@ -137,7 +137,7 @@ func (r *wfmRequest) editText() {
 	if bytes.IndexByte(f, '\r') != -1 {
 		le = "CRLF"
 	}
-	header(r.w, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`, r.modern)
+	header(r.w, r.pfx, r.uDir, r.eSort, `html, body, table, textarea, form { box-sizing: border-box; height:98%; }`, r.modern)
 	r.w.Write([]byte(`
     <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
     <TR STYLE="height:1%;">
@@ -166,7 +166,7 @@ func (r *wfmRequest) editText() {
 }
 
 func (r *wfmRequest) about(ua string) {
-	header(r.w, r.uDir, r.eSort, "", r.modern)
+	header(r.w, r.pfx, r.uDir, r.eSort, "", r.modern)
 
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">

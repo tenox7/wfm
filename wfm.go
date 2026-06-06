@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -25,6 +26,11 @@ import (
 )
 
 type multiString []string
+
+type wfmPrefix struct {
+	uri string
+	fs  afero.Fs
+}
 
 var (
 	vers       = "2.2.5"
@@ -44,11 +50,9 @@ var (
 	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
 	rateLim    = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
 	formMaxMem = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
-	prefix     = flag.String("prefix", "/:/", "Prefix for WFM access, /fsdir:/httppath eg.: /var/files:/myfiles")
 	defLe      = flag.String("txt_le", "LF", "default line endings when editing text files")
 	dumpHeader = flag.Bool("dump_headers", false, "dump headers sent by client")
-	wfmFs      afero.Fs
-	wfmPfx     string
+	pfxList    multiString // this flag set in main
 	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
@@ -133,6 +137,7 @@ func main() {
 	log.Printf("WFM %v Starting up", vers)
 
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
+	flag.Var(&pfxList, "prefix", "Prefix for WFM access /fsdir:/httppath eg.: /var/files:/myfiles (multi, default /:/)")
 	flag.Parse()
 	var err error
 
@@ -230,17 +235,42 @@ func main() {
 
 	// http routing
 	mux := mux.NewRouter()
-	pfx := strings.Split(*prefix, ":")
-	if len(pfx) != 2 || pfx[0][0] != '/' || pfx[1][0] != '/' {
-		log.Fatal("--prefix must be in format '/dir:/path'")
+	if len(pfxList) == 0 {
+		pfxList = multiString{"/:/"}
 	}
-	log.Printf("Prefix fs=%v uri=%v", pfx[0], pfx[1])
-	wfmFs = afero.NewOsFs()
-	if pfx[0] != "/" {
-		wfmFs = afero.NewBasePathFs(wfmFs, pfx[0])
+	var prefixes []wfmPrefix
+	for _, p := range pfxList {
+		s := strings.Split(p, ":")
+		if len(s) != 2 || s[0][0] != '/' || s[1][0] != '/' {
+			log.Fatalf("--prefix %q must be in format '/dir:/path'", p)
+		}
+		fs := afero.NewOsFs()
+		if s[0] != "/" {
+			fs = afero.NewBasePathFs(fs, s[0])
+		}
+		uri := strings.TrimRight(s[1], "/")
+		if uri == "" {
+			uri = "/"
+		}
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs})
+		log.Printf("Prefix fs=%v uri=%v", s[0], uri)
 	}
-	wfmPfx = pfx[1]
-	mux.PathPrefix(wfmPfx).HandlerFunc(wfmMain)
+	// longest uri first so specific prefixes match before catch-all
+	sort.Slice(prefixes, func(i, j int) bool {
+		return len(prefixes[i].uri) > len(prefixes[j].uri)
+	})
+	for _, p := range prefixes {
+		h := func(w http.ResponseWriter, r *http.Request) {
+			wfmMain(w, r, p)
+		}
+		if p.uri == "/" {
+			mux.PathPrefix("/").HandlerFunc(h)
+			continue
+		}
+		// match only at path boundaries: exact /pfx or /pfx/... not /pfxOther
+		mux.Path(p.uri).HandlerFunc(h)
+		mux.PathPrefix(p.uri + "/").HandlerFunc(h)
+	}
 	if *f2bDump != "" {
 		mux.HandleFunc(*f2bDump, dumpf2b)
 	}
