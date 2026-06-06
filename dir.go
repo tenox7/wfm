@@ -197,14 +197,13 @@ func toolbars(w io.Writer, pfx, uDir, user string, sl []string, i map[string]str
 	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
 	`+theadO+`
 	<TR>
-		<TD BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
+		<TD COLSPAN="2" BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
 			<FONT COLOR="#FFFFFF"><B>&nbsp;`+*siteName+`&nbsp;:&nbsp;`+eDir+`</B></FONT>
 		</TD>
-		<TD BGCOLOR="#0066CC">&nbsp;</TD>
-		<TD COLSPAN="2" NOWRAP BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#000000;">
-			&nbsp;`+i[rorw[rw]]+`&nbsp;
-			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"logout"}})+`">`+i["tid"]+user+`</A>&nbsp;
-			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}})+`">&nbsp;`+i["tve"]+` v`+vers+`&nbsp;</A>
+		<TD COLSPAN="2" NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#FFFFFF;">
+			<FONT COLOR="#FFFFFF">&nbsp;`+i[rorw[rw]]+`&nbsp;</FONT>
+			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"logout"}})+`"><FONT COLOR="#FFFFFF">`+i["tid"]+user+`</FONT></A>&nbsp;
+			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}})+`"><FONT COLOR="#FFFFFF">&nbsp;`+i["tve"]+` v`+vers+`&nbsp;</FONT></A>
 		</TD>
 	</TR>
 	`)
