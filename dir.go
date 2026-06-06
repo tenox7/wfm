@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"html"
+	"io"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"sort"
@@ -22,6 +23,22 @@ var (
 	}
 )
 
+type dirEntry struct {
+	fi   os.FileInfo
+	link bool
+}
+
+func rowTag(name, hi string, z int, modern bool) string {
+	switch {
+	case name == hi:
+		return `<TR CLASS="f" BGCOLOR="#33CC33">`
+	case z%2 == 0:
+		return `<TR CLASS="f" BGCOLOR="#FFFFFF">`
+	default:
+		return `<TR CLASS="f" BGCOLOR="` + panelGrey[modern] + `">`
+	}
+}
+
 func (r *wfmRequest) listFiles(hi string) {
 	i := icons(r.modern)
 	d, err := afero.ReadDir(r.fs, r.uDir)
@@ -32,39 +49,41 @@ func (r *wfmRequest) listFiles(hi string) {
 	sl := []string{}
 	sortFiles(d, &sl, r.eSort)
 
-	header(r.w, r.pfx, r.uDir, r.eSort, "", r.modern)
-	toolbars(r.w, r.pfx, r.uDir, r.userName, sl, i, r.rwAccess)
-	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
-
-	z := 0
-	var total uint64
-	var totItems int
-
-	// List Directories First
+	var dirs, files []dirEntry
 	for _, f := range d {
-		var ldir bool
-		var li string
+		if !*showDot && strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+		isDir, link := f.IsDir(), false
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
 			ls, err := r.fs.Stat(r.uDir + "/" + f.Name())
 			if err != nil {
 				continue
 			}
-			ldir = ls.IsDir()
+			isDir, link = ls.IsDir(), true
+		}
+		if isDir {
+			dirs = append(dirs, dirEntry{f, link})
+			continue
+		}
+		files = append(files, dirEntry{f, link})
+	}
+
+	header(r.w, r.pfx, r.uDir, r.eSort, "", r.modern)
+	bw := bufio.NewWriterSize(r.w, 1<<15)
+	toolbars(bw, r.pfx, r.uDir, r.userName, sl, i, r.rwAccess, r.modern)
+	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
+
+	z := 0
+	var total uint64
+
+	for _, e := range dirs {
+		f := e.fi
+		var li string
+		if e.link {
 			li = i["li"]
 		}
-		if !f.IsDir() && !ldir {
-			continue
-		}
-		if !*showDot && f.Name()[0:1] == "." {
-			continue
-		}
-		if f.Name() == hi {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#33CC33">`))
-		} else if z%2 == 0 {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#FFFFFF">`))
-		} else {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#F0F0F0">`))
-		}
+		bw.WriteString(rowTag(f.Name(), hi, z, r.modern))
 		z++
 		qeFile := url.PathEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
@@ -75,15 +94,14 @@ func (r *wfmRequest) listFiles(hi string) {
 		if r.eSort != "" {
 			nUrl = wfmURL(nUrl, url.Values{"sort": {r.eSort}})
 		}
-		r.w.Write([]byte(`
+		bw.WriteString(`
 			<TD NOWRAP ALIGN="left">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
 				<A HREF="` + html.EscapeString(nUrl) + `">` + i["di"] + heFile + `/</A>` + li + `
 			</TD>
 			<TD NOWRAP>&nbsp;</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-			<TD NOWRAP ALIGN="right">
-		`))
+			<TD NOWRAP ALIGN="right">`)
 		if r.rwAccess {
 			q := url.Values{"dir": {r.uDir}, "file": {f.Name()}, "sort": {r.eSort}}
 			q.Set("fn", "renp")
@@ -92,44 +110,24 @@ func (r *wfmRequest) listFiles(hi string) {
 			movp := wfmHref(r.pfx, q)
 			q.Set("fn", "delp")
 			delp := wfmHref(r.pfx, q)
-			r.w.Write([]byte(`
+			bw.WriteString(`
 				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
 				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;
-		`))
+				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;`)
 		}
-		r.w.Write([]byte(`
-					</TD>
+		bw.WriteString(`
+			</TD>
 		</TR>
-        `))
-		totItems++
+		`)
 	}
 
-	// List Files
-	for _, f := range d {
-		var ldir bool
+	for _, e := range files {
+		f := e.fi
 		var li string
-		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := r.fs.Stat(r.uDir + "/" + f.Name())
-			if err != nil {
-				continue
-			}
-			ldir = ls.IsDir()
+		if e.link {
 			li = i["li"]
 		}
-		if f.IsDir() || ldir {
-			continue
-		}
-		if !*showDot && f.Name()[0:1] == "." {
-			continue
-		}
-		if f.Name() == hi {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#33CC33">`))
-		} else if z%2 == 0 {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#FFFFFF">`))
-		} else {
-			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#F0F0F0">`))
-		}
+		bw.WriteString(rowTag(f.Name(), hi, z, r.modern))
 		z++
 		qeFile := url.PathEscape(f.Name())
 		heFile := html.EscapeString(f.Name())
@@ -140,7 +138,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}}
 		q.Set("fn", "down")
 		down := wfmHref(r.pfx, q)
-		r.w.Write([]byte(`
+		bw.WriteString(`
 			<TD NOWRAP ALIGN="LEFT">
 				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
 				<A HREF="` + html.EscapeString(nUrl) + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
@@ -148,8 +146,7 @@ func (r *wfmRequest) listFiles(hi string) {
 			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
 			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
 			<TD NOWRAP ALIGN="right">
-				<A HREF="` + down + `">` + i["dn"] + `</A>&nbsp;
-			`))
+				<A HREF="` + down + `">` + i["dn"] + `</A>&nbsp;`)
 		if r.rwAccess {
 			q.Set("sort", r.eSort)
 			q.Set("fn", "edit")
@@ -160,79 +157,88 @@ func (r *wfmRequest) listFiles(hi string) {
 			movp := wfmHref(r.pfx, q)
 			q.Set("fn", "delp")
 			delp := wfmHref(r.pfx, q)
-			r.w.Write([]byte(`
+			bw.WriteString(`
 				<A HREF="` + edit + `">` + i["ed"] + `</A>&nbsp;
 				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
 				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;
-			`))
+				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;`)
 		}
-		r.w.Write([]byte(`
-				</TD>
-        </TR>
-        `))
+		bw.WriteString(`
+			</TD>
+		</TR>
+		`)
 		total = total + uint64(f.Size())
-		totItems++
 	}
 
-	// Footer
-	r.w.Write([]byte(`<TR><TD></TD><TD NOWRAP ALIGN="right" STYLE="border-top:1px solid grey">` + fmt.Sprint(totItems) + ` items, ` +
-		humanize.Bytes(total) + ` total </TD><TD></TD><TD></TD></TR>` + "\n\t</TABLE>\n"))
+	bw.WriteString(`<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">` + fmt.Sprint(len(dirs)+len(files)) + ` items, ` +
+		humanize.Bytes(total) + ` total </TD></TR>`)
+	if r.modern {
+		bw.WriteString("\n\t</TBODY>")
+	}
+	bw.WriteString("\n\t</TABLE>\n")
+	bw.Flush()
 	footer(r.w)
 }
 
-func toolbars(w http.ResponseWriter, pfx, uDir, user string, sl []string, i map[string]string, rw bool) {
+func toolbars(w io.Writer, pfx, uDir, user string, sl []string, i map[string]string, rw, modern bool) {
 	eDir := html.EscapeString(uDir)
-	qeDir := url.PathEscape(uDir)
-	// Single table: topbar, toolbar, sort header, file rows (added by listFiles)
-	// and the totals row all live in one table. Opened here, closed by listFiles.
-	w.Write([]byte(`
-        <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
-        <TR>
-            <TD NOWRAP BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
-                <FONT COLOR="#FFFFFF"><B>&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</B></FONT>
-            </TD>
-            <TD BGCOLOR="#0072c6">&nbsp;</TD>
-            <TD COLSPAN="2" NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#000000;">
-                &nbsp;` + i[rorw[rw]] + `&nbsp;
-                <A HREF="` + wfmHref(pfx, url.Values{"fn": {"logout"}}) + `">` + i["tid"] + user + `</A>&nbsp;
-                <A HREF="` + wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}}) + `">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
-            </TD>
-        </TR>
-        `))
+	qeDir := strings.ReplaceAll(url.PathEscape(uDir), `%2F`, `/`)
+	sortBase, err := url.JoinPath(pfx, qeDir)
+	if err != nil {
+		log.Printf("Unable to build sort url: %v", err)
+	}
 
-	// Toolbar: one full-width, left-aligned cell; buttons flow inline and wrap on small screens
-	w.Write([]byte(`
-        <TR><TD COLSPAN="4" BGCOLOR="#EEEEEE" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
-            <INPUT TYPE="SUBMIT" NAME="up" VALUE="` + i["tup"] + `Up" CLASS="nb">
-            <INPUT TYPE="SUBMIT" NAME="home" VALUE="` + i["tho"] + `Home" CLASS="nb">
-            <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">
-            <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>
-            <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb" ` + disTag[rw] + `>
-            <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb" ` + disTag[rw] + `>
-            <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb" ` + disTag[rw] + `>
-            <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb" ` + disTag[rw] + `>
-            <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
-            <INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb" ` + disTag[rw] + `>
-        </TD></TR>
-        `))
+	theadO, theadC := "", ""
+	if modern {
+		theadO, theadC = "<THEAD>", "</THEAD><TBODY>"
+	}
 
-	// Sort header: four columns (Name, Size, Time, Actions)
-	w.Write([]byte(`
-        <TR>
-        <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[0]}}) + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
-        </TD>
-        <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[2]}}) + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
-        </TD>
-        <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
-            <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[4]}}) + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
-        </TD>
-        <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">&nbsp;</TD>
-        </TR>
-        `))
+	io.WriteString(w, `
+	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
+	`+theadO+`
+	<TR>
+		<TD BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
+			<FONT COLOR="#FFFFFF"><B>&nbsp;`+*siteName+`&nbsp;:&nbsp;`+eDir+`</B></FONT>
+		</TD>
+		<TD BGCOLOR="#0066CC">&nbsp;</TD>
+		<TD COLSPAN="2" NOWRAP BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#000000;">
+			&nbsp;`+i[rorw[rw]]+`&nbsp;
+			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"logout"}})+`">`+i["tid"]+user+`</A>&nbsp;
+			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}})+`">&nbsp;`+i["tve"]+` v`+vers+`&nbsp;</A>
+		</TD>
+	</TR>
+	`)
 
+	io.WriteString(w, `
+	<TR><TD COLSPAN="4" BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
+		<INPUT TYPE="SUBMIT" NAME="up" VALUE="`+i["tup"]+`Up" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="home" VALUE="`+i["tho"]+`Home" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="`+i["tre"]+`Refresh" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="`+i["trm"]+`Delete" CLASS="nb" `+disTag[rw]+`>
+		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="`+i["tmv"]+`Move" CLASS="nb" `+disTag[rw]+`>
+		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="`+i["tdi"]+`New Dir" CLASS="nb" `+disTag[rw]+`>
+		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="`+i["tfi"]+`New File" CLASS="nb" `+disTag[rw]+`>
+		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="`+i["tln"]+`New Link" CLASS="nb" `+disTag[rw]+`>
+		<INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
+		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="`+i["tul"]+`Upload" CLASS="nb" `+disTag[rw]+`>
+	</TD></TR>
+	`)
+
+	io.WriteString(w, `
+	<TR>
+	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#666666">
+		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[0]}})+`"><FONT COLOR="#FFFFFF">`+sl[1]+`</FONT></A>
+	</TD>
+	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">
+		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[2]}})+`"><FONT COLOR="#FFFFFF">`+sl[3]+`</FONT></A>
+	</TD>
+	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">
+		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[4]}})+`"><FONT COLOR="#FFFFFF">`+sl[5]+`</FONT></A>
+	</TD>
+	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">&nbsp;</TD>
+	</TR>
+	`+theadC+`
+	`)
 }
 
 func sortFiles(f []os.FileInfo, l *[]string, by string) {

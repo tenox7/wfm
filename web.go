@@ -26,6 +26,10 @@ var (
 		true:  "2px",
 		false: "0px",
 	}
+	panelGrey = map[bool]string{
+		true:  "#EEEEEE",
+		false: "#CCCCCC",
+	}
 )
 
 func wfmURL(base string, q url.Values) string {
@@ -49,7 +53,7 @@ func htErr(w http.ResponseWriter, msg string, err error) {
 
 func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool) {
 	eDir := html.EscapeString(uDir)
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset="+charset[modern])
 	w.Header().Set("Cache-Control", *cacheCtl)
 	w.Write([]byte(`<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML LANG="en">
@@ -59,7 +63,7 @@ func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool
 <META HTTP-EQUIV="google" CONTENT="notranslate">
 <META HTTP-EQUIV="charset" CONTENT="` + charset[modern] + `">
 <META HTTP-EQUIV="encoding" CONTENT="` + charset[modern] + `">
-<META NAME="viewport" CONTENT="width=device-width">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1">
 <META NAME="description" CONTENT="` + *siteDesc + `">
 <LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
 <LINK REL="shortcut icon" HREF="/favicon.ico?">
@@ -73,8 +77,9 @@ func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool
 	td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:` + padding[modern] + `; border:none; }
 	input { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
 	.thov tr.f:hover { background-color: #FF8000; color: #FFFFFF; }
+	thead { position: sticky; top: 0px; z-index: 2; }
 	.tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
-	.nb { border-style:none; background-color: #EEEEEE; }
+	.nb { border-style:none; background-color: ` + panelGrey[modern] + `; }
 	` + extraCSS + `
 --></STYLE>
 </HEAD>

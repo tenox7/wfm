@@ -28,7 +28,7 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
     <BR>&nbsp;<BR><P>
-    <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
+    <TABLE WIDTH="400" BGCOLOR="` + panelGrey[r.modern] + `" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
       <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; ` + action + `</FONT></TD></TR>
       <TR><TD WIDTH="30">&nbsp;</TD><TD>
     `))
@@ -171,7 +171,7 @@ func (r *wfmRequest) about(ua string) {
 	r.w.Write([]byte(`
     <TABLE WIDTH="100%" HEIGHT="90%" BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD VALIGN="MIDDLE" ALIGN="CENTER">
     <BR>&nbsp;<BR><P>
-    <TABLE WIDTH="400" BGCOLOR="#F0F0F0" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
+    <TABLE WIDTH="400" BGCOLOR="` + panelGrey[r.modern] + `" BORDER="0" CELLSPACING="0" CELLPADDING="1" CLASS="tbr">
       <TR><TD COLSPAN="2" BGCOLOR="#004080"><FONT COLOR="#FFFFFF">&nbsp; Web File Manager</FONT></TD></TR>
       <TR><TD WIDTH="30">&nbsp;</TD><TD ALIGN="LEFT"><BR>
 	  WFM Version v` + vers + `<BR>
