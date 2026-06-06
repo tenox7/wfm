@@ -209,19 +209,30 @@ func toolbars(w io.Writer, pfx, uDir, user string, sl []string, i map[string]str
 	</TR>
 	`)
 
+	btns := []string{
+		`<INPUT TYPE="SUBMIT" NAME="up" VALUE="` + i["tup"] + `Up" CLASS="nb">`,
+		`<INPUT TYPE="SUBMIT" NAME="home" VALUE="` + i["tho"] + `Home" CLASS="nb">`,
+		`<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">`,
+		`<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>`,
+		`<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb" ` + disTag[rw] + `>`,
+		`<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb" ` + disTag[rw] + `>`,
+		`<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb" ` + disTag[rw] + `>`,
+		`<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb" ` + disTag[rw] + `>`,
+		`<INPUT TYPE="FILE" NAME="filename" CLASS="nb">`,
+		`<INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb" ` + disTag[rw] + `>`,
+	}
 	io.WriteString(w, `
-	<TR><TD COLSPAN="4" BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
-		<INPUT TYPE="SUBMIT" NAME="up" VALUE="`+i["tup"]+`Up" CLASS="nb">
-		<INPUT TYPE="SUBMIT" NAME="home" VALUE="`+i["tho"]+`Home" CLASS="nb">
-		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="`+i["tre"]+`Refresh" CLASS="nb">
-		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="`+i["trm"]+`Delete" CLASS="nb" `+disTag[rw]+`>
-		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="`+i["tmv"]+`Move" CLASS="nb" `+disTag[rw]+`>
-		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="`+i["tdi"]+`New Dir" CLASS="nb" `+disTag[rw]+`>
-		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="`+i["tfi"]+`New File" CLASS="nb" `+disTag[rw]+`>
-		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="`+i["tln"]+`New Link" CLASS="nb" `+disTag[rw]+`>
-		<INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
-		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="`+i["tul"]+`Upload" CLASS="nb" `+disTag[rw]+`>
-	</TD></TR>
+	<TR><TD COLSPAN="4" BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">`)
+	if modern {
+		io.WriteString(w, strings.Join(btns, "\n"))
+	} else {
+		io.WriteString(w, `<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="2"><TR>`)
+		for _, b := range btns {
+			io.WriteString(w, `<TD NOWRAP VALIGN="MIDDLE">`+b+`</TD>`)
+		}
+		io.WriteString(w, `</TR></TABLE>`)
+	}
+	io.WriteString(w, `</TD></TR>
 	`)
 
 	io.WriteString(w, `

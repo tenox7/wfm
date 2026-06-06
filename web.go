@@ -79,7 +79,7 @@ func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool
 	.thov tr.f:hover { background-color: #FF8000; color: #FFFFFF; }
 	thead { position: sticky; top: 0px; z-index: 2; }
 	.tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
-	.nb { border-style:none; background-color: ` + panelGrey[modern] + `; }
+	.nb { border-style:none; background-color: ` + panelGrey[modern] + `; vertical-align: middle; }
 	` + extraCSS + `
 --></STYLE>
 </HEAD>
