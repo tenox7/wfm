@@ -17,6 +17,7 @@ import (
 type userDB struct {
 	User, Salt, Hash string
 	RW               bool
+	Home             string
 }
 
 var (
@@ -56,26 +57,28 @@ func manageUsers() {
 	case "newfile":
 		saveUsers()
 	case "add":
-		addUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
+		addUser(flag.Arg(2), rwStrBool(flag.Arg(3)), flag.Arg(4))
 	case "delete":
 		delUser(flag.Arg(2))
 	case "passwd":
 		pwdUser(flag.Arg(2))
 	case "access":
 		setUser(flag.Arg(2), rwStrBool(flag.Arg(3)))
+	case "home":
+		homeUser(flag.Arg(2), flag.Arg(3))
 	default:
-		fmt.Println("usage: user <list|add|delete|passwd|access|newfile> [username] [rw|ro]")
+		fmt.Println("usage: user <list|add|delete|passwd|access|home|newfile> [username] [rw|ro] [home]")
 	}
 }
 
 func listUsers() {
 	loadUsers()
 	for _, u := range users {
-		fmt.Printf("User: %q, RW: %v\n", u.User, u.RW)
+		fmt.Printf("User: %q, RW: %v, Home: %q\n", u.User, u.RW, u.Home)
 	}
 }
 
-func addUser(usr string, rw bool) {
+func addUser(usr string, rw bool, home string) {
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
 	}
@@ -86,7 +89,26 @@ func addUser(usr string, rw bool) {
 	}
 	salt := rndStr(8)
 	hash := fmt.Sprintf("%x", sha256.Sum256(append([]byte(salt), pwd...)))
-	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: rw})
+	users = append(users, userDB{User: usr, Salt: salt, Hash: hash, RW: rw, Home: home})
+	saveUsers()
+}
+
+func homeUser(usr, home string) {
+	if usr == "" {
+		log.Fatal("user home requires username and home path\n")
+	}
+	loadUsers()
+	chg := false
+	for i, u := range users {
+		if u.User != usr {
+			continue
+		}
+		users[i].Home = home
+		chg = true
+	}
+	if !chg {
+		log.Fatal("User not found / nothing changed")
+	}
 	saveUsers()
 }
 

@@ -28,8 +28,9 @@ import (
 type multiString []string
 
 type wfmPrefix struct {
-	uri string
-	fs  afero.Fs
+	uri   string
+	fs    afero.Fs
+	owner string // if set, only this user may access the prefix
 }
 
 var (
@@ -254,6 +255,16 @@ func main() {
 		}
 		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs})
 		log.Printf("Prefix fs=%v uri=%v", s[0], uri)
+	}
+	// per-user home directories become owner-restricted /username prefixes
+	for _, u := range users {
+		if u.Home == "" {
+			continue
+		}
+		uri := "/" + u.User
+		fs := afero.NewBasePathFs(afero.NewOsFs(), u.Home)
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User})
+		log.Printf("Prefix (home) fs=%v uri=%v owner=%v", u.Home, uri, u.User)
 	}
 	// longest uri first so specific prefixes match before catch-all
 	sort.Slice(prefixes, func(i, j int) bool {

@@ -265,9 +265,14 @@ to take effect. This is because the file is read once on startup before
 ```shell
 $ wfm -passwd=/path/users.json user newfile
 $ wfm -passwd=/path/users.json user add myuser rw
+$ wfm -passwd=/path/users.json user add myuser rw /home/myuser
 $ wfm -passwd=/path/users.json user delete myuser
 $ wfm -passwd=/path/users.json user passwd myuser
+$ wfm -passwd=/path/users.json user home myuser /home/myuser
 ```
+
+The optional home path on `user add`, or a later `user home`, gives the user a
+private directory. See [Per-user home](#per-user-home) below.
 
 ## JSON password file format
 
@@ -279,7 +284,21 @@ is self explanatory. Salt is a short random string used to make passwords
 harder to crack. It can be anything but it must be different for every user.
 The same salt must also be passed when generating the password. Hash is
 a hashed salt + password string. RW boolean specifies if user has read only
-or read write access.
+or read write access. The optional "Home" string is a filesystem directory
+that becomes the user's private prefix, see [Per-user home](#per-user-home).
+
+### Per-user home
+
+If a user has a "Home" set, WFM automatically creates a prefix at `/username`
+rooted at that directory, accessible only to that user. For example user `foo`
+with `"Home": "/home/foo"` yields the pair `/home/foo:/foo`; any other
+authenticated user requesting `/foo` gets `403 Forbidden`. The user's `RW` flag
+applies inside their home as usual.
+
+The home path is a filesystem directory, affected by `-chroot` the same way as
+`-prefix` fsdirs. Home prefixes are added alongside any `-prefix` flags, so a
+catch-all `/:/` (or no prefix at all) can coexist with per-user homes. Avoid
+defining a `-prefix` whose http path collides with a `/username` home.
 
 ### Binary hardcoded
 

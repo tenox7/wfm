@@ -30,6 +30,11 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	if uName == "" {
 		return
 	}
+	if p.owner != "" && p.owner != uName {
+		log.Printf("auth: user %q denied access to home prefix %q owner=%q", uName, p.uri, p.owner)
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	log.Printf("req from=%q user=%q uri=%q form=%v agent=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form), r.UserAgent())
 
 	if *dumpHeader {

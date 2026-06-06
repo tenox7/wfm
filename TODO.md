@@ -35,7 +35,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## File IO
 
-* path prefix per user, defined in json
 * redirects to use new uri paths
 * file search function
 * editable and non editable documents by extension, also for git checkins
