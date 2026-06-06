@@ -59,11 +59,11 @@ func (r *wfmRequest) listFiles(hi string) {
 			continue
 		}
 		if f.Name() == hi {
-			r.w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#33CC33">`))
 		} else if z%2 == 0 {
-			r.w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#FFFFFF">`))
 		} else {
-			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#F0F0F0">`))
 		}
 		z++
 		qeFile := url.PathEscape(f.Name())
@@ -124,11 +124,11 @@ func (r *wfmRequest) listFiles(hi string) {
 			continue
 		}
 		if f.Name() == hi {
-			r.w.Write([]byte(`<TR BGCOLOR="#33CC33">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#33CC33">`))
 		} else if z%2 == 0 {
-			r.w.Write([]byte(`<TR BGCOLOR="#FFFFFF">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#FFFFFF">`))
 		} else {
-			r.w.Write([]byte(`<TR BGCOLOR="#F0F0F0">`))
+			r.w.Write([]byte(`<TR CLASS="f" BGCOLOR="#F0F0F0">`))
 		}
 		z++
 		qeFile := url.PathEscape(f.Name())
@@ -184,72 +184,52 @@ func (r *wfmRequest) listFiles(hi string) {
 func toolbars(w http.ResponseWriter, pfx, uDir, user string, sl []string, i map[string]string, rw bool) {
 	eDir := html.EscapeString(uDir)
 	qeDir := url.PathEscape(uDir)
-	// Topbar
+	// Single table: topbar, toolbar, sort header, file rows (added by listFiles)
+	// and the totals row all live in one table. Opened here, closed by listFiles.
 	w.Write([]byte(`
-        <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
-            <TD NOWRAP  WIDTH="100%" BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="color:#FFFFFF; font-weight:bold;">
-                <FONT COLOR="#FFFFFF">&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</FONT>
+        <TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
+        <TR>
+            <TD NOWRAP BGCOLOR="#0072c6" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
+                <FONT COLOR="#FFFFFF"><B>&nbsp;` + *siteName + `&nbsp;:&nbsp;` + eDir + `</B></FONT>
             </TD>
-            <TD NOWRAP  BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="color:#000000; white-space:nowrap">
-				&nbsp;` + i[rorw[rw]] + `&nbsp;
-				<A HREF="` + wfmHref(pfx, url.Values{"fn": {"logout"}}) + `">` + i["tid"] + user + `</A>&nbsp;
+            <TD BGCOLOR="#0072c6">&nbsp;</TD>
+            <TD COLSPAN="2" NOWRAP BGCOLOR="#F1F1F1" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#000000;">
+                &nbsp;` + i[rorw[rw]] + `&nbsp;
+                <A HREF="` + wfmHref(pfx, url.Values{"fn": {"logout"}}) + `">` + i["tid"] + user + `</A>&nbsp;
                 <A HREF="` + wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}}) + `">&nbsp;` + i["tve"] + ` v` + vers + `&nbsp;</A>
             </TD>
-        </TR></TABLE>
+        </TR>
         `))
 
-	// Toolbar
+	// Toolbar: one full-width, left-aligned cell; buttons flow inline and wrap on small screens
 	w.Write([]byte(`
-        <TABLE WIDTH="100%" BGCOLOR="#EEEEEE" CELLPADDING="0" CELLSPACING="0" BORDER="0" STYLE="height:28px;"><TR>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
+        <TR><TD COLSPAN="4" BGCOLOR="#EEEEEE" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
             <INPUT TYPE="SUBMIT" NAME="up" VALUE="` + i["tup"] + `Up" CLASS="nb">
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="home" VALUE="` + i["tho"] + `Home" CLASS="nb">
-        </TD>
-        <TD NOWRAP  VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">
-        </TD>
-            <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER" >
-        <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
+            <INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>
             <INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        <TD NOWRAP VALIGN="MIDDLE" ALIGN="CENTER">
             <INPUT TYPE="FILE" NAME="filename" CLASS="nb">&nbsp;
             <INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb" ` + disTag[rw] + `>
-        </TD>
-        </TR></TABLE>
+        </TD></TR>
         `))
 
-	// Sortby and File List Header
+	// Sort header: four columns (Name, Size, Time, Actions)
 	w.Write([]byte(`
-        <TABLE WIDTH="100%" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov"><TR>
+        <TR>
         <TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#A0A0A0">
             <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[0]}}) + `"><FONT COLOR="#FFFFFF">` + sl[1] + `</FONT></A>
         </TD>
         <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
             <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[2]}}) + `"><FONT COLOR="#FFFFFF">` + sl[3] + `</FONT></A>
         </TD>
-        <TD NOWRAP ALIGN="right"  BGCOLOR="#A0A0A0">
+        <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">
             <A HREF="` + wfmHref(pfx+`/`+qeDir, url.Values{"sort": {sl[4]}}) + `"><FONT COLOR="#FFFFFF">` + sl[5] + `</FONT></A>
         </TD>
-        <TD NOWRAP  ALIGN="right" BGCOLOR="#A0A0A0">
-            &nbsp;
-        </TD>
-        <TD NOWRAP ALIGN="left" BGCOLOR="#A0A0A0">
-            &nbsp;
-        </TD>
+        <TD NOWRAP ALIGN="right" BGCOLOR="#A0A0A0">&nbsp;</TD>
         </TR>
         `))
 

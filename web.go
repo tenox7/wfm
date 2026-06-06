@@ -72,7 +72,7 @@ func header(w http.ResponseWriter, pfx, uDir, sort, extraCSS string, modern bool
 	html, body, table { margin:0px; padding:0px; border:none;  }
 	td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:` + padding[modern] + `; border:none; }
 	input { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
-	.thov tr:hover { background-color: #FF8000; color: #FFFFFF; }
+	.thov tr.f:hover { background-color: #FF8000; color: #FFFFFF; }
 	.tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
 	.nb { border-style:none; background-color: #EEEEEE; }
 	` + extraCSS + `
