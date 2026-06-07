@@ -325,8 +325,6 @@ displayed in the directory listing. The embeds can be controlled in `fileio.go`.
 
 ```text
 Usage of wfm:
-  -about_runtime
-        Display runtime info in About Dialog (default true)
   -acm_addr string
         autocert manager listen address, eg: :80
   -acm_file string
@@ -349,6 +347,8 @@ Usage of wfm:
         enable f2b dump at this prefix, eg. /f2bdump (default no)
   -form_maxmem int
         maximum memory used for form parsing, increase for large uploads (default 10485760)
+  -html-templates string
+        directory of html templates overriding the built-in ones
   -list_archive_contents
         list contents of archives (expensive!)
   -logfile string

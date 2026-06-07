@@ -1,6 +1,6 @@
 all: wfm
 
-wfm: *.go
+wfm: *.go html/*.html
 	go build .
 
 cross:

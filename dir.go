@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"html"
-	"io"
 	"log"
 	"net/url"
 	"os"
@@ -28,14 +25,43 @@ type dirEntry struct {
 	link bool
 }
 
-func rowTag(name, hi string, z int, modern bool) string {
+type sortLink struct{ Href, Label string }
+
+type dirRow struct {
+	BgColor, Name, Href string
+	IsLink              bool
+	Time                string
+	Ren, Mov, Del       string
+}
+
+type fileRow struct {
+	BgColor, Name, Href, Icon string
+	IsLink                    bool
+	Size, Time, Down          string
+	Edit, Ren, Mov, Del       string
+}
+
+type dirPage struct {
+	chrome
+	RW                           bool
+	I                            map[string]string
+	RwIcon, User, Vers           string
+	LogoutHref, AboutHref        string
+	SortName, SortSize, SortTime sortLink
+	Dirs                         []dirRow
+	Files                        []fileRow
+	Count                        int
+	Total                        string
+}
+
+func rowColor(name, hi string, z int, modern bool) string {
 	switch {
 	case name == hi:
-		return `<TR CLASS="f" BGCOLOR="#33CC33">`
+		return "#33CC33"
 	case z%2 == 0:
-		return `<TR CLASS="f" BGCOLOR="#FFFFFF">`
+		return "#FFFFFF"
 	default:
-		return `<TR CLASS="f" BGCOLOR="` + panelGrey[modern] + `">`
+		return panelGrey[modern]
 	}
 }
 
@@ -69,68 +95,60 @@ func (r *wfmRequest) listFiles(hi string) {
 		files = append(files, dirEntry{f, link})
 	}
 
-	header(r.w, r.pfx, r.uDir, r.eSort, "", r.modern)
-	bw := bufio.NewWriterSize(r.w, 1<<15)
-	toolbars(bw, r.pfx, r.uDir, r.userName, sl, i, r.rwAccess, r.modern)
 	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
+	sortBase, err := url.JoinPath(r.pfx, qeDir)
+	if err != nil {
+		log.Printf("Unable to build sort url: %v", err)
+	}
+
+	page := dirPage{
+		chrome:     r.chrome(""),
+		RW:         r.rwAccess,
+		I:          i,
+		RwIcon:     i[rorw[r.rwAccess]],
+		User:       r.userName,
+		Vers:       vers,
+		LogoutHref: wfmHref(r.pfx, url.Values{"fn": {"logout"}}),
+		AboutHref:  wfmHref(r.pfx, url.Values{"fn": {"about"}, "dir": {r.uDir}}),
+		SortName:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[0]}}), sl[1]},
+		SortSize:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[2]}}), sl[3]},
+		SortTime:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[4]}}), sl[5]},
+	}
 
 	z := 0
-	var total uint64
-
 	for _, e := range dirs {
 		f := e.fi
-		var li string
-		if e.link {
-			li = i["li"]
-		}
-		bw.WriteString(rowTag(f.Name(), hi, z, r.modern))
-		z++
-		qeFile := url.PathEscape(f.Name())
-		heFile := html.EscapeString(f.Name())
-		nUrl, err := url.JoinPath(r.pfx, qeDir, qeFile)
+		nUrl, err := url.JoinPath(r.pfx, qeDir, url.PathEscape(f.Name()))
 		if err != nil {
 			log.Printf("Unable to parse url: %v", err)
 		}
 		if r.eSort != "" {
 			nUrl = wfmURL(nUrl, url.Values{"sort": {r.eSort}})
 		}
-		bw.WriteString(`
-			<TD NOWRAP ALIGN="left">
-				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + html.EscapeString(nUrl) + `">` + i["di"] + heFile + `/</A>` + li + `
-			</TD>
-			<TD NOWRAP>&nbsp;</TD>
-			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-			<TD NOWRAP ALIGN="right">`)
-		if r.rwAccess {
-			q := url.Values{"dir": {r.uDir}, "file": {f.Name()}, "sort": {r.eSort}}
-			q.Set("fn", "renp")
-			renp := wfmHref(r.pfx, q)
-			q.Set("fn", "movp")
-			movp := wfmHref(r.pfx, q)
-			q.Set("fn", "delp")
-			delp := wfmHref(r.pfx, q)
-			bw.WriteString(`
-				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
-				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;`)
-		}
-		bw.WriteString(`
-			</TD>
-		</TR>
-		`)
+		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}, "sort": {r.eSort}}
+		q.Set("fn", "renp")
+		ren := wfmHref(r.pfx, q)
+		q.Set("fn", "movp")
+		mov := wfmHref(r.pfx, q)
+		q.Set("fn", "delp")
+		del := wfmHref(r.pfx, q)
+		page.Dirs = append(page.Dirs, dirRow{
+			BgColor: rowColor(f.Name(), hi, z, r.modern),
+			Name:    html.EscapeString(f.Name()),
+			Href:    html.EscapeString(nUrl),
+			IsLink:  e.link,
+			Time:    "(" + humanize.Time(f.ModTime()) + ") " + f.ModTime().Format(time.Stamp),
+			Ren:     ren,
+			Mov:     mov,
+			Del:     del,
+		})
+		z++
 	}
 
+	var total uint64
 	for _, e := range files {
 		f := e.fi
-		var li string
-		if e.link {
-			li = i["li"]
-		}
-		bw.WriteString(rowTag(f.Name(), hi, z, r.modern))
-		z++
 		qeFile := url.PathEscape(f.Name())
-		heFile := html.EscapeString(f.Name())
 		nUrl, err := url.JoinPath(r.pfx, qeDir, qeFile)
 		if err != nil {
 			log.Printf("Unable to parse url: %v", err)
@@ -138,117 +156,36 @@ func (r *wfmRequest) listFiles(hi string) {
 		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}}
 		q.Set("fn", "down")
 		down := wfmHref(r.pfx, q)
-		bw.WriteString(`
-			<TD NOWRAP ALIGN="LEFT">
-				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="` + heFile + `">
-				<A HREF="` + html.EscapeString(nUrl) + `">` + fileIcon(qeFile, r.modern) + ` ` + heFile + `</A>` + li + `
-			</TD>
-			<TD NOWRAP ALIGN="right">` + humanize.Bytes(uint64(f.Size())) + `</TD>
-			<TD NOWRAP ALIGN="right">(` + humanize.Time(f.ModTime()) + `) ` + f.ModTime().Format(time.Stamp) + `</TD>
-			<TD NOWRAP ALIGN="right">
-				<A HREF="` + down + `">` + i["dn"] + `</A>&nbsp;`)
-		if r.rwAccess {
-			q.Set("sort", r.eSort)
-			q.Set("fn", "edit")
-			edit := wfmHref(r.pfx, q)
-			q.Set("fn", "renp")
-			renp := wfmHref(r.pfx, q)
-			q.Set("fn", "movp")
-			movp := wfmHref(r.pfx, q)
-			q.Set("fn", "delp")
-			delp := wfmHref(r.pfx, q)
-			bw.WriteString(`
-				<A HREF="` + edit + `">` + i["ed"] + `</A>&nbsp;
-				<A HREF="` + renp + `">` + i["re"] + `</A>&nbsp;
-				<A HREF="` + movp + `">` + i["mv"] + `</A>&nbsp;
-				<A HREF="` + delp + `">` + i["rm"] + `</A>&nbsp;`)
-		}
-		bw.WriteString(`
-			</TD>
-		</TR>
-		`)
-		total = total + uint64(f.Size())
+		q.Set("sort", r.eSort)
+		q.Set("fn", "edit")
+		edit := wfmHref(r.pfx, q)
+		q.Set("fn", "renp")
+		ren := wfmHref(r.pfx, q)
+		q.Set("fn", "movp")
+		mov := wfmHref(r.pfx, q)
+		q.Set("fn", "delp")
+		del := wfmHref(r.pfx, q)
+		page.Files = append(page.Files, fileRow{
+			BgColor: rowColor(f.Name(), hi, z, r.modern),
+			Name:    html.EscapeString(f.Name()),
+			Href:    html.EscapeString(nUrl),
+			Icon:    fileIcon(qeFile, r.modern),
+			IsLink:  e.link,
+			Size:    humanize.Bytes(uint64(f.Size())),
+			Time:    "(" + humanize.Time(f.ModTime()) + ") " + f.ModTime().Format(time.Stamp),
+			Down:    down,
+			Edit:    edit,
+			Ren:     ren,
+			Mov:     mov,
+			Del:     del,
+		})
+		total += uint64(f.Size())
+		z++
 	}
 
-	bw.WriteString(`<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">` + fmt.Sprint(len(dirs)+len(files)) + ` items, ` +
-		humanize.Bytes(total) + ` total </TD></TR>`)
-	if r.modern {
-		bw.WriteString("\n\t</TBODY>")
-	}
-	bw.WriteString("\n\t</TABLE>\n")
-	bw.Flush()
-	footer(r.w)
-}
-
-func toolbars(w io.Writer, pfx, uDir, user string, sl []string, i map[string]string, rw, modern bool) {
-	eDir := html.EscapeString(uDir)
-	qeDir := strings.ReplaceAll(url.PathEscape(uDir), `%2F`, `/`)
-	sortBase, err := url.JoinPath(pfx, qeDir)
-	if err != nil {
-		log.Printf("Unable to build sort url: %v", err)
-	}
-
-	theadO, theadC := "", ""
-	if modern {
-		theadO, theadC = "<THEAD>", "</THEAD><TBODY>"
-	}
-
-	io.WriteString(w, `
-	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
-	`+theadO+`
-	<TR>
-		<TD COLSPAN="2" BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
-			<FONT COLOR="#FFFFFF"><B>&nbsp;`+*siteName+`&nbsp;:&nbsp;`+eDir+`</B></FONT>
-		</TD>
-		<TD COLSPAN="2" NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#FFFFFF;">
-			<FONT COLOR="#FFFFFF">&nbsp;`+i[rorw[rw]]+`&nbsp;</FONT>
-			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"logout"}})+`"><FONT COLOR="#FFFFFF">`+i["tid"]+user+`</FONT></A>&nbsp;
-			<A HREF="`+wfmHref(pfx, url.Values{"fn": {"about"}, "dir": {uDir}})+`"><FONT COLOR="#FFFFFF">&nbsp;`+i["tve"]+` v`+vers+`&nbsp;</FONT></A>
-		</TD>
-	</TR>
-	`)
-
-	btns := []string{
-		`<INPUT TYPE="SUBMIT" NAME="up" VALUE="` + i["tup"] + `Up" CLASS="nb">`,
-		`<INPUT TYPE="SUBMIT" NAME="home" VALUE="` + i["tho"] + `Home" CLASS="nb">`,
-		`<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="` + i["tre"] + `Refresh" CLASS="nb">`,
-		`<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="` + i["trm"] + `Delete" CLASS="nb" ` + disTag[rw] + `>`,
-		`<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="` + i["tmv"] + `Move" CLASS="nb" ` + disTag[rw] + `>`,
-		`<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="` + i["tdi"] + `New Dir" CLASS="nb" ` + disTag[rw] + `>`,
-		`<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="` + i["tfi"] + `New File" CLASS="nb" ` + disTag[rw] + `>`,
-		`<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="` + i["tln"] + `New Link" CLASS="nb" ` + disTag[rw] + `>`,
-		`<INPUT TYPE="FILE" NAME="filename" CLASS="nb">`,
-		`<INPUT TYPE="SUBMIT" NAME="upload" VALUE="` + i["tul"] + `Upload" CLASS="nb" ` + disTag[rw] + `>`,
-	}
-	io.WriteString(w, `
-	<TR><TD COLSPAN="4" BGCOLOR="`+panelGrey[modern]+`" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">`)
-	if modern {
-		io.WriteString(w, strings.Join(btns, "\n"))
-	} else {
-		io.WriteString(w, `<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="2"><TR>`)
-		for _, b := range btns {
-			io.WriteString(w, `<TD NOWRAP VALIGN="MIDDLE">`+b+`</TD>`)
-		}
-		io.WriteString(w, `</TR></TABLE>`)
-	}
-	io.WriteString(w, `</TD></TR>
-	`)
-
-	io.WriteString(w, `
-	<TR>
-	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#666666">
-		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[0]}})+`"><FONT COLOR="#FFFFFF">`+sl[1]+`</FONT></A>
-	</TD>
-	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">
-		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[2]}})+`"><FONT COLOR="#FFFFFF">`+sl[3]+`</FONT></A>
-	</TD>
-	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">
-		<A HREF="`+wfmHref(sortBase, url.Values{"sort": {sl[4]}})+`"><FONT COLOR="#FFFFFF">`+sl[5]+`</FONT></A>
-	</TD>
-	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">&nbsp;</TD>
-	</TR>
-	`+theadC+`
-	`)
+	page.Count = len(dirs) + len(files)
+	page.Total = humanize.Bytes(total)
+	r.render("dir", page)
 }
 
 func sortFiles(f []os.FileInfo, l *[]string, by string) {

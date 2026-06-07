@@ -2,6 +2,7 @@
 
 ## Interfaces
 
+* Alternate text editor
 * WebDAV server
 * Caddy module
 * Web folder with no index, on a separate port?
@@ -25,17 +26,16 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## Layout / UI
 
-* render issues on old browsers
-* top bar too long on mobile/small screen
+* text editor layout issues on many browsers it gets full width but wonky height and buttons are off screen
 * custom html login window
 * thumbnail / icon view for pictures (cache thumbnails on server?)
 * glob filter (*.*) in dir view
 * errors in dialog boxes instead of plain text
-* html as template
 
 ## File IO
 
 * redirects to use new uri paths
+* file operations use paths like /foo/bar/baz?action=rm potentlyally reset style like DELETE
 * file search function
 * editable and non editable documents by extension, also for git checkins
 * zip/unzip archives

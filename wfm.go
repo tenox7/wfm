@@ -34,35 +34,35 @@ type wfmPrefix struct {
 }
 
 var (
-	vers       = "2.2.5"
-	bindProto  = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
-	bindAddr   = flag.String("addr", ":8080", "Listen address, eg: :443")
-	bindExtra  = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
-	chrootDir  = flag.String("chroot", "", "Directory to chroot to")
-	suidUser   = flag.String("setuid", "", "Username or uid:gid pair to setuid to")
-	allowRoot  = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
-	siteName   = flag.String("site_name", "WFM", "local site name to display")
-	siteDesc   = flag.String("site_desc", "Web File Manager", "site description")
-	logFile    = flag.String("logfile", "", "Log file name (default stdout)")
-	passwdDb   = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
-	noPwdDbRW  = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
-	aboutRnt   = flag.Bool("about_runtime", true, "Display runtime info in About Dialog")
-	showDot    = flag.Bool("show_dot", false, "show dot files and folders")
-	listArc    = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
-	rateLim    = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
-	formMaxMem = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
-	defLe      = flag.String("txt_le", "LF", "default line endings when editing text files")
-	dumpHeader = flag.Bool("dump_headers", false, "dump headers sent by client")
-	pfxList    multiString // this flag set in main
-	cacheCtl   = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
-	acmFile    = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
-	acmBind    = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
-	acmWhlist  multiString // this flag set in main
-	tlsCert    = flag.String("tls_cert", "", "TLS certificate file (PEM), eg: /etc/ssl/wfm.crt")
-	tlsKey     = flag.String("tls_key", "", "TLS private key file (PEM), eg: /etc/ssl/wfm.key")
-	fastCgi    = flag.Bool("fastcgi", false, "enable FastCGI mode")
-	f2bEnabled = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
-	f2bDump    = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
+	vers        = "2.2.5"
+	bindProto   = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
+	bindAddr    = flag.String("addr", ":8080", "Listen address, eg: :443")
+	bindExtra   = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
+	chrootDir   = flag.String("chroot", "", "Directory to chroot to")
+	suidUser    = flag.String("setuid", "", "Username or uid:gid pair to setuid to")
+	allowRoot   = flag.Bool("allow_root", false, "allow to run as uid=0/root without setuid")
+	siteName    = flag.String("site_name", "WFM", "local site name to display")
+	siteDesc    = flag.String("site_desc", "Web File Manager", "site description")
+	logFile     = flag.String("logfile", "", "Log file name (default stdout)")
+	passwdDb    = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
+	noPwdDbRW   = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
+	showDot     = flag.Bool("show_dot", false, "show dot files and folders")
+	listArc     = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
+	rateLim     = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
+	formMaxMem  = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
+	defLe       = flag.String("txt_le", "LF", "default line endings when editing text files")
+	dumpHeader  = flag.Bool("dump_headers", false, "dump headers sent by client")
+	pfxList     multiString // this flag set in main
+	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
+	acmFile     = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
+	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
+	acmWhlist   multiString // this flag set in main
+	tlsCert     = flag.String("tls_cert", "", "TLS certificate file (PEM), eg: /etc/ssl/wfm.crt")
+	tlsKey      = flag.String("tls_key", "", "TLS private key file (PEM), eg: /etc/ssl/wfm.key")
+	fastCgi     = flag.Bool("fastcgi", false, "enable FastCGI mode")
+	f2bEnabled  = flag.Bool("f2b", true, "ban ip addresses on user/pass failures")
+	f2bDump     = flag.String("f2b_dump", "", "enable f2b dump at this prefix, eg. /f2bdump (default no)")
+	htmlTmplDir = flag.String("html-templates", "", "directory of html templates overriding the built-in ones")
 )
 
 func userId(usr string) (int, int, error) {
@@ -146,6 +146,8 @@ func main() {
 		manageUsers()
 		return
 	}
+
+	loadTemplates()
 
 	if *passwdDb != "" {
 		loadUsers()
