@@ -3,6 +3,10 @@
 ## Interfaces
 
 * Alternate text editor
+  - Code Mirror
+  - Ace
+  - Prism
+  - Microlight
 * WebDAV server
 * Caddy module
 * Web folder with no index, on a separate port?
