@@ -1,0 +1,5 @@
+{{template "prompt_open_legacy.html" .}}
+        &nbsp;<BR>Enter new name for the file <B>{{.FileName}}</B>:<P>
+        <INPUT TYPE="TEXT" NAME="dst" SIZE="40" VALUE="{{.FileName}}">
+        <INPUT TYPE="HIDDEN" NAME="file" VALUE="{{.FileName}}">
+{{template "prompt_close_legacy.html" .}}

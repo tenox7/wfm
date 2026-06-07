@@ -1,0 +1,5 @@
+{{template "prompt_open_modern.html" .}}
+        &nbsp;<BR>Are you sure you want to delete:<BR><B>{{.FileName}}</B>
+        ({{.Detail}})<P>
+        <INPUT TYPE="HIDDEN" NAME="file" VALUE="{{.FileName}}">
+{{template "prompt_close_modern.html" .}}

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML LANG="en">
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=ISO-8859-1">
+<META HTTP-EQUIV="Content-Language" CONTENT="en-US">
+<META HTTP-EQUIV="google" CONTENT="notranslate">
+<META HTTP-EQUIV="charset" CONTENT="ISO-8859-1">
+<META HTTP-EQUIV="encoding" CONTENT="ISO-8859-1">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1">
+<META NAME="description" CONTENT="{{.SiteDesc}}">
+<LINK REL="icon" TYPE="image/x-icon" HREF="/favicon.ico">
+<LINK REL="shortcut icon" HREF="/favicon.ico?">
+<TITLE>{{.SiteName}} : {{.Dir}}</TITLE>
+<STYLE TYPE="text/css"><!--
+	A:link {text-decoration: none; color:#0000CE; }
+	A:visited {text-decoration: none; color:#0000CE; }
+	A:active {text-decoration: none; color:#FF0000; }
+	A:hover {text-decoration: none; background-color: #FF8000; color: #FFFFFF; }
+	html, body, table { margin:0px; padding:0px; border:none;  }
+	td, th { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; margin:0px; padding:0px; border:none; }
+	input { font-family: Tahoma, Arial, Geneva, sans-serif; font-size:13px; }
+	.thov tr.f:hover { background-color: #FF8000; color: #FFFFFF; }
+	thead { position: sticky; top: 0px; z-index: 2; }
+	.tbr { border-width: 1px; border-style: solid solid solid solid; border-color: #AAAAAA #555555 #555555 #AAAAAA; }
+	.nb { border-style:none; background-color: #CCCCCC; vertical-align: middle; }
+	{{.ExtraCSS}}
+--></STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<FORM ACTION="{{.Pfx}}" METHOD="POST" ENCTYPE="multipart/form-data">
+<INPUT TYPE="hidden" NAME="dir" VALUE="{{.Dir}}">
+<INPUT TYPE="hidden" NAME="sort" VALUE="{{.Sort}}">

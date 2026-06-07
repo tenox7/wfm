@@ -1,0 +1,8 @@
+{{template "prompt_open_legacy.html" .}}
+    &nbsp;<BR>Move from: <B>{{.Dir}}</B><P>
+To: <SELECT NAME="dst">{{.Options}}</SELECT><P>
+<UL>Items:<P>
+{{range .Items}}<INPUT TYPE="HIDDEN" NAME="mulf" VALUE="{{.}}">
+<LI TYPE="square">{{.}}</LI>
+{{end}}</UL><P>
+{{template "prompt_close_legacy.html" .}}

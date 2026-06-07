@@ -1,0 +1,11 @@
+    </TD></TR>
+    <TR><TD COLSPAN="2">
+    <P><CENTER>
+    <INPUT TYPE="SUBMIT" VALUE=" OK " NAME="OK" {{if not .RW}}DISABLED{{end}}>&nbsp;
+    <INPUT TYPE="SUBMIT" VALUE=" Cancel " NAME="cancel">
+    <INPUT TYPE="HIDDEN" NAME="fn" VALUE="{{.Action}}">
+    </CENTER>
+    </TD></TR><TR><TD COLSPAN="2">&nbsp;</TD></TR>
+    </TABLE>
+    </TD></TR></TABLE>
+{{template "footer_modern.html" .}}

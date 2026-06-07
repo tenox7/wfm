@@ -1,0 +1,21 @@
+{{template "header_legacy.html" .}}
+    <TABLE BGCOLOR="#EEEEEE" BORDER="0" CELLSPACING="0" CELLPADDING="5" STYLE="width: 100%; height: 100%;">
+    <TR STYLE="height:1%;">
+    <TD ALIGN="LEFT" VALIGN="MIDDLE" BGCOLOR="#CCCCCC">File Editor: {{.FileName}}</TD>
+    <TD  BGCOLOR="#CCCCCC" ALIGN="RIGHT">
+	Line Endings:
+	<SELECT NAME="crlf">
+	{{.Options}}
+	</SELECT>
+	</TD>
+    </TR>
+    <TR STYLE="height:98%;">
+    <TD COLSPAN="2" ALIGN="CENTER" VALIGN="MIDDLE" STYLE="height:100%;">
+    <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24" STYLE="width: 99%; height: 99%;">{{.Content}}</TEXTAREA><P>
+    </TD></TR><TR STYLE="height:1%;"><TD>&nbsp;</TD><TD ALIGN="RIGHT">
+	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" {{if not .RW}}DISABLED{{end}}>&nbsp;
+	<INPUT TYPE="SUBMIT" NAME="cancel" VALUE="Cancel">
+    <INPUT TYPE="HIDDEN" NAME="dir" VALUE="{{.Dir}}">
+    <INPUT TYPE="HIDDEN" NAME="file" VALUE="{{.FileName}}">
+    </TD></TR></TABLE>
+{{template "footer_legacy.html" .}}

@@ -1,0 +1,6 @@
+{{template "prompt_open_modern.html" .}}
+		&nbsp;<BR>Select destination folder for <B>{{.FileName}}</B>:<P>
+		<SELECT NAME="dst">
+		{{.Options}}</SELECT>
+		<INPUT TYPE="HIDDEN" NAME="file" VALUE="{{.FileName}}">
+{{template "prompt_close_modern.html" .}}
