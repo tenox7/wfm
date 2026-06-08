@@ -11,6 +11,51 @@ import (
 	"github.com/spf13/afero"
 )
 
+// CodeMirror assets loaded from the CDN, relative to -codemirror_url (npm
+// package layout). Loaded only for -textedit=codemirror in modern browsers.
+var (
+	cmStyles = []string{
+		"lib/codemirror.min.css",
+		"addon/dialog/dialog.min.css",             // search box
+		"addon/fold/foldgutter.min.css",           // fold markers
+		"addon/display/fullscreen.min.css",        // F11 fullscreen
+		"addon/search/matchesonscrollbar.min.css", // search hits on scrollbar
+	}
+	// Order matters: core first, then addons; an addon that uses another must
+	// come after it (xml-fold before matchtags/closetag, dialog+searchcursor
+	// before search, foldcode before foldgutter).
+	cmScripts = []string{
+		"lib/codemirror.min.js", // core, must be first
+		"mode/meta.min.js",      // findModeByFileName for syntax detection
+		"addon/mode/loadmode.min.js",
+		// find / replace / jump-to-line (Ctrl-F, Ctrl-G, Shift-Ctrl-F/R, Alt-G)
+		"addon/dialog/dialog.min.js",
+		"addon/search/searchcursor.min.js",
+		"addon/scroll/annotatescrollbar.min.js",
+		"addon/search/matchesonscrollbar.min.js",
+		"addon/search/search.min.js",
+		"addon/search/jump-to-line.min.js",
+		// bracket / tag matching and auto-closing
+		"addon/edit/matchbrackets.min.js",
+		"addon/edit/closebrackets.min.js",
+		"addon/fold/xml-fold.min.js", // needed by matchtags, closetag and folding
+		"addon/edit/matchtags.min.js",
+		"addon/edit/closetag.min.js",
+		// editing aids
+		"addon/edit/trailingspace.min.js",
+		"addon/comment/comment.min.js", // Ctrl-/ toggle comment
+		"addon/selection/active-line.min.js",
+		// code folding
+		"addon/fold/foldcode.min.js",
+		"addon/fold/foldgutter.min.js",
+		"addon/fold/brace-fold.min.js",
+		"addon/fold/indent-fold.min.js",
+		"addon/fold/comment-fold.min.js",
+		// fullscreen toggle
+		"addon/display/fullscreen.min.js",
+	}
+)
+
 type promptPage struct {
 	chrome
 	Action   string
@@ -23,10 +68,14 @@ type promptPage struct {
 
 type editPage struct {
 	chrome
-	FileName string
-	Options  string
-	Content  string
-	RW       bool
+	FileName   string
+	Options    string
+	Content    string
+	RW         bool
+	CodeMirror bool
+	CMBase     string
+	CMStyles   []string
+	CMScripts  []string
 }
 
 type aboutPage struct {
@@ -104,9 +153,20 @@ func (r *wfmRequest) editText() {
 	if bytes.IndexByte(f, '\r') != -1 {
 		le = "CRLF"
 	}
+	// CodeMirror is opt-in (--textedit=codemirror) and modern-mode only; legacy
+	// browsers always get a plain textarea.
+	cm := r.modern && *textEdit == "codemirror"
 	css := ""
 	if r.modern {
+		// Make the textarea fill the viewport below the toolbar.
 		css = `html,body{height:100%;margin:0}form{height:100%;display:flex;flex-direction:column}form>textarea{flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;resize:none}`
+		if cm {
+			// CodeMirror hides the textarea and inserts a .CodeMirror sibling;
+			// size it the same way. The textarea rule above stays as the
+			// fallback layout if the CDN never loads. The last rule tints
+			// trailing whitespace highlighted by the trailingspace addon.
+			css += `form>.CodeMirror{flex:1 1 0;min-height:0;height:auto}.cm-trailingspace{background-color:#FFE0E0}`
+		}
 	}
 	r.render("edit", editPage{
 		chrome:   r.chrome(css),
@@ -115,8 +175,12 @@ func (r *wfmRequest) editText() {
 			{"LF", "LF (Unix)"},
 			{"CRLF", "CRLF (Windows)"},
 		}...),
-		Content: html.EscapeString(string(f)),
-		RW:      r.rwAccess,
+		Content:    html.EscapeString(string(f)),
+		RW:         r.rwAccess,
+		CodeMirror: cm,
+		CMBase:     strings.TrimRight(*cmCDN, "/"),
+		CMStyles:   cmStyles,
+		CMScripts:  cmScripts,
 	})
 }
 

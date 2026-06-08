@@ -51,6 +51,8 @@ var (
 	rateLim     = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")
 	formMaxMem  = flag.Int64("form_maxmem", 10<<20, "maximum memory used for form parsing, increase for large uploads")
 	defLe       = flag.String("txt_le", "LF", "default line endings when editing text files")
+	textEdit    = flag.String("textedit", "textarea", "text editor in modern browsers: textarea or codemirror")
+	cmCDN       = flag.String("codemirror_url", "https://cdn.jsdelivr.net/npm/codemirror@5", "CodeMirror CDN base url, npm layout, tracks latest 5.x (-textedit=codemirror)")
 	dumpHeader  = flag.Bool("dump_headers", false, "dump headers sent by client")
 	pfxList     multiString // this flag set in main
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
@@ -145,6 +147,12 @@ func main() {
 	if flag.Arg(0) == "user" {
 		manageUsers()
 		return
+	}
+
+	switch *textEdit {
+	case "textarea", "codemirror":
+	default:
+		log.Fatalf("--textedit %q must be 'textarea' or 'codemirror'", *textEdit)
 	}
 
 	loadTemplates()

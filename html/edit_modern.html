@@ -19,4 +19,52 @@
     <INPUT TYPE="HIDDEN" NAME="file" VALUE="{{.FileName}}">
     </TD></TR>
     </TABLE>
+{{if .CodeMirror}}
+{{range .CMStyles}}    <LINK REL="STYLESHEET" HREF="{{$.CMBase}}/{{.}}">
+{{end}}{{range .CMScripts}}    <SCRIPT SRC="{{$.CMBase}}/{{.}}"></SCRIPT>
+{{end}}    <SCRIPT>
+    // Progressive enhancement: if the CDN is unreachable, CodeMirror is
+    // undefined and the plain textarea is left in place and fully usable.
+    if (window.CodeMirror) {
+        CodeMirror.modeURL = "{{.CMBase}}/mode/%N/%N.min.js";
+        var cm = CodeMirror.fromTextArea(document.getElementsByName("text")[0], {
+            lineNumbers: true,
+            indentUnit: 4,
+            tabSize: 4,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            matchTags: {bothTags: true},
+            autoCloseTags: true,
+            styleActiveLine: true,
+            showTrailingSpace: true,
+            foldGutter: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+            extraKeys: {
+                "Ctrl-/": "toggleComment",
+                "Cmd-/": "toggleComment",
+                "Ctrl-Q": function (c) { c.foldCode(c.getCursor()); },
+                "F11": function (c) { c.setOption("fullScreen", !c.getOption("fullScreen")); },
+                "Esc": function (c) { if (c.getOption("fullScreen")) c.setOption("fullScreen", false); }
+            }
+        });
+        // Find/replace (Ctrl-F, Ctrl-G, Shift-Ctrl-F, Shift-Ctrl-R), jump to
+        // line (Alt-G), comment toggle, folding and fullscreen come from the
+        // addons loaded above. Each addon is optional: if its file failed to
+        // load, its option/key is simply ignored and the rest still work.
+
+        // Pick a syntax mode from the file name and lazy-load it from the CDN.
+        // Read the name from the DOM so nothing is interpolated into script.
+        var info = CodeMirror.findModeByFileName &&
+            CodeMirror.findModeByFileName(document.getElementsByName("file")[0].value);
+        if (info) {
+            cm.setOption("mode", info.mime);
+            if (CodeMirror.autoLoadMode) {
+                CodeMirror.autoLoadMode(cm, info.mode);
+            }
+        }
+        // CodeMirror copies its content back into the textarea on form submit,
+        // so Save/Cancel and the LF/CRLF selector keep working unchanged.
+    }
+    </SCRIPT>
+{{end}}
 {{template "footer_modern.html" .}}

@@ -2,8 +2,8 @@
 
 ## Interfaces
 
-* Alternate text editor
-  - Code Mirror
+* Alternate text editor (--textedit)
+  - Code Mirror (done, --textedit=codemirror)
   - Ace
   - Prism
   - Microlight

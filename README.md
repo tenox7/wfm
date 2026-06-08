@@ -11,17 +11,20 @@ WFM can also create and open bookmarks, link and shortcut files, etc.
 
 ## No Bloat
 
-WFM is a standalone service with built-in web server. No need for Apache, Nginx, PHP, etc.
+WFM is a standalone service with a built-in web server. No need for Apache, Nginx, PHP, etc.
 It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
+
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot,
-or with your own certificate and key files.
+or BYOC.
 
 The binary is statically linked, fully self contained and has zero external dependencies.
+
 No images! All icons are unicode emojis. No JavaScript!
 
-No frameworks. No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any other bloat.
+No frameworks! No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any other bloated crapware.
+
 WFM outputs validated HTML 4.01 without JavaScript. It works on both modern and legacy web
-browsers going back to Internet Explorer 1.x and Netscape 3.x.
+browsers going back to Internet Explorer 1.x and Netscape 3.x. Modern browsers can optionally take advantage of a [Rich Text Editor](#text-editor).
 
 No config files. All configuration is entirely based of `--flags`, rc/init/Docker friendly.
 In fact no files other than the binary are required.
@@ -321,6 +324,15 @@ be served as any other file. In case they are not present an embedded version wi
 be served, if the file was compiled in. This is also useful if you don't want them
 displayed in the directory listing. The embeds can be controlled in `fileio.go`.
 
+## Text editor
+
+Text files can be edited directly in the browser. By default WFM serves a plain
+HTML `<textarea>`, which works on every browser all the way back to Internet
+Explorer 1.x and Netscape 3.x.
+
+Modern browsers can optionally use [CodeMirror](https://codemirror.net/5/), a
+rich code editor, enabled with `-textedit=codemirror`. 
+
 ## Flags
 
 ```text
@@ -341,6 +353,8 @@ Usage of wfm:
         HTTP Header Cache Control (default "no-cache")
   -chroot string
         Directory to chroot to
+  -codemirror_url string
+        CodeMirror CDN base url, npm layout, tracks latest 5.x (-textedit=codemirror) (default "https://cdn.jsdelivr.net/npm/codemirror@5")
   -f2b
         ban ip addresses on user/pass failures (default true)
   -f2b_dump string
@@ -369,6 +383,8 @@ Usage of wfm:
         show dot files and folders
   -site_name string
         local site name to display (default "WFM")
+  -textedit string
+        text editor in modern browsers: textarea or codemirror (default "textarea")
   -tls_cert string
         TLS certificate file (PEM), eg: /etc/ssl/wfm.crt
   -tls_key string

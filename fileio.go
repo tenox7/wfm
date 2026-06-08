@@ -180,8 +180,14 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
 		return
 	}
-	if crlf == "LF" {
-		uData = strings.ReplaceAll(uData, "\r\n", "\n")
+	// Normalize to the requested line endings authoritatively, independent of
+	// what the client submitted: a textarea posts CRLF, CodeMirror posts LF.
+	// Collapse everything to LF first (handles CRLF and bare CR), then expand
+	// to CRLF if requested.
+	uData = strings.ReplaceAll(uData, "\r\n", "\n")
+	uData = strings.ReplaceAll(uData, "\r", "\n")
+	if crlf == "CRLF" {
+		uData = strings.ReplaceAll(uData, "\n", "\r\n")
 	}
 	fp := r.uDir + "/" + r.uFbn
 	tmpName := fp + ".tmp"
