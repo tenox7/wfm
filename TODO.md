@@ -9,7 +9,7 @@
   - Microlight
 * WebDAV server
 * Caddy module
-* Web folder with no index, on a separate port?
+* Web folder with no index, on a separate port? - as a "web server"
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
 https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
   maybe afero?
