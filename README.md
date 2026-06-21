@@ -12,21 +12,19 @@ WFM can also create and open bookmarks, link and shortcut files, etc.
 ## No Bloat
 
 WFM is a standalone service with a built-in web server. No need for Apache, Nginx, PHP, etc.
-It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker.
+It runs directly from `systemd`, `sysvinit`, `launchd`, `rc` or Docker. The binary is statically
+linked, fully self contained and has zero external dependencies.
+
+No frameworks! No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any other bloated crapware.
 
 TLS/SSL is supported with automatic certificate generation by Lets Encrypt / Certbot,
 or BYOC.
 
-The binary is statically linked, fully self contained and has zero external dependencies.
-
-No images! All icons are unicode emojis. No JavaScript!
-
-No frameworks! No need for Python, PHP, SQL, NodeJS, JavaScript, Node or any other bloated crapware.
-
 WFM outputs validated HTML 4.01 without JavaScript. It works on both modern and legacy web
-browsers going back to Internet Explorer 1.x and Netscape 3.x. Modern browsers can optionally take advantage of a [Rich Text Editor](#text-editor).
+browsers going back to Internet Explorer 1.x and Netscape 3.x. Modern browsers can optionally
+take advantage of a [Rich Text Editor](#text-editor). No images! All icons are unicode emojis (on modern browsers).
 
-No config files. All configuration is entirely based of `--flags`, rc/init/Docker friendly.
+No config files. All configuration is entirely based on `--flags`, rc/init/Docker friendly.
 In fact no files other than the binary are required.
 
 If you have Go installed, you don't even need the binary, you can simply run it like this:
@@ -47,10 +45,6 @@ For some services like Docker, a subdirectory must be used, this can be specifie
 assume users can access files above the prefix up to chroot.
 
 ## Deployment scenarios
-
-Like any other web server, WFM starts the process as `root` in order to bind to the
-privileged ports. Then `setuid()` to a desired user specified with `-setuid=myuser`.
-Finally WFM performs `chroot()` to a directory specified with `-chroot=/datadir`.
 
 ### Systemd
 
