@@ -349,6 +349,8 @@ Usage of wfm:
         Directory to chroot to
   -codemirror_url string
         CodeMirror CDN base url, npm layout, tracks latest 5.x (-textedit=codemirror) (default "https://cdn.jsdelivr.net/npm/codemirror@5")
+  -convertpng string
+        convert .png to gif|jpg on the fly for legacy browsers (default off)
   -f2b
         ban ip addresses on user/pass failures (default true)
   -f2b_dump string

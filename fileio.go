@@ -3,7 +3,11 @@ package main
 import (
 	_ "embed"
 
+	"bytes"
 	"fmt"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
@@ -32,6 +36,11 @@ func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	ext := strings.ToLower(filepath.Ext(fp))
 	log.Printf("Disposition file=%v ext=%v", fp, ext)
+
+	if *convertPng != "" && !r.modern && ext == ".png" {
+		convPng(r.w, fp, r.fs, *convertPng)
+		return
+	}
 
 	// inexpensive file handlers
 	switch ext {
@@ -137,6 +146,47 @@ func streamFile(w http.ResponseWriter, uFilePath string, wfs afero.Fs) {
 	if err != nil {
 		htErr(w, "streaming file", err)
 	}
+}
+
+func convPng(w http.ResponseWriter, uFilePath string, wfs afero.Fs, format string) {
+	fi, err := wfs.Open(uFilePath)
+	if err != nil {
+		htErr(w, "Unable to open file", err)
+		return
+	}
+	defer fi.Close()
+
+	img, err := png.Decode(fi)
+	if err != nil {
+		htErr(w, "Unable to decode png", err)
+		return
+	}
+
+	var buf bytes.Buffer
+	var ctype string
+	switch format {
+	case "gif":
+		ctype = "image/gif"
+		err = gif.Encode(&buf, img, nil)
+	case "jpg":
+		ctype = "image/jpeg"
+		err = jpeg.Encode(&buf, img, nil)
+	}
+	if err != nil {
+		htErr(w, "Unable to encode image", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", ctype)
+	w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
+	w.Header().Set("Content-Length", fmt.Sprint(buf.Len()))
+	w.Header().Set("Cache-Control", *cacheCtl)
+
+	var src io.Reader = &buf
+	if *rateLim != 0 {
+		src = ratelimit.Reader(&buf, rlBu)
+	}
+	io.Copy(w, src)
 }
 
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
