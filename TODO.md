@@ -25,7 +25,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 
 ## Layout / UI
 
-* text editor layout issues on many browsers it gets full width but wonky height and buttons are off screen
 * custom html login window
 * thumbnail / icon view for pictures (cache thumbnails on server?)
 * glob filter (*.*) in dir view

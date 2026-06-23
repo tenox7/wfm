@@ -167,6 +167,8 @@ func (r *wfmRequest) editText() {
 			// trailing whitespace highlighted by the trailingspace addon.
 			css += `form>.CodeMirror{flex:1 1 0;min-height:0;height:auto}.cm-trailingspace{background-color:#FFE0E0}`
 		}
+	} else {
+		css = `html,body{height:100%}form{height:100%}textarea{width:98%;height:80%}`
 	}
 	r.render("edit", editPage{
 		chrome:   r.chrome(css),
@@ -188,10 +190,11 @@ func (r *wfmRequest) about(ua string) {
 	r.render("about", aboutPage{
 		chrome: r.chrome(""),
 		Vers:   vers,
-		Runtime: fmt.Sprintf("Build: %v %v-%v<BR>Agent: %v<P>",
+		Runtime: fmt.Sprintf("Build: %v %v-%v<BR>Agent: %v<BR>Modern: %v<P>",
 			runtime.Version(),
 			runtime.GOARCH,
 			runtime.GOOS,
-			html.EscapeString(ua)),
+			html.EscapeString(ua),
+			r.modern),
 	})
 }
