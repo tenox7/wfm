@@ -99,8 +99,9 @@ func serveWebFile(w http.ResponseWriter, r *http.Request, wfs afero.Fs, upath st
 	defer f.Close()
 	w.Header().Set("Cache-Control", *cacheCtl)
 	// ServeContent handles Content-Type, Range, HEAD and If-Modified-Since.
-	// Note: -rate_limit does not apply here (would break seeking).
-	http.ServeContent(w, r, fi.Name(), fi.ModTime(), f)
+	// serveContent applies -rate_limit on the write side; seeking stays on the
+	// file so ranges still work.
+	serveContent(w, r, f, fi)
 }
 
 func webAutoIndex(w http.ResponseWriter, r *http.Request, p wfmPrefix, upath string) {
