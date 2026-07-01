@@ -28,13 +28,16 @@ import (
 type multiString []string
 
 type wfmPrefix struct {
-	uri   string
-	fs    afero.Fs
-	owner string // if set, only this user may access the prefix
+	uri       string
+	fs        afero.Fs
+	owner     string // if set, only this user may access the prefix
+	web       bool   // plain static web server mode (no WFM UI)
+	index     bool   // web: serve index.html/index.htm if present
+	autoIndex bool   // web: generate a directory listing
 }
 
 var (
-	vers        = "2.3.0"
+	vers        = "2.3.1"
 	bindProto   = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
 	bindAddr    = flag.String("addr", ":8080", "Listen address, eg: :443")
 	bindExtra   = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
@@ -56,6 +59,7 @@ var (
 	convertPng  = flag.String("convertpng", "", "convert .png to gif|jpg on the fly for legacy browsers (default off)")
 	dumpHeader  = flag.Bool("dump_headers", false, "dump headers sent by client")
 	pfxList     multiString // this flag set in main
+	webList     multiString // this flag set in main
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmFile     = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
@@ -142,6 +146,7 @@ func main() {
 
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
 	flag.Var(&pfxList, "prefix", "Prefix for WFM access /fsdir:/httppath eg.: /var/files:/myfiles (multi, default /:/)")
+	flag.Var(&webList, "webserver", "Plain static web server /fsdir:/httppath[:flags], flags i,ai eg.: /srv/www:/:i,ai (multi)")
 	flag.Parse()
 	var err error
 
@@ -253,7 +258,7 @@ func main() {
 
 	// http routing
 	mux := mux.NewRouter()
-	if len(pfxList) == 0 {
+	if len(pfxList) == 0 && len(webList) == 0 {
 		pfxList = multiString{"/:/"}
 	}
 	var prefixes []wfmPrefix
@@ -273,6 +278,15 @@ func main() {
 		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs})
 		log.Printf("Prefix fs=%v uri=%v", s[0], uri)
 	}
+	// plain static web server prefixes
+	for _, p := range webList {
+		wp, err := parseWebPrefix(p)
+		if err != nil {
+			log.Fatalf("--webserver %q %v", p, err)
+		}
+		prefixes = append(prefixes, wp)
+		log.Printf("Webserver uri=%v index=%v autoindex=%v", wp.uri, wp.index, wp.autoIndex)
+	}
 	// per-user home directories become owner-restricted /username prefixes
 	for _, u := range users {
 		if u.Home == "" {
@@ -283,6 +297,15 @@ func main() {
 		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User})
 		log.Printf("Prefix (home) fs=%v uri=%v owner=%v", u.Home, uri, u.User)
 	}
+	// reject overlapping prefixes: same uri would register twice on the mux
+	// and the length-desc sort below leaves the winner nondeterministic
+	seenUri := map[string]bool{}
+	for _, p := range prefixes {
+		if seenUri[p.uri] {
+			log.Fatalf("duplicate prefix uri %q (check --prefix/--webserver/home dirs)", p.uri)
+		}
+		seenUri[p.uri] = true
+	}
 	// longest uri first so specific prefixes match before catch-all
 	sort.Slice(prefixes, func(i, j int) bool {
 		return len(prefixes[i].uri) > len(prefixes[j].uri)
@@ -290,6 +313,11 @@ func main() {
 	for _, p := range prefixes {
 		h := func(w http.ResponseWriter, r *http.Request) {
 			wfmMain(w, r, p)
+		}
+		if p.web {
+			h = func(w http.ResponseWriter, r *http.Request) {
+				webMain(w, r, p)
+			}
 		}
 		if p.uri == "/" {
 			mux.PathPrefix("/").HandlerFunc(h)

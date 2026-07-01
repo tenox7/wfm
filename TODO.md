@@ -4,7 +4,6 @@
 
 * WebDAV server
 * Caddy module
-* Web folder with no index, as a "web server" - on a separate port, or on a separate prefix (typically /)
 * Use custom FS implementation to resolve and deny symlinks outside of srv directory
 https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
   maybe afero?

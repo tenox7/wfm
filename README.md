@@ -170,6 +170,44 @@ Requests not matching any prefix return 404. Note that a prefix shadows any real
 directory of the same path in a less specific pair (eg. with a `/docs` prefix, a
 `docs` folder inside the `/:/` fsdir is not reachable).
 
+## Web server
+
+In addition to the file manager UI, WFM can serve a directory as a plain static
+web server (no management chrome, read-only) with the `-webserver` flag. It takes
+the same `/fsdir:/httppath` form as `-prefix`, plus an optional third colon-separated
+field of comma-separated flags:
+
+- `i` &mdash; if the directory contains `index.html` or `index.htm`, serve it.
+- `ai` &mdash; autoindex: generate a simple directory listing.
+
+Flags are opt-in. With no flags &mdash; whether the field is omitted or empty (a bare
+trailing colon) &mdash; files are served only by their exact URL and every directory
+returns `403`: a "raw" server that never lists. Add `i` to serve index files, `ai` to
+list directories, or `i,ai` for both. So `:i` serves an index but `403`s directories
+without one, and `:ai` always lists.
+
+```sh
+# raw file server: serve explicit file URLs only, never list a directory
+wfm -webserver /srv/www:/
+
+# public static site at /, listing dirs that have no index
+wfm -webserver /srv/www:/:i,ai
+```
+
+`-webserver` is repeatable and shares the same longest-path-first routing as
+`-prefix`, so a public web server and the authenticated file manager can run on one
+port. Overlapping http paths across `-prefix`, `-webserver` and per-user homes are
+rejected at startup.
+
+```sh
+# public web server at /, private file manager at /files
+wfm -passwd /etc/wfmpw.json -webserver /srv/www:/:i,ai -prefix /srv/www:/files
+```
+
+`-webserver` prefixes are always public (read-only); a directory with neither an
+index nor `ai` returns `403`. Files are served with byte-range and conditional-request
+support. Note `-rate_limit` does not apply to `-webserver`.
+
 ## FastCGI
 
 Run WFM with `-fastcgi` behind nginx. The http path in `-prefix` must match the
@@ -387,6 +425,8 @@ Usage of wfm:
         TLS private key file (PEM), eg: /etc/ssl/wfm.key
   -txt_le string
         default line endings when editing text files (default "LF")
+  -webserver value
+        Plain static web server /fsdir:/httppath[:flags], flags i,ai eg.: /srv/www:/:i,ai (multi)
 ```
 
 ## History
