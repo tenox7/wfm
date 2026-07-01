@@ -33,7 +33,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	}
 	if p.owner != "" && p.owner != uName {
 		log.Printf("auth: user %q denied access to home prefix %q owner=%q", uName, p.uri, p.owner)
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		htErrStatus(w, r, http.StatusForbidden, "Forbidden", "you are not allowed to access this area")
 		return
 	}
 	log.Printf("req from=%q user=%q uri=%q form=%v agent=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form), r.UserAgent())
@@ -52,13 +52,11 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		w:        w,
 		req:      r,
 		eSort:    r.FormValue("sort"),
-		modern: func() bool {
-			return strings.HasPrefix(r.UserAgent(), "Mozilla/5") && r.Header.Get("Accept-Charset") == ""
-		}(),
-		fs:   p.fs,
-		pfx:  p.uri,
-		uFbn: filepath.Base(r.FormValue("file")),
-		uDir: filepath.Clean(r.FormValue("dir")),
+		modern:   isModern(r),
+		fs:       p.fs,
+		pfx:      p.uri,
+		uFbn:     filepath.Base(r.FormValue("file")),
+		uDir:     filepath.Clean(r.FormValue("dir")),
 	}
 
 	// directory can come either from form value or URI Path
@@ -89,7 +87,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	case r.FormValue("upload") != "":
 		f, h, err := r.FormFile("filename")
 		if err != nil {
-			htErr(w, "upload", err)
+			wfm.htErr("upload", err)
 			return
 		}
 		wfm.uploadFile(h, f)
@@ -100,7 +98,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	case r.FormValue("up") != "":
 		up, err := url.JoinPath(wfm.pfx, filepath.Dir(wfm.uDir))
 		if err != nil {
-			htErr(w, "up path build", err)
+			wfm.htErr("up path build", err)
 			return
 		}
 		q := url.Values{}
@@ -112,7 +110,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	case r.FormValue("refresh") != "":
 		re, err := url.JoinPath(wfm.pfx, wfm.uDir)
 		if err != nil {
-			htErr(w, "up path build", err)
+			wfm.htErr("up path build", err)
 			return
 		}
 		q := url.Values{}
@@ -161,7 +159,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	case "multi_move":
 		wfm.moveFiles(r.Form["mulf"], r.FormValue("dst"))
 	case "logout":
-		logout(w)
+		wfm.logout()
 	case "about":
 		wfm.about(r.UserAgent())
 	default:

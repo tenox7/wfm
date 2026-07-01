@@ -5,6 +5,7 @@ import (
 	"embed"
 	"html"
 	"log"
+	"net/http"
 	"path/filepath"
 	"text/template"
 )
@@ -58,11 +59,20 @@ func (r *wfmRequest) chrome(extraCSS string) chrome {
 }
 
 func (r *wfmRequest) render(name string, data any) {
-	r.w.Header().Set("Content-Type", "text/html; charset="+charset[r.modern])
-	r.w.Header().Set("Cache-Control", *cacheCtl)
-	bw := bufio.NewWriterSize(r.w, 1<<15)
+	renderStatus(r.w, r.modern, 0, name, data)
+}
+
+// renderStatus renders template name for the given browser mode. A non-zero code
+// sets the HTTP status before the body (used by auth errors that must keep 401/403/429).
+func renderStatus(w http.ResponseWriter, modern bool, code int, name string, data any) {
+	w.Header().Set("Content-Type", "text/html; charset="+charset[modern])
+	w.Header().Set("Cache-Control", *cacheCtl)
+	if code != 0 {
+		w.WriteHeader(code)
+	}
+	bw := bufio.NewWriterSize(w, 1<<15)
 	defer bw.Flush()
-	if err := htmlTmpl.ExecuteTemplate(bw, name+"_"+mode(r.modern)+".html", data); err != nil {
+	if err := htmlTmpl.ExecuteTemplate(bw, name+"_"+mode(modern)+".html", data); err != nil {
 		log.Printf("template %q: %v", name, err)
 	}
 }

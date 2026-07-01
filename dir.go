@@ -69,7 +69,7 @@ func (r *wfmRequest) listFiles(hi string) {
 	i := icons(r.modern)
 	d, err := afero.ReadDir(r.fs, r.uDir)
 	if err != nil {
-		htErr(r.w, "Unable to read directory", err)
+		r.htErr("Unable to read directory", err)
 		return
 	}
 	sl := []string{}

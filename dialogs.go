@@ -137,16 +137,16 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 func (r *wfmRequest) editText() {
 	fi, err := r.fs.Stat(r.uDir + "/" + r.uFbn)
 	if err != nil {
-		htErr(r.w, "Unable to get file attributes", err)
+		r.htErr("Unable to get file attributes", err)
 		return
 	}
 	if fi.Size() > 1<<20 {
-		htErr(r.w, "edit", fmt.Errorf("the file is too large for editing"))
+		r.htErr("edit", fmt.Errorf("the file is too large for editing"))
 		return
 	}
 	f, err := afero.ReadFile(r.fs, r.uDir+"/"+r.uFbn)
 	if err != nil {
-		htErr(r.w, "Unable to read file", err)
+		r.htErr("Unable to read file", err)
 		return
 	}
 	le := *defLe

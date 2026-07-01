@@ -32,7 +32,7 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 ## File IO
 
 * redirects to use new uri paths
-* file operations use paths like /foo/bar/baz?action=rm potentlyally reset style like DELETE
+* file operations use paths like /foo/bar/baz?action=rm
 * file search function
 * editable and non editable documents by extension, also for git checkins
 * zip/unzip archives

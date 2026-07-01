@@ -22,7 +22,8 @@ func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 
 	if f2b.check(ip) {
 		log.Printf("auth: %v is banned", ip)
-		http.Error(w, "Too many bad username/password attempts", http.StatusTooManyRequests)
+		htErrStatus(w, r, http.StatusTooManyRequests, "Too many attempts",
+			"your address is temporarily banned after repeated bad username/password attempts")
 		return "", false
 	}
 
@@ -51,12 +52,15 @@ func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 	// empty username will not ban the client so it will work at second try
 
 unauth:
+	// 401 + WWW-Authenticate makes the browser show its native login box; the
+	// styled body is only rendered if the user cancels that prompt.
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"wfm\"")
-	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	htErrStatus(w, r, http.StatusUnauthorized, "Unauthorized", "a valid username and password are required")
 	return "", false
 }
 
-// this doesn't really work
-func logout(w http.ResponseWriter) {
-	http.Error(w, "Logged out", http.StatusUnauthorized)
+// this doesn't really work: Basic Auth has no real logout, 401 just nudges the
+// browser to drop cached credentials.
+func (r *wfmRequest) logout() {
+	htErrStatus(r.w, r.req, http.StatusUnauthorized, "Logged out", "close the browser to fully clear stored credentials")
 }

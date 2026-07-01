@@ -38,33 +38,33 @@ func (r *wfmRequest) dispFile() {
 	log.Printf("Disposition file=%v ext=%v", fp, ext)
 
 	if *convertPng != "" && !r.modern && ext == ".png" {
-		convPng(r.w, fp, r.fs, *convertPng)
+		r.convPng(fp, *convertPng)
 		return
 	}
 
 	// inexpensive file handlers
 	switch ext {
 	case ".url", ".desktop", ".webloc":
-		gourl(r.w, fp, r.fs)
+		r.gourl(fp)
 		return
 	}
 
 	if !*listArc {
-		dispInline(r.w, r.req, fp, r.fs)
+		r.dispInline(fp)
 		return
 	}
 
 	// expensive file handlers
 	switch ext {
 	case ".7z":
-		list7z(r.w, fp, r.fs)
+		r.list7z(fp)
 	case ".zip", ".rar", ".tar", ".gz", ".bz2", ".xz", ".tgz", ".tbz2", ".txz", ".br", ".tbr":
-		listArchive(r.w, fp, r.fs)
+		r.listArchive(fp)
 	case ".iso":
-		listIso(r.w, fp, r.fs)
+		r.listIso(fp)
 
 	default:
-		dispInline(r.w, r.req, fp, r.fs)
+		r.dispInline(fp)
 	}
 }
 
@@ -93,12 +93,12 @@ func (r *wfmRequest) downFile() {
 	fp := r.uDir + "/" + r.uFbn
 	fi, err := r.fs.Stat(fp)
 	if err != nil {
-		htErr(r.w, "Unable to get file attributes", err)
+		r.htErr("Unable to get file attributes", err)
 		return
 	}
 	f, err := r.fs.Open(fp)
 	if err != nil {
-		htErr(r.w, "Unable to open file", err)
+		r.htErr("Unable to open file", err)
 		return
 	}
 	defer f.Close()
@@ -108,33 +108,33 @@ func (r *wfmRequest) downFile() {
 	serveContent(r.w, r.req, f, fi)
 }
 
-func dispInline(w http.ResponseWriter, req *http.Request, uFilePath string, wfs afero.Fs) {
-	fi, err := wfs.Stat(uFilePath)
+func (r *wfmRequest) dispInline(uFilePath string) {
+	fi, err := r.fs.Stat(uFilePath)
 	if err != nil {
-		htErr(w, "Unable to get file attributes", err)
+		r.htErr("Unable to get file attributes", err)
 		return
 	}
-	f, err := wfs.Open(uFilePath)
+	f, err := r.fs.Open(uFilePath)
 	if err != nil {
-		htErr(w, "Unable to open file", err)
+		r.htErr("Unable to open file", err)
 		return
 	}
 	defer f.Close()
 
 	mt, err := mimetype.DetectReader(f)
 	if err != nil {
-		htErr(w, "Unable to determine file type", err)
+		r.htErr("Unable to determine file type", err)
 		return
 	}
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
-		htErr(w, "Unable to seek file", err)
+		r.htErr("Unable to seek file", err)
 		return
 	}
 
-	w.Header().Set("Content-Type", mt.String())
-	w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
-	w.Header().Set("Cache-Control", *cacheCtl)
-	serveContent(w, req, f, fi)
+	r.w.Header().Set("Content-Type", mt.String())
+	r.w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
+	r.w.Header().Set("Cache-Control", *cacheCtl)
+	serveContent(r.w, r.req, f, fi)
 }
 
 // serveContent streams a file with RFC 7233 range support so media players and
@@ -156,17 +156,17 @@ type throttledWriter struct {
 
 func (t *throttledWriter) Write(p []byte) (int, error) { return t.w.Write(p) }
 
-func convPng(w http.ResponseWriter, uFilePath string, wfs afero.Fs, format string) {
-	fi, err := wfs.Open(uFilePath)
+func (r *wfmRequest) convPng(uFilePath, format string) {
+	fi, err := r.fs.Open(uFilePath)
 	if err != nil {
-		htErr(w, "Unable to open file", err)
+		r.htErr("Unable to open file", err)
 		return
 	}
 	defer fi.Close()
 
 	img, err := png.Decode(fi)
 	if err != nil {
-		htErr(w, "Unable to decode png", err)
+		r.htErr("Unable to decode png", err)
 		return
 	}
 
@@ -181,25 +181,25 @@ func convPng(w http.ResponseWriter, uFilePath string, wfs afero.Fs, format strin
 		err = jpeg.Encode(&buf, img, nil)
 	}
 	if err != nil {
-		htErr(w, "Unable to encode image", err)
+		r.htErr("Unable to encode image", err)
 		return
 	}
 
-	w.Header().Set("Content-Type", ctype)
-	w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
-	w.Header().Set("Content-Length", fmt.Sprint(buf.Len()))
-	w.Header().Set("Cache-Control", *cacheCtl)
+	r.w.Header().Set("Content-Type", ctype)
+	r.w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
+	r.w.Header().Set("Content-Length", fmt.Sprint(buf.Len()))
+	r.w.Header().Set("Cache-Control", *cacheCtl)
 
 	var src io.Reader = &buf
 	if *rateLim != 0 {
 		src = ratelimit.Reader(&buf, rlBu)
 	}
-	io.Copy(w, src)
+	io.Copy(r.w, src)
 }
 
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 	defer f.Close()
@@ -207,7 +207,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	h.Filename = strings.ReplaceAll(h.Filename, "\\", string(os.PathSeparator))
 	fi, err := r.fs.OpenFile(filepath.Join(r.uDir, "/", filepath.Base(h.Filename)), os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(r.w, "unable to write file", err)
+		r.htErr("unable to write file", err)
 		return
 	}
 	defer fi.Close()
@@ -219,11 +219,11 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 
 	oSize, err := io.Copy(w, f)
 	if err != nil {
-		htErr(r.w, "uploading file", err)
+		r.htErr("uploading file", err)
 		return
 	}
 	if oSize != h.Size {
-		htErr(r.w, "uploading file", fmt.Errorf("expected size=%v actual size=%v", h.Size, oSize))
+		r.htErr("uploading file", fmt.Errorf("expected size=%v actual size=%v", h.Size, oSize))
 	}
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", r.uDir, h.Filename, h.Size)
 	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {h.Filename}}))
@@ -231,11 +231,11 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 
 func (r *wfmRequest) saveText(uData, crlf string) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 	if uData == "" {
-		htErr(r.w, "text save", fmt.Errorf("zero lenght data"))
+		r.htErr("text save", fmt.Errorf("zero lenght data"))
 		return
 	}
 	// Normalize to the requested line endings authoritatively, independent of
@@ -251,21 +251,21 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 	tmpName := fp + ".tmp"
 	err := afero.WriteFile(r.fs, tmpName, []byte(uData), 0644)
 	if err != nil {
-		htErr(r.w, "text save", err)
+		r.htErr("text save", err)
 		return
 	}
 	f, err := r.fs.Stat(tmpName)
 	if err != nil {
-		htErr(r.w, "text save", err)
+		r.htErr("text save", err)
 		return
 	}
 	if f.Size() != int64(len(uData)) {
-		htErr(r.w, "text save", fmt.Errorf("temp file size != input size"))
+		r.htErr("text save", fmt.Errorf("temp file size != input size"))
 		return
 	}
 	err = r.fs.Rename(tmpName, fp)
 	if err != nil {
-		htErr(r.w, "text save", err)
+		r.htErr("text save", err)
 		return
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, fp, len(uData))
@@ -274,17 +274,17 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 
 func (r *wfmRequest) mkdir() {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 
 	if r.uFbn == "" {
-		htErr(r.w, "mkdir", fmt.Errorf("directory name is empty"))
+		r.htErr("mkdir", fmt.Errorf("directory name is empty"))
 		return
 	}
 	err := r.fs.Mkdir(r.uDir+"/"+r.uFbn, 0755)
 	if err != nil {
-		htErr(r.w, "mkdir", err)
+		r.htErr("mkdir", err)
 		log.Printf("mkdir error: %v", err)
 		return
 	}
@@ -293,17 +293,17 @@ func (r *wfmRequest) mkdir() {
 
 func (r *wfmRequest) mkfile() {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 
 	if r.uFbn == "" {
-		htErr(r.w, "mkfile", fmt.Errorf("file name is empty"))
+		r.htErr("mkfile", fmt.Errorf("file name is empty"))
 		return
 	}
 	f, err := r.fs.OpenFile(r.uDir+"/"+r.uFbn, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(r.w, "mkfile", err)
+		r.htErr("mkfile", err)
 		return
 	}
 	f.Close()
@@ -312,11 +312,11 @@ func (r *wfmRequest) mkfile() {
 
 func (r *wfmRequest) mkurl(eUrl string) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 	if r.uFbn == "" {
-		htErr(r.w, "mkurl", fmt.Errorf("url file name is empty"))
+		r.htErr("mkurl", fmt.Errorf("url file name is empty"))
 		return
 	}
 	if !strings.HasSuffix(r.uFbn, ".url") {
@@ -324,7 +324,7 @@ func (r *wfmRequest) mkurl(eUrl string) {
 	}
 	f, err := r.fs.OpenFile(r.uDir+"/"+r.uFbn, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
 	if err != nil {
-		htErr(r.w, "mkfile", err)
+		r.htErr("mkfile", err)
 		return
 	}
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
@@ -335,12 +335,12 @@ func (r *wfmRequest) mkurl(eUrl string) {
 
 func (r *wfmRequest) renFile(uNewf string) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 
 	if r.uFbn == "" || uNewf == "" {
-		htErr(r.w, "rename", fmt.Errorf("filename is empty"))
+		r.htErr("rename", fmt.Errorf("filename is empty"))
 		return
 	}
 	newB := filepath.Base(uNewf)
@@ -349,7 +349,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 		r.uDir+"/"+newB,
 	)
 	if err != nil {
-		htErr(r.w, "rename", err)
+		r.htErr("rename", err)
 		return
 	}
 	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {newB}}))
@@ -357,7 +357,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 
 func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 	uDst = filepath.Clean(uDst)
@@ -371,7 +371,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 			filepath.Clean(uDst+"/"+fb),
 		)
 		if err != nil {
-			htErr(r.w, "move", err)
+			r.htErr("move", err)
 			return
 		}
 		lF = fb
@@ -381,7 +381,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	if !r.rwAccess {
-		htErr(r.w, "permission", fmt.Errorf("read only"))
+		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
 	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)
@@ -389,7 +389,7 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	for _, f := range uFilePaths {
 		err := r.fs.RemoveAll(r.uDir + "/" + filepath.Base(f))
 		if err != nil {
-			htErr(r.w, "delete", err)
+			r.htErr("delete", err)
 			return
 		}
 	}
@@ -415,7 +415,7 @@ func (r *wfmRequest) dispOrDir(hi string) {
 			r.w.Write(robotsTxt)
 			return
 		}
-		htErr(r.w, "error stat() file", err)
+		r.htErr("error stat() file", err)
 		return
 	}
 	if f.IsDir() {
