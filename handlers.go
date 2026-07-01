@@ -15,6 +15,7 @@ type wfmRequest struct {
 	fs       afero.Fs
 	pfx      string
 	w        http.ResponseWriter
+	req      *http.Request
 	userName string
 	remAddr  string
 	rwAccess bool
@@ -49,6 +50,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		rwAccess: uAccess,
 		remAddr:  r.RemoteAddr,
 		w:        w,
+		req:      r,
 		eSort:    r.FormValue("sort"),
 		modern: func() bool {
 			return strings.HasPrefix(r.UserAgent(), "Mozilla/5") && r.Header.Get("Accept-Charset") == ""

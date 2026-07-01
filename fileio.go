@@ -50,7 +50,7 @@ func (r *wfmRequest) dispFile() {
 	}
 
 	if !*listArc {
-		dispInline(r.w, fp, r.fs)
+		dispInline(r.w, r.req, fp, r.fs)
 		return
 	}
 
@@ -64,7 +64,7 @@ func (r *wfmRequest) dispFile() {
 		listIso(r.w, fp, r.fs)
 
 	default:
-		dispInline(r.w, fp, r.fs)
+		dispInline(r.w, r.req, fp, r.fs)
 	}
 }
 
@@ -91,62 +91,70 @@ func dispoHeader(disp, name string) string {
 
 func (r *wfmRequest) downFile() {
 	fp := r.uDir + "/" + r.uFbn
-	f, err := r.fs.Stat(fp)
+	fi, err := r.fs.Stat(fp)
 	if err != nil {
 		htErr(r.w, "Unable to get file attributes", err)
 		return
 	}
+	f, err := r.fs.Open(fp)
+	if err != nil {
+		htErr(r.w, "Unable to open file", err)
+		return
+	}
+	defer f.Close()
 	r.w.Header().Set("Content-Type", "application/octet-stream")
 	r.w.Header().Set("Content-Disposition", dispoHeader("attachment", r.uFbn))
-	r.w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	r.w.Header().Set("Cache-Control", *cacheCtl)
-	streamFile(r.w, fp, r.fs)
+	serveContent(r.w, r.req, f, fi)
 }
 
-func dispInline(w http.ResponseWriter, uFilePath string, wfs afero.Fs) {
-	f, err := wfs.Stat(uFilePath)
+func dispInline(w http.ResponseWriter, req *http.Request, uFilePath string, wfs afero.Fs) {
+	fi, err := wfs.Stat(uFilePath)
 	if err != nil {
 		htErr(w, "Unable to get file attributes", err)
 		return
 	}
-
-	fi, err := wfs.Open(uFilePath)
+	f, err := wfs.Open(uFilePath)
 	if err != nil {
-		htErr(w, "Unable top open file", err)
+		htErr(w, "Unable to open file", err)
 		return
 	}
-	mt, err := mimetype.DetectReader(fi)
+	defer f.Close()
+
+	mt, err := mimetype.DetectReader(f)
 	if err != nil {
 		htErr(w, "Unable to determine file type", err)
 		return
 	}
-	fi.Close()
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		htErr(w, "Unable to seek file", err)
+		return
+	}
 
 	w.Header().Set("Content-Type", mt.String())
 	w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
-	w.Header().Set("Content-Length", fmt.Sprint(f.Size()))
 	w.Header().Set("Cache-Control", *cacheCtl)
-	streamFile(w, uFilePath, wfs)
+	serveContent(w, req, f, fi)
 }
 
-func streamFile(w http.ResponseWriter, uFilePath string, wfs afero.Fs) {
-	fi, err := wfs.Open(uFilePath)
-	if err != nil {
-		htErr(w, "Unable top open file", err)
-		return
-	}
-	defer fi.Close()
-
-	var r io.Reader = fi
+// serveContent streams a file with RFC 7233 range support so media players and
+// download managers can seek and resume. ServeContent adds Accept-Ranges,
+// Content-Range, Content-Length and handles Range/HEAD/If-Modified-Since; the
+// caller sets Content-Type/Disposition. When -rate_limit is set, output is
+// throttled by wrapping writes (seeking stays on the file, so ranges still work).
+func serveContent(w http.ResponseWriter, req *http.Request, f afero.File, fi os.FileInfo) {
 	if *rateLim != 0 {
-		r = ratelimit.Reader(fi, rlBu)
+		w = &throttledWriter{ResponseWriter: w, w: ratelimit.Writer(w, rlBu)}
 	}
-
-	_, err = io.Copy(w, r)
-	if err != nil {
-		htErr(w, "streaming file", err)
-	}
+	http.ServeContent(w, req, fi.Name(), fi.ModTime(), f)
 }
+
+type throttledWriter struct {
+	http.ResponseWriter
+	w io.Writer
+}
+
+func (t *throttledWriter) Write(p []byte) (int, error) { return t.w.Write(p) }
 
 func convPng(w http.ResponseWriter, uFilePath string, wfs afero.Fs, format string) {
 	fi, err := wfs.Open(uFilePath)
