@@ -53,7 +53,7 @@ port 80 (and/or 443), you need to start WFM as root.
 
 You can specify Systemd `User=` other than root if you also use `RootDirectory=` for
 chroot and use non privileged port (above 1024, eg. 8080), or your binary has adequate
-capabilities set. Example [here](service/systemd/wfm8080.service).
+capabilities set or `net.ipv4.ip_unprivileged_port_start=80`. Example [here](service/systemd/wfm8080.service).
 
 #### Systemd Install
 
