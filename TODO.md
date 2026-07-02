@@ -15,8 +15,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
   https://github.com/vkuznet/2fa-server
 * garbage collect old f2b entries
 * f2b ddos prevention, sleep on too many bans?
-* use certmagic for acme? https://github.com/caddyserver/certmagic
-* use lego for acme? https://github.com/go-acme/lego
 * qps rate limiter
   https://github.com/didip/tollbooth
   https://github.com/uber-go/ratelimit
@@ -27,7 +25,6 @@ https://github.com/crazcalm/go/commit/8b0b644cd02c59fe2461908304c44d64e8be431e
 * custom html login window
 * thumbnail / icon view for pictures (cache thumbnails on server?)
 * glob filter (*.*) in dir view
-* errors in dialog boxes instead of plain text
 
 ## File IO
 
