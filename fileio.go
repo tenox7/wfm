@@ -32,6 +32,20 @@ var (
 	rlBu *ratelimit.Bucket
 )
 
+// validName reports whether n names a single real entry inside the current
+// directory. It rejects components that filepath.Base collapses to the current
+// or parent directory or the bare root separator ("", ".", "..", "/"). Without
+// this a crafted op=rm/mv/re request (or a mulf value) of "/" resolves via
+// filepath.Base to the mount root and would recursively delete or move the
+// entire served tree.
+func validName(n string) bool {
+	switch filepath.Base(n) {
+	case "", ".", "..", string(os.PathSeparator):
+		return false
+	}
+	return true
+}
+
 func (r *wfmRequest) dispFile() {
 	fp := r.uDir + "/" + r.uFbn
 	ext := strings.ToLower(filepath.Ext(fp))
@@ -226,7 +240,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 		r.htErr("uploading file", fmt.Errorf("expected size=%v actual size=%v", h.Size, oSize))
 	}
 	log.Printf("Uploaded Dir=%v File=%v Size=%v", r.uDir, h.Filename, h.Size)
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {h.Filename}}))
+	r.redirectDir(r.uDir, filepath.Base(h.Filename))
 }
 
 func (r *wfmRequest) saveText(uData, crlf string) {
@@ -269,7 +283,7 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 		return
 	}
 	log.Printf("Saved Text Dir=%v File=%v Size=%v", r.uDir, fp, len(uData))
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
+	r.redirectDir(r.uDir, r.uFbn)
 }
 
 func (r *wfmRequest) mkdir() {
@@ -278,8 +292,8 @@ func (r *wfmRequest) mkdir() {
 		return
 	}
 
-	if r.uFbn == "" {
-		r.htErr("mkdir", fmt.Errorf("directory name is empty"))
+	if !validName(r.uFbn) {
+		r.htErr("mkdir", fmt.Errorf("invalid mkdir name"))
 		return
 	}
 	err := r.fs.Mkdir(r.uDir+"/"+r.uFbn, 0755)
@@ -288,7 +302,7 @@ func (r *wfmRequest) mkdir() {
 		log.Printf("mkdir error: %v", err)
 		return
 	}
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
+	r.redirectDir(r.uDir, r.uFbn)
 }
 
 func (r *wfmRequest) mkfile() {
@@ -297,8 +311,8 @@ func (r *wfmRequest) mkfile() {
 		return
 	}
 
-	if r.uFbn == "" {
-		r.htErr("mkfile", fmt.Errorf("file name is empty"))
+	if !validName(r.uFbn) {
+		r.htErr("mkfile", fmt.Errorf("invalid mkfile name"))
 		return
 	}
 	f, err := r.fs.OpenFile(r.uDir+"/"+r.uFbn, os.O_RDWR|os.O_EXCL|os.O_CREATE, 0644)
@@ -307,7 +321,7 @@ func (r *wfmRequest) mkfile() {
 		return
 	}
 	f.Close()
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
+	r.redirectDir(r.uDir, r.uFbn)
 }
 
 func (r *wfmRequest) mkurl(eUrl string) {
@@ -315,8 +329,8 @@ func (r *wfmRequest) mkurl(eUrl string) {
 		r.htErr("permission", fmt.Errorf("read only"))
 		return
 	}
-	if r.uFbn == "" {
-		r.htErr("mkurl", fmt.Errorf("url file name is empty"))
+	if !validName(r.uFbn) {
+		r.htErr("mkurl", fmt.Errorf("invalid mkurl name"))
 		return
 	}
 	if !strings.HasSuffix(r.uFbn, ".url") {
@@ -330,7 +344,7 @@ func (r *wfmRequest) mkurl(eUrl string) {
 	// TODO(tenox): add upport for creating webloc, desktop and other formats
 	fmt.Fprintf(f, "[InternetShortcut]\r\nURL=%s\r\n", eUrl)
 	f.Close()
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {r.uFbn}}))
+	r.redirectDir(r.uDir, r.uFbn)
 }
 
 func (r *wfmRequest) renFile(uNewf string) {
@@ -339,11 +353,11 @@ func (r *wfmRequest) renFile(uNewf string) {
 		return
 	}
 
-	if r.uFbn == "" || uNewf == "" {
-		r.htErr("rename", fmt.Errorf("filename is empty"))
+	newB := filepath.Base(uNewf)
+	if !validName(r.uFbn) || !validName(newB) {
+		r.htErr("rename", fmt.Errorf("invalid file name"))
 		return
 	}
-	newB := filepath.Base(uNewf)
 	err := r.fs.Rename(
 		r.uDir+"/"+r.uFbn,
 		r.uDir+"/"+newB,
@@ -352,7 +366,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 		r.htErr("rename", err)
 		return
 	}
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}, "hi": {newB}}))
+	r.redirectDir(r.uDir, newB)
 }
 
 func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
@@ -365,6 +379,10 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 
 	lF := ""
 	for _, f := range uFilePaths {
+		if !validName(f) {
+			r.htErr("move", fmt.Errorf("invalid file name %q", f))
+			return
+		}
 		fb := filepath.Base(f)
 		err := r.fs.Rename(
 			r.uDir+"/"+fb,
@@ -376,7 +394,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 		}
 		lF = fb
 	}
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {uDst}, "sort": {r.eSort}, "hi": {lF}}))
+	r.redirectDir(uDst, lF)
 }
 
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
@@ -387,13 +405,17 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)
 
 	for _, f := range uFilePaths {
+		if !validName(f) {
+			r.htErr("delete", fmt.Errorf("invalid file name %q", f))
+			return
+		}
 		err := r.fs.RemoveAll(r.uDir + "/" + filepath.Base(f))
 		if err != nil {
 			r.htErr("delete", err)
 			return
 		}
 	}
-	redirect(r.w, wfmURL(r.pfx, url.Values{"dir": {r.uDir}, "sort": {r.eSort}}))
+	r.redirectDir(r.uDir, "")
 }
 
 func (r *wfmRequest) dispOrDir(hi string) {

@@ -58,7 +58,8 @@ var (
 
 type promptPage struct {
 	chrome
-	Action   string
+	Action   string // human label + fallback fn dispatch value
+	Op       string // op dispatch value for single-file dialogs (re/mv/rm)
 	FileName string
 	Detail   string
 	Options  string
@@ -110,13 +111,21 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 		RW:     r.rwAccess,
 	}
 
+	// single-file dialogs commit via POST to the file's own path (?op=CODE);
+	// dir-context dialogs (mkdir/multi_*) keep posting to the prefix with fn.
 	switch action {
 	case "rename":
+		data.Op = "re"
+		data.FormAction = html.EscapeString(r.pathURLRaw(r.uDir, r.uFbn, nil))
 		data.FileName = html.EscapeString(r.uFbn)
 	case "move":
+		data.Op = "mv"
+		data.FormAction = html.EscapeString(r.pathURLRaw(r.uDir, r.uFbn, nil))
 		data.FileName = html.EscapeString(r.uFbn)
 		data.Options = upDnDir(r.uDir, "", r.fs)
 	case "delete":
+		data.Op = "rm"
+		data.FormAction = html.EscapeString(r.pathURLRaw(r.uDir, r.uFbn, nil))
 		fi, _ := r.fs.Stat(r.uDir + "/" + r.uFbn)
 		if fi.IsDir() {
 			data.Detail = "directory - recursively"

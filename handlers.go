@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -128,32 +129,55 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		return
 	}
 
-	// form action submitted
+	// single-file operation on a full path: /pfx/dir/file?op=CODE. The path is
+	// the subject; GET shows a prompt/opens, POST commits (cancel handled above).
+	if op := r.FormValue("op"); op != "" {
+		urlPath := filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, wfm.pfx))
+		wfm.uDir = filepath.Dir(urlPath)
+		wfm.uFbn = filepath.Base(urlPath)
+		if !validName(wfm.uFbn) {
+			wfm.htErr("operation", fmt.Errorf("no file specified"))
+			return
+		}
+		post := r.Method == http.MethodPost
+		switch op {
+		case "dn":
+			wfm.downFile()
+		case "ed":
+			wfm.editText()
+		case "re":
+			if post {
+				wfm.renFile(r.FormValue("dst"))
+				return
+			}
+			wfm.prompt("rename", nil)
+		case "mv":
+			if post {
+				wfm.moveFiles([]string{wfm.uFbn}, r.FormValue("dst"))
+				return
+			}
+			wfm.prompt("move", nil)
+		case "rm":
+			if post {
+				wfm.deleteFiles([]string{wfm.uFbn})
+				return
+			}
+			wfm.prompt("delete", nil)
+		default:
+			wfm.htErr("operation", fmt.Errorf("unknown op %q", op))
+		}
+		return
+	}
+
+	// directory-context form action: create/multi ops on the current dir, and
+	// misc (logout/about). The directory arrives via the hidden dir field.
 	switch r.FormValue("fn") {
-	case "disp":
-		wfm.dispFile()
-	case "down":
-		wfm.downFile()
-	case "edit":
-		wfm.editText()
 	case "mkdir":
 		wfm.mkdir()
 	case "mkfile":
 		wfm.mkfile()
 	case "mkurl":
 		wfm.mkurl(r.FormValue("url"))
-	case "rename":
-		wfm.renFile(r.FormValue("dst"))
-	case "renp":
-		wfm.prompt("rename", nil)
-	case "movp":
-		wfm.prompt("move", nil)
-	case "delp":
-		wfm.prompt("delete", nil)
-	case "move":
-		wfm.moveFiles([]string{wfm.uFbn}, r.FormValue("dst"))
-	case "delete":
-		wfm.deleteFiles([]string{wfm.uFbn})
 	case "multi_delete":
 		wfm.deleteFiles(r.Form["mulf"])
 	case "multi_move":

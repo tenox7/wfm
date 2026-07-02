@@ -39,22 +39,22 @@ func mode(m bool) string {
 }
 
 type chrome struct {
-	Dir      string
-	Sort     string
-	ExtraCSS string
-	Pfx      string
-	SiteName string
-	SiteDesc string
+	Dir        string
+	Sort       string
+	ExtraCSS   string
+	FormAction string // where the page's <FORM> posts; defaults to the prefix
+	SiteName   string
+	SiteDesc   string
 }
 
 func (r *wfmRequest) chrome(extraCSS string) chrome {
 	return chrome{
-		Dir:      html.EscapeString(r.uDir),
-		Sort:     html.EscapeString(r.eSort),
-		ExtraCSS: extraCSS,
-		Pfx:      r.pfx,
-		SiteName: *siteName,
-		SiteDesc: *siteDesc,
+		Dir:        html.EscapeString(r.uDir),
+		Sort:       html.EscapeString(r.eSort),
+		ExtraCSS:   extraCSS,
+		FormAction: r.pfx,
+		SiteName:   *siteName,
+		SiteDesc:   *siteDesc,
 	}
 }
 

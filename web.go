@@ -35,6 +35,35 @@ func wfmHref(base string, q url.Values) string {
 	return html.EscapeString(wfmURL(base, q))
 }
 
+// pathURLRaw builds a path-based WFM url /pfx/<dir>[/<file>][?query]. The dir and
+// file segments are percent-escaped (slashes in dir preserved). Result is NOT
+// html-escaped: pass through html.EscapeString for attributes, or feed to
+// redirect() which escapes the body itself.
+func (r *wfmRequest) pathURLRaw(uDir, uFbn string, q url.Values) string {
+	segs := []string{strings.ReplaceAll(url.PathEscape(uDir), "%2F", "/")}
+	if uFbn != "" {
+		segs = append(segs, url.PathEscape(uFbn))
+	}
+	base, err := url.JoinPath(r.pfx, segs...)
+	if err != nil {
+		base = r.pfx
+	}
+	return wfmURL(base, q)
+}
+
+// redirectDir sends the browser to the path-based listing of uDir, preserving the
+// current sort and optionally highlighting hi.
+func (r *wfmRequest) redirectDir(uDir, hi string) {
+	q := url.Values{}
+	if r.eSort != "" {
+		q.Set("sort", r.eSort)
+	}
+	if hi != "" {
+		q.Set("hi", hi)
+	}
+	redirect(r.w, r.pathURLRaw(uDir, "", q))
+}
+
 type errorPage struct {
 	chrome
 	Msg string

@@ -122,20 +122,22 @@ func (r *wfmRequest) listFiles(hi string) {
 		if err != nil {
 			log.Printf("Unable to parse url: %v", err)
 		}
+		href := nUrl
+		q := url.Values{}
 		if r.eSort != "" {
-			nUrl = wfmURL(nUrl, url.Values{"sort": {r.eSort}})
+			q.Set("sort", r.eSort)
+			href = wfmURL(nUrl, q)
 		}
-		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}, "sort": {r.eSort}}
-		q.Set("fn", "renp")
-		ren := wfmHref(r.pfx, q)
-		q.Set("fn", "movp")
-		mov := wfmHref(r.pfx, q)
-		q.Set("fn", "delp")
-		del := wfmHref(r.pfx, q)
+		q.Set("op", "re")
+		ren := wfmHref(nUrl, q)
+		q.Set("op", "mv")
+		mov := wfmHref(nUrl, q)
+		q.Set("op", "rm")
+		del := wfmHref(nUrl, q)
 		page.Dirs = append(page.Dirs, dirRow{
 			BgColor: rowColor(f.Name(), hi, z, r.modern),
 			Name:    html.EscapeString(f.Name()),
-			Href:    html.EscapeString(nUrl),
+			Href:    html.EscapeString(href),
 			IsLink:  e.link,
 			Time:    "(" + humanize.Time(f.ModTime()) + ") " + f.ModTime().Format(time.Stamp),
 			Ren:     ren,
@@ -153,18 +155,19 @@ func (r *wfmRequest) listFiles(hi string) {
 		if err != nil {
 			log.Printf("Unable to parse url: %v", err)
 		}
-		q := url.Values{"dir": {r.uDir}, "file": {f.Name()}}
-		q.Set("fn", "down")
-		down := wfmHref(r.pfx, q)
-		q.Set("sort", r.eSort)
-		q.Set("fn", "edit")
-		edit := wfmHref(r.pfx, q)
-		q.Set("fn", "renp")
-		ren := wfmHref(r.pfx, q)
-		q.Set("fn", "movp")
-		mov := wfmHref(r.pfx, q)
-		q.Set("fn", "delp")
-		del := wfmHref(r.pfx, q)
+		down := wfmHref(nUrl, url.Values{"op": {"dn"}})
+		q := url.Values{}
+		if r.eSort != "" {
+			q.Set("sort", r.eSort)
+		}
+		q.Set("op", "ed")
+		edit := wfmHref(nUrl, q)
+		q.Set("op", "re")
+		ren := wfmHref(nUrl, q)
+		q.Set("op", "mv")
+		mov := wfmHref(nUrl, q)
+		q.Set("op", "rm")
+		del := wfmHref(nUrl, q)
 		page.Files = append(page.Files, fileRow{
 			BgColor: rowColor(f.Name(), hi, z, r.modern),
 			Name:    html.EscapeString(f.Name()),
