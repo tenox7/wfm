@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"embed"
 	"html"
+	"io/fs"
 	"log"
 	"net/http"
-	"path/filepath"
+	"os"
+	"path"
+	"strings"
 	"text/template"
 )
 
@@ -15,20 +18,50 @@ var tmplFS embed.FS
 
 var htmlTmpl *template.Template
 
+// stripIndent removes per-line indentation, trailing whitespace and blank
+// lines from template source so they are not resent to the client with every
+// page (in a big dir listing the per-row indentation adds up fast). Newlines
+// are kept: between inline elements they render as the same single collapsed
+// space the indentation would. Literal template text must therefore not rely
+// on leading whitespace; values expanded inside <PRE>/<TEXTAREA> are not
+// affected.
+func stripIndent(src []byte) string {
+	var b strings.Builder
+	b.Grow(len(src))
+	for _, l := range strings.Split(string(src), "\n") {
+		if l = strings.TrimSpace(l); l != "" {
+			b.WriteString(l)
+			b.WriteByte('\n')
+		}
+	}
+	return b.String()
+}
+
+func parseTemplates(fsys fs.FS, glob string) int {
+	m, err := fs.Glob(fsys, glob)
+	if err != nil {
+		log.Fatalf("templates %q: %v", glob, err)
+	}
+	for _, n := range m {
+		src, err := fs.ReadFile(fsys, n)
+		if err != nil {
+			log.Fatalf("template %q: %v", n, err)
+		}
+		template.Must(htmlTmpl.New(path.Base(n)).Parse(stripIndent(src)))
+	}
+	return len(m)
+}
+
 func loadTemplates() {
-	htmlTmpl = template.Must(template.New("wfm").Option("missingkey=zero").ParseFS(tmplFS, "html/*.html"))
+	htmlTmpl = template.New("wfm").Option("missingkey=zero")
+	parseTemplates(tmplFS, "html/*.html")
 	if *htmlTmplDir == "" {
 		return
 	}
-	m, err := filepath.Glob(filepath.Join(*htmlTmplDir, "*.html"))
-	if err != nil {
-		log.Fatalf("html-templates %q: %v", *htmlTmplDir, err)
+	n := parseTemplates(os.DirFS(*htmlTmplDir), "*.html")
+	if n > 0 {
+		log.Printf("Loaded %d html template override(s) from %q", n, *htmlTmplDir)
 	}
-	if len(m) == 0 {
-		return
-	}
-	htmlTmpl = template.Must(htmlTmpl.ParseFiles(m...))
-	log.Printf("Loaded %d html template override(s) from %q", len(m), *htmlTmplDir)
 }
 
 func mode(m bool) string {

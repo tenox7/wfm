@@ -12,18 +12,22 @@
 			<A HREF="{{.AboutHref}}"><FONT COLOR="#FFFFFF">&nbsp;{{.I.tve}} v{{.Vers}}&nbsp;</FONT></A>
 		</TD>
 	</TR>
-	<TR><TD COLSPAN="4" BGCOLOR="#EEEEEE" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;"><INPUT TYPE="SUBMIT" NAME="up" VALUE="{{.I.tup}}Up" CLASS="nb">
-<INPUT TYPE="SUBMIT" NAME="home" VALUE="{{.I.tho}}Home" CLASS="nb">
-<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="{{.I.tre}}Refresh" CLASS="nb">
-<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="{{.I.trm}}Delete" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="{{.I.tmv}}Move" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="{{.I.tdi}}New Dir" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="FILE" NAME="filename" CLASS="nb">
-<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
-<INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10" CLASS="tbr">
-<INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter" CLASS="nb"></TD></TR>
+	<TR>
+	<TD COLSPAN="4" BGCOLOR="#EEEEEE" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
+		<INPUT TYPE="SUBMIT" NAME="up" VALUE="{{.I.tup}}Up" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="home" VALUE="{{.I.tho}}Home" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="{{.I.tre}}Refresh" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="{{.I.trm}}Delete" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="{{.I.tmv}}Move" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="{{.I.tdi}}New Dir" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="FILE" NAME="filename" CLASS="nb">
+		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10" CLASS="tbr">
+		<INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter" CLASS="nb">
+	</TD>
+	</TR>
 	<TR>
 	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#666666">
 		<A HREF="{{.SortName.Href}}"><FONT COLOR="#FFFFFF">{{.SortName.Label}}</FONT></A>
@@ -36,36 +40,41 @@
 	</TD>
 	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">&nbsp;</TD>
 	</TR>
-	</THEAD><TBODY>
-{{range .Dirs}}	<TR CLASS="f" BGCOLOR="{{.BgColor}}">
-			<TD NOWRAP ALIGN="left">
-				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="{{.Name}}">
-				<A HREF="{{.Href}}">{{$.I.di}}{{.Name}}/</A>{{if .IsLink}}{{$.I.li}}{{end}}
-			</TD>
-			<TD NOWRAP>&nbsp;</TD>
-			<TD NOWRAP ALIGN="right">{{.Time}}</TD>
-			<TD NOWRAP ALIGN="right">{{if $.RW}}
-				<A HREF="{{.Ren}}">{{$.I.re}}</A>&nbsp;
-				<A HREF="{{.Mov}}">{{$.I.mv}}</A>&nbsp;
-				<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
-			</TD>
-		</TR>
-{{end}}{{range .Files}}	<TR CLASS="f" BGCOLOR="{{.BgColor}}">
-			<TD NOWRAP ALIGN="LEFT">
-				<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="{{.Name}}">
-				<A HREF="{{.Href}}">{{.Icon}} {{.Name}}</A>{{if .IsLink}}{{$.I.li}}{{end}}
-			</TD>
-			<TD NOWRAP ALIGN="right">{{.Size}}</TD>
-			<TD NOWRAP ALIGN="right">{{.Time}}</TD>
-			<TD NOWRAP ALIGN="right">
-				<A HREF="{{.Down}}">{{$.I.dn}}</A>&nbsp;{{if $.RW}}
-				<A HREF="{{.Edit}}">{{$.I.ed}}</A>&nbsp;
-				<A HREF="{{.Ren}}">{{$.I.re}}</A>&nbsp;
-				<A HREF="{{.Mov}}">{{$.I.mv}}</A>&nbsp;
-				<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
-			</TD>
-		</TR>
-{{end}}	<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total{{if .Filter}} (filtered){{end}} </TD></TR>
+	</THEAD>
+	<TBODY>
+	{{range .Dirs}}
+	<TR CLASS="f" BGCOLOR="{{.BgColor}}">
+		<TD NOWRAP ALIGN="left">
+			<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="{{.Name}}">
+			<A HREF="{{.Href}}">{{$.I.di}}{{.Name}}/</A>{{if .IsLink}}{{$.I.li}}{{end}}
+		</TD>
+		<TD NOWRAP>&nbsp;</TD>
+		<TD NOWRAP ALIGN="right">{{.Time}}</TD>
+		<TD NOWRAP ALIGN="right">{{if $.RW}}
+			<A HREF="{{.Ren}}">{{$.I.re}}</A>&nbsp;
+			<A HREF="{{.Mov}}">{{$.I.mv}}</A>&nbsp;
+			<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
+		</TD>
+	</TR>
+	{{end}}
+	{{range .Files}}
+	<TR CLASS="f" BGCOLOR="{{.BgColor}}">
+		<TD NOWRAP ALIGN="LEFT">
+			<INPUT TYPE="CHECKBOX" NAME="mulf" VALUE="{{.Name}}">
+			<A HREF="{{.Href}}">{{.Icon}} {{.Name}}</A>{{if .IsLink}}{{$.I.li}}{{end}}
+		</TD>
+		<TD NOWRAP ALIGN="right">{{.Size}}</TD>
+		<TD NOWRAP ALIGN="right">{{.Time}}</TD>
+		<TD NOWRAP ALIGN="right">
+			<A HREF="{{.Down}}">{{$.I.dn}}</A>&nbsp;{{if $.RW}}
+			<A HREF="{{.Edit}}">{{$.I.ed}}</A>&nbsp;
+			<A HREF="{{.Ren}}">{{$.I.re}}</A>&nbsp;
+			<A HREF="{{.Mov}}">{{$.I.mv}}</A>&nbsp;
+			<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
+		</TD>
+	</TR>
+	{{end}}
+	<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total{{if .Filter}} (filtered){{end}} </TD></TR>
 	</TBODY>
 	</TABLE>
 {{template "footer_modern.html" .}}
