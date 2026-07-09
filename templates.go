@@ -18,22 +18,49 @@ var tmplFS embed.FS
 
 var htmlTmpl *template.Template
 
+// glueTags are table-structure tags that get glued to the previous line with
+// no newline at all: whitespace between table plumbing is dead weight and
+// vintage browsers (NS2/3) can misplace content around it, which is why the
+// toolbar tables were originally written as a single long line.
+var glueTags = []string{"table", "thead", "tbody", "tr", "td", "th"}
+
+func glueLine(l string) bool {
+	l = strings.ToLower(l)
+	if !strings.HasPrefix(l, "<") {
+		return false
+	}
+	l = strings.TrimPrefix(l[1:], "/")
+	for _, t := range glueTags {
+		if r, ok := strings.CutPrefix(l, t); ok && (r == "" || r[0] == '>' || r[0] == ' ') {
+			return true
+		}
+	}
+	return false
+}
+
 // stripIndent removes per-line indentation, trailing whitespace and blank
 // lines from template source so they are not resent to the client with every
 // page (in a big dir listing the per-row indentation adds up fast). Newlines
-// are kept: between inline elements they render as the same single collapsed
-// space the indentation would. Literal template text must therefore not rely
-// on leading whitespace; values expanded inside <PRE>/<TEXTAREA> are not
-// affected.
+// between inline elements are kept: they render as the same single collapsed
+// space the indentation would. Lines starting with a table-structure tag are
+// joined with no newline at all (see glueTags). Literal template text must
+// therefore not rely on leading whitespace; values expanded inside
+// <PRE>/<TEXTAREA> are not affected.
 func stripIndent(src []byte) string {
 	var b strings.Builder
 	b.Grow(len(src))
+	first := true
 	for _, l := range strings.Split(string(src), "\n") {
-		if l = strings.TrimSpace(l); l != "" {
-			b.WriteString(l)
+		if l = strings.TrimSpace(l); l == "" {
+			continue
+		}
+		if !first && !glueLine(l) {
 			b.WriteByte('\n')
 		}
+		b.WriteString(l)
+		first = false
 	}
+	b.WriteByte('\n')
 	return b.String()
 }
 
