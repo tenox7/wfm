@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -47,11 +49,48 @@ type dirPage struct {
 	I                            map[string]string
 	RwIcon, User, Vers           string
 	LogoutHref, AboutHref        string
+	Filter                       string
 	SortName, SortSize, SortTime sortLink
 	Dirs                         []dirRow
 	Files                        []fileRow
 	Count                        int
 	Total                        string
+}
+
+// filterEntries narrows dirs and files to names matching pat: a glob by
+// default, a regex when pat contains regex-only metacharacters, and for a
+// plain keyword that matches nothing at all as a glob, a substring search.
+// All matching is case-insensitive.
+func filterEntries(dirs, files []dirEntry, pat string) ([]dirEntry, []dirEntry) {
+	if pat == "" {
+		return dirs, files
+	}
+	lp := strings.ToLower(pat)
+	contains := func(n string) bool {
+		return strings.Contains(strings.ToLower(n), lp)
+	}
+	match := func(n string) bool { m, _ := path.Match(lp, strings.ToLower(n)); return m }
+	isRe := strings.ContainsAny(pat, `\()|+{}^$`)
+	if isRe {
+		if re, err := regexp.Compile("(?i)" + pat); err == nil {
+			match = re.MatchString
+		} else {
+			match = contains
+		}
+	}
+	apply := func(es []dirEntry, m func(string) bool) (out []dirEntry) {
+		for _, e := range es {
+			if m(e.fi.Name()) {
+				out = append(out, e)
+			}
+		}
+		return out
+	}
+	fDirs, fFiles := apply(dirs, match), apply(files, match)
+	if len(fDirs)+len(fFiles) == 0 && !isRe && !strings.ContainsAny(pat, `*?[`) {
+		fDirs, fFiles = apply(dirs, contains), apply(files, contains)
+	}
+	return fDirs, fFiles
 }
 
 func rowColor(name, hi string, z int, modern bool) string {
@@ -94,11 +133,19 @@ func (r *wfmRequest) listFiles(hi string) {
 		}
 		files = append(files, dirEntry{f, link})
 	}
+	dirs, files = filterEntries(dirs, files, r.uFilter)
 
 	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
 	sortBase, err := url.JoinPath(r.pfx, qeDir)
 	if err != nil {
 		log.Printf("Unable to build sort url: %v", err)
+	}
+	sq := func(s string) url.Values {
+		q := url.Values{"sort": {s}}
+		if r.uFilter != "" {
+			q.Set("filter", r.uFilter)
+		}
+		return q
 	}
 
 	page := dirPage{
@@ -108,11 +155,12 @@ func (r *wfmRequest) listFiles(hi string) {
 		RwIcon:     i[rorw[r.rwAccess]],
 		User:       r.userName,
 		Vers:       vers,
+		Filter:     html.EscapeString(r.uFilter),
 		LogoutHref: wfmHref(r.pfx, url.Values{"fn": {"logout"}}),
 		AboutHref:  wfmHref(r.pfx, url.Values{"fn": {"about"}, "dir": {r.uDir}}),
-		SortName:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[0]}}), sl[1]},
-		SortSize:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[2]}}), sl[3]},
-		SortTime:   sortLink{wfmHref(sortBase, url.Values{"sort": {sl[4]}}), sl[5]},
+		SortName:   sortLink{wfmHref(sortBase, sq(sl[0])), sl[1]},
+		SortSize:   sortLink{wfmHref(sortBase, sq(sl[2])), sl[3]},
+		SortTime:   sortLink{wfmHref(sortBase, sq(sl[4])), sl[5]},
 	}
 
 	z := 0
@@ -257,6 +305,7 @@ func icons(m bool) map[string]string {
 			"tfi": "&#x1F4D2; ",
 			"tdi": "&#x1F4C2; ",
 			"tul": "&#x1F680; ",
+			"tfl": "&#x1F50D; ",
 
 			"tid": "&#x1F3AB; ",
 			"tve": "&#x1F9F0; ",

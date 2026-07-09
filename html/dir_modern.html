@@ -1,4 +1,5 @@
 {{template "header_modern.html" .}}
+<INPUT TYPE="SUBMIT" STYLE="display:none">
 	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
 	<THEAD>
 	<TR>
@@ -20,7 +21,9 @@
 <INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
 <INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
 <INPUT TYPE="FILE" NAME="filename" CLASS="nb">
-<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD></TR>
+<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" CLASS="nb" {{if not .RW}}DISABLED{{end}}>
+<INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10" CLASS="tbr">
+<INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter" CLASS="nb"></TD></TR>
 	<TR>
 	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#666666">
 		<A HREF="{{.SortName.Href}}"><FONT COLOR="#FFFFFF">{{.SortName.Label}}</FONT></A>
@@ -62,7 +65,7 @@
 				<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
 			</TD>
 		</TR>
-{{end}}	<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total </TD></TR>
+{{end}}	<TR><TD COLSPAN="4" NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total{{if .Filter}} (filtered){{end}} </TD></TR>
 	</TBODY>
 	</TABLE>
 {{template "footer_modern.html" .}}

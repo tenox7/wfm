@@ -24,6 +24,7 @@ type wfmRequest struct {
 	eSort    string // escaped sort order
 	uDir     string // unescaped directory name
 	uFbn     string // unescaped file base name
+	uFilter  string // file filter pattern for dir view
 }
 
 func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
@@ -53,6 +54,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		w:        w,
 		req:      r,
 		eSort:    r.FormValue("sort"),
+		uFilter:  strings.TrimSpace(r.FormValue("filter")),
 		modern:   isModern(r),
 		fs:       p.fs,
 		pfx:      p.uri,
@@ -117,6 +119,9 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		q := url.Values{}
 		if wfm.eSort != "" {
 			q.Set("sort", wfm.eSort)
+		}
+		if wfm.uFilter != "" {
+			q.Set("filter", wfm.uFilter)
 		}
 		redirect(w, wfmURL(re, q))
 		return
