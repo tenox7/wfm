@@ -1,35 +1,35 @@
 {{template "header_legacy.html" .}}
-	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
+	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0">
 	<TR>
-		<TD COLSPAN="2" BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
+		<TD NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px; color:#FFFFFF; font-weight:bold;">
 			<FONT COLOR="#FFFFFF"><B>&nbsp;{{.SiteName}}&nbsp;:&nbsp;{{.Dir}}</B></FONT>
 		</TD>
-		<TD COLSPAN="2" NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#FFFFFF;">
+		<TD NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#FFFFFF;">
 			<FONT COLOR="#FFFFFF">&nbsp;{{.RwIcon}}&nbsp;</FONT>
 			<A HREF="{{.LogoutHref}}"><FONT COLOR="#FFFFFF">{{.I.tid}}{{.User}}</FONT></A>&nbsp;
 			<A HREF="{{.AboutHref}}"><FONT COLOR="#FFFFFF">&nbsp;{{.I.tve}} v{{.Vers}}&nbsp;</FONT></A>
 		</TD>
 	</TR>
+	</TABLE>
+	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0">
 	<TR>
-	<TD COLSPAN="4" BGCOLOR="#CCCCCC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
-		<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="2">
-		<TR>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="up" VALUE="{{.I.tup}}Up" CLASS="nb"></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="home" VALUE="{{.I.tho}}Home" CLASS="nb"></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="refresh" VALUE="{{.I.tre}}Refresh" CLASS="nb"></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="{{.I.trm}}Delete" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="{{.I.tmv}}Move" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="mkd" VALUE="{{.I.tdi}}New Dir" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="FILE" NAME="filename" CLASS="nb"></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" CLASS="nb" {{if not .RW}}DISABLED{{end}}></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10" CLASS="tbr"></TD>
-			<TD NOWRAP VALIGN="MIDDLE"><INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter" CLASS="nb"></TD>
-		</TR>
-		</TABLE>
+	<TD NOWRAP BGCOLOR="#CCCCCC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
+		<INPUT TYPE="SUBMIT" NAME="up" VALUE="{{.I.tup}}Up">
+		<INPUT TYPE="SUBMIT" NAME="home" VALUE="{{.I.tho}}Home">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="{{.I.tre}}Refresh">
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="{{.I.trm}}Delete" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="{{.I.tmv}}Move" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="{{.I.tdi}}New Dir" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="FILE" NAME="filename">&nbsp;
+		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10">
+		<INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter">
 	</TD>
 	</TR>
+	</TABLE>
+	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0" CLASS="thov">
 	<TR>
 	<TD NOWRAP ALIGN="left" WIDTH="50%" BGCOLOR="#666666">
 		<A HREF="{{.SortName.Href}}"><FONT COLOR="#FFFFFF">{{.SortName.Label}}</FONT></A>
@@ -40,7 +40,7 @@
 	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">
 		<A HREF="{{.SortTime.Href}}"><FONT COLOR="#FFFFFF">{{.SortTime.Label}}</FONT></A>
 	</TD>
-	<TD NOWRAP ALIGN="right" BGCOLOR="#666666">&nbsp;</TD>
+	{{if or .RW .Files}}<TD NOWRAP ALIGN="right" BGCOLOR="#666666">&nbsp;</TD>{{end}}
 	</TR>
 	{{range .Dirs}}
 	<TR CLASS="f" BGCOLOR="{{.BgColor}}">
@@ -50,11 +50,11 @@
 		</TD>
 		<TD NOWRAP>&nbsp;</TD>
 		<TD NOWRAP ALIGN="right">{{.Time}}</TD>
-		<TD NOWRAP ALIGN="right">{{if $.RW}}
+		{{if or $.RW $.Files}}<TD NOWRAP ALIGN="right">{{if $.RW}}
 			<A HREF="{{.Ren}}">{{$.I.re}}</A>&nbsp;
 			<A HREF="{{.Mov}}">{{$.I.mv}}</A>&nbsp;
-			<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{end}}
-		</TD>
+			<A HREF="{{.Del}}">{{$.I.rm}}</A>&nbsp;{{else}}&nbsp;{{end}}
+		</TD>{{end}}
 	</TR>
 	{{end}}
 	{{range .Files}}
@@ -74,6 +74,6 @@
 		</TD>
 	</TR>
 	{{end}}
-	<TR><TD STYLE="border-top:1px solid #999999">&nbsp;</TD><TD NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total{{if .Filter}} (filtered){{end}}</TD><TD COLSPAN="2" STYLE="border-top:1px solid #999999">&nbsp;</TD></TR>
+	<TR><TD STYLE="border-top:1px solid #999999">&nbsp;</TD><TD NOWRAP ALIGN="right" STYLE="border-top:1px solid #999999">{{.Count}} items, {{.Total}} total{{if .Filter}} (filtered){{end}}</TD><TD STYLE="border-top:1px solid #999999">&nbsp;</TD>{{if or .RW .Files}}<TD STYLE="border-top:1px solid #999999">&nbsp;</TD>{{end}}</TR>
 	</TABLE>
 {{template "footer_legacy.html" .}}

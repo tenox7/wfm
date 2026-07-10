@@ -1,16 +1,17 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <HTML>
 <HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 <TITLE>Index of {{.Dir}}</TITLE>
 </HEAD>
 <BODY>
 <H1>Index of {{.Dir}}</H1>
-<PRE>{{.Header}}
+<PRE>{{.Header}}</PRE>
 <HR>
-{{if .Up}}<A HREF="../">Parent Directory</A>{{.UpTail}}
+<PRE>{{if .Up}}<A HREF="../">Parent Directory</A>{{.UpTail}}
 {{end}}{{range .Rows}}<A HREF="{{.Href}}">{{.Name}}</A>{{.Pad}}{{.Meta}}
-{{end}}<HR>
-</PRE>
+{{end}}</PRE>
+<HR>
 <ADDRESS>WFM {{.Vers}}</ADDRESS>
 </BODY>
 </HTML>

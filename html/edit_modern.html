@@ -10,7 +10,8 @@
 	</TD>
     </TR>
     </TABLE>
-    <TEXTAREA NAME="text" SPELLCHECK="false" COLS="80" ROWS="24">{{.Content}}</TEXTAREA>
+    <TEXTAREA NAME="text" COLS="80" ROWS="24">{{.Content}}</TEXTAREA>
+    <SCRIPT TYPE="text/javascript">document.getElementsByName("text")[0].spellcheck = false;</SCRIPT>
     <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#EEEEEE">
     <TR><TD ALIGN="RIGHT">
 	<INPUT TYPE="SUBMIT" NAME="save" VALUE="Save" {{if not .RW}}DISABLED{{end}}>&nbsp;
@@ -20,9 +21,13 @@
     </TD></TR>
     </TABLE>
 {{if .CodeMirror}}
-{{range .CMStyles}}    <LINK REL="STYLESHEET" HREF="{{$.CMBase}}/{{.}}">
-{{end}}{{range .CMScripts}}    <SCRIPT SRC="{{$.CMBase}}/{{.}}"></SCRIPT>
-{{end}}    <SCRIPT>
+    <SCRIPT TYPE="text/javascript">
+    // LINK is head-only in HTML 4.01; CodeMirror needs JS anyway, so its
+    // stylesheets are injected here instead of static tags in the body.
+{{range .CMStyles}}    document.write('<link rel="stylesheet" type="text/css" href="{{$.CMBase}}/{{.}}">');
+{{end}}    </SCRIPT>
+{{range .CMScripts}}    <SCRIPT TYPE="text/javascript" SRC="{{$.CMBase}}/{{.}}"></SCRIPT>
+{{end}}    <SCRIPT TYPE="text/javascript">
     // Progressive enhancement: if the CDN is unreachable, CodeMirror is
     // undefined and the plain textarea is left in place and fully usable.
     if (window.CodeMirror) {

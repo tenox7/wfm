@@ -1,6 +1,7 @@
 {{template "prompt_open_modern.html" .}}
-    &nbsp;<BR>Are you sure you want to delete from <B>{{.Dir}}</B>:<P><UL>
+    &nbsp;<BR>Are you sure you want to delete from <B>{{.Dir}}</B>:<P>
 {{range .Items}}<INPUT TYPE="HIDDEN" NAME="mulf" VALUE="{{.}}">
-<LI TYPE="square">{{.}}</LI>
+{{end}}<UL>
+{{range .Items}}<LI TYPE="square">{{.}}</LI>
 {{end}}</UL><P>
 {{template "prompt_close_modern.html" .}}
