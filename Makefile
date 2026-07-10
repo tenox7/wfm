@@ -1,4 +1,4 @@
-VERS    := $(shell git describe --tags --always --dirty)
+VERS    := $(shell git describe --tags --always --abbrev=0)
 LDFLAGS := -ldflags "-X main.vers=$(VERS)"
 
 all: wfm
