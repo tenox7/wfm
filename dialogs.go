@@ -196,14 +196,18 @@ func (r *wfmRequest) editText() {
 }
 
 func (r *wfmRequest) about(ua string) {
+	htmlMode := "legacy"
+	if r.modern {
+		htmlMode = "modern"
+	}
 	r.render("about", aboutPage{
 		chrome: r.chrome(""),
 		Vers:   vers,
-		Runtime: fmt.Sprintf("Build: %v %v-%v<BR>Agent: %v<BR>Modern: %v<P>",
+		Runtime: fmt.Sprintf("Build: %v %v-%v<BR>Agent: %v<BR>HTML: %v<P>",
 			runtime.Version(),
 			runtime.GOARCH,
 			runtime.GOOS,
 			html.EscapeString(ua),
-			r.modern),
+			htmlMode),
 	})
 }
