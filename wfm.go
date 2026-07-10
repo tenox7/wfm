@@ -37,7 +37,7 @@ type wfmPrefix struct {
 }
 
 var (
-	vers        = "2.4.0"
+	vers        = "dev" // set from git tag via ldflags, see Makefile
 	bindProto   = flag.String("proto", "tcp", "tcp, tcp4, tcp6, etc")
 	bindAddr    = flag.String("addr", ":8080", "Listen address, eg: :443")
 	bindExtra   = flag.String("addr_extra", "", "Extra non-TLS listener address, eg: :8081")
