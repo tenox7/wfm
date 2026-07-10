@@ -436,6 +436,9 @@ func (r *wfmRequest) dispOrDir(hi string) {
 			r.w.Header().Set("Content-Type", "text/plain")
 			r.w.Write(robotsTxt)
 			return
+		case "/proxy.pac", "/wpad.dat":
+			http.Error(r.w, "404 not found", http.StatusNotFound)
+			return
 		}
 		r.htErr("error stat() file", err)
 		return
