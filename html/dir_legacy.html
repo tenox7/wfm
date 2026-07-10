@@ -14,18 +14,18 @@
 	<TABLE WIDTH="100%" CELLPADDING="0" CELLSPACING="0" BORDER="0">
 	<TR>
 	<TD NOWRAP BGCOLOR="#CCCCCC" VALIGN="MIDDLE" ALIGN="LEFT" STYLE="height:28px;">
-		<INPUT TYPE="SUBMIT" NAME="up" VALUE="{{.I.tup}}Up">
-		<INPUT TYPE="SUBMIT" NAME="home" VALUE="{{.I.tho}}Home">
-		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="{{.I.tre}}Refresh">
-		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="{{.I.trm}}Delete" {{if not .RW}}DISABLED{{end}}>
-		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="{{.I.tmv}}Move" {{if not .RW}}DISABLED{{end}}>
-		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="{{.I.tdi}}New Dir" {{if not .RW}}DISABLED{{end}}>
-		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="{{.I.tfi}}New File" {{if not .RW}}DISABLED{{end}}>
-		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="{{.I.tln}}New Link" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="up" VALUE="UP">
+		<INPUT TYPE="SUBMIT" NAME="home" VALUE="HO">
+		<INPUT TYPE="SUBMIT" NAME="refresh" VALUE="RE">
+		<INPUT TYPE="SUBMIT" NAME="mdelp" VALUE="RM" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mmovp" VALUE="MV" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkd" VALUE="MD" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkf" VALUE="MF" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="mkb" VALUE="ML" {{if not .RW}}DISABLED{{end}}>
 		<INPUT TYPE="FILE" NAME="filename">&nbsp;
-		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="{{.I.tul}}Upload" {{if not .RW}}DISABLED{{end}}>
+		<INPUT TYPE="SUBMIT" NAME="upload" VALUE="UPL" {{if not .RW}}DISABLED{{end}}>
 		<INPUT TYPE="TEXT" NAME="filter" VALUE="{{.Filter}}" SIZE="10">
-		<INPUT TYPE="SUBMIT" NAME="flt" VALUE="{{.I.tfl}}Filter">
+		<INPUT TYPE="SUBMIT" NAME="flt" VALUE="FI">
 	</TD>
 	</TR>
 	</TABLE>
