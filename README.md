@@ -288,6 +288,16 @@ flag. Passwords are read on startup and therefore can be placed outside of
 chroot directory. Passwords can also be hardcoded in the binary at the compile
 time, se below.
 
+With a password file present every request normally requires login. Adding
+the `-anon_ro` flag instead lets unauthenticated visitors browse, view and
+download in read-only mode; the padlock in the top right corner shows `ro`.
+Clicking the padlock asks for username/password and, for a user with the RW
+flag, switches the session to read-write - the padlock opens and shows `rw`.
+The username `anonymous` is reserved when this mode is enabled. Note that
+HTTP Basic Auth has no real logout; to drop back to read-only close the
+browser (clicking the padlock while logged in attempts it, but not all
+browsers honor it). User home prefixes always require login.
+
 ## User Management
 
 Users can be managed using a built-in helper function that services the
@@ -381,6 +391,8 @@ Usage of wfm:
         Extra non-TLS listener address, eg: :8081
   -allow_root
         allow to run as uid=0/root without setuid
+  -anon_ro
+        unauthenticated users get read-only access, log in via the lock icon (requires -passwd)
   -cache_ctl string
         HTTP Header Cache Control (default "no-cache")
   -chroot string

@@ -48,6 +48,7 @@ type dirPage struct {
 	RW                           bool
 	I                            map[string]string
 	RwIcon, User, Vers           string
+	LockHref                     string
 	LogoutHref, AboutHref        string
 	Filter                       string
 	SortName, SortSize, SortTime sortLink
@@ -148,6 +149,22 @@ func (r *wfmRequest) listFiles(hi string) {
 		return q
 	}
 
+	// the lock and username link to login for anonymous sessions (401 there
+	// makes the browser ask for credentials), to logout otherwise; without a
+	// password db there is nobody to log in as, so no links at all
+	sessHref := ""
+	if len(users) > 0 {
+		sessQ := url.Values{"fn": {"logout"}}
+		if r.userName == anonUser {
+			sessQ.Set("fn", "login")
+			sessQ.Set("dir", r.uDir)
+			if r.eSort != "" {
+				sessQ.Set("sort", r.eSort)
+			}
+		}
+		sessHref = wfmHref(r.pfx, sessQ)
+	}
+
 	page := dirPage{
 		chrome:     r.chrome(""),
 		RW:         r.rwAccess,
@@ -156,7 +173,8 @@ func (r *wfmRequest) listFiles(hi string) {
 		User:       r.userName,
 		Vers:       vers,
 		Filter:     html.EscapeString(r.uFilter),
-		LogoutHref: wfmHref(r.pfx, url.Values{"fn": {"logout"}}),
+		LockHref:   sessHref,
+		LogoutHref: sessHref,
 		AboutHref:  wfmHref(r.pfx, url.Values{"fn": {"about"}, "dir": {r.uDir}}),
 		SortName:   sortLink{wfmHref(sortBase, sq(sl[0])), sl[1]},
 		SortSize:   sortLink{wfmHref(sortBase, sq(sl[2])), sl[3]},
@@ -310,7 +328,7 @@ func icons(m bool) map[string]string {
 			"tid": "&#x1F3AB; ",
 			"tve": "&#x1F9F0; ",
 
-			"rw": "&#x1F511; rw",
+			"rw": "&#x1F513; rw",
 			"ro": "&#x1F512; ro",
 		}
 	}

@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+// anonUser is the reserved identity served for unauthenticated requests
+// when -anon_ro is enabled; it can never match a real password db entry.
+const anonUser = "anonymous"
+
 func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 	if len(users) == 0 {
 		return "n/a", *noPwdDbRW
@@ -27,10 +31,17 @@ func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 		return "", false
 	}
 
+	// the lock icon links to ?fn=login which must always challenge so the
+	// browser asks for credentials; other requests may fall back to anonymous
+	login := r.URL.Query().Get("fn") == "login"
+
 	u, p, ok := r.BasicAuth()
 	if !ok || u == "" {
+		if *anonRO && !login {
+			return anonUser, false
+		}
 		log.Printf("no auth header for %v (u=%v)", ip, u)
-		goto unauth
+		return challenge(w, r)
 	}
 
 	for _, usr := range users {
@@ -45,15 +56,25 @@ func auth(w http.ResponseWriter, r *http.Request) (string, bool) {
 		}
 	}
 
+	if *anonRO && !login {
+		// browsers resend cached credentials forever; banning or challenging
+		// stale ones here would lock the user out of anonymous browsing
+		log.Printf("auth: bad creds ip=%v u=%v, serving anonymous ro", ip, u)
+		return anonUser, false
+	}
+
 	log.Printf("auth: found no matching usr/pwd ip=%v u=%v)", ip, u)
 	f2b.ban(ip)
 	// ideally we should return here but firefox keeps feeding wrong creds
 	// setting authenticate header instead to force new user/pass window
 	// empty username will not ban the client so it will work at second try
 
-unauth:
-	// 401 + WWW-Authenticate makes the browser show its native login box; the
-	// styled body is only rendered if the user cancels that prompt.
+	return challenge(w, r)
+}
+
+// challenge makes the browser show its native login box via 401 +
+// WWW-Authenticate; the styled body is only rendered if the user cancels it.
+func challenge(w http.ResponseWriter, r *http.Request) (string, bool) {
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"wfm\"")
 	htErrStatus(w, r, http.StatusUnauthorized, "Unauthorized", "a valid username and password are required")
 	return "", false

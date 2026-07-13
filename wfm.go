@@ -49,6 +49,7 @@ var (
 	logFile     = flag.String("logfile", "", "Log file name (default stdout)")
 	passwdDb    = flag.String("passwd", "", "wfm password file, eg: /usr/local/etc/wfmpw.json")
 	noPwdDbRW   = flag.Bool("nopass_rw", false, "allow read-write access if there is no password file")
+	anonRO      = flag.Bool("anon_ro", false, "unauthenticated users get read-only access, log in via the lock icon (requires -passwd)")
 	showDot     = flag.Bool("show_dot", false, "show dot files and folders")
 	listArc     = flag.Bool("list_archive_contents", false, "list contents of archives (expensive!)")
 	rateLim     = flag.Int("rate_limit", 0, "rate limit for upload/download in MB/s, 0 no limit")

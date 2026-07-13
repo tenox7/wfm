@@ -28,16 +28,25 @@ type wfmRequest struct {
 }
 
 func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
-	r.ParseMultipartForm(*formMaxMem)
 	uName, uAccess := auth(w, r)
 	if uName == "" {
 		return
 	}
 	if p.owner != "" && p.owner != uName {
+		if uName == anonUser {
+			challenge(w, r)
+			return
+		}
 		log.Printf("auth: user %q denied access to home prefix %q owner=%q", uName, p.uri, p.owner)
 		htErrStatus(w, r, http.StatusForbidden, "Forbidden", "you are not allowed to access this area")
 		return
 	}
+	if uName == anonUser {
+		// don't let unauthenticated posts stream a whole upload only to hit
+		// the read-only gate after the body has been consumed
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	}
+	r.ParseMultipartForm(*formMaxMem)
 	log.Printf("req from=%q user=%q uri=%q form=%v agent=%v", r.RemoteAddr, uName, r.RequestURI, noText(r.Form), r.UserAgent())
 
 	if *dumpHeader {
@@ -187,6 +196,9 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		wfm.deleteFiles(r.Form["mulf"])
 	case "multi_move":
 		wfm.moveFiles(r.Form["mulf"], r.FormValue("dst"))
+	case "login":
+		// auth has already challenged and validated; just land back in the dir
+		wfm.redirectDir(wfm.uDir, "")
 	case "logout":
 		wfm.logout()
 	case "about":

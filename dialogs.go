@@ -105,6 +105,10 @@ func escapeAll(s []string) []string {
 }
 
 func (r *wfmRequest) prompt(action string, mul []string) {
+	if !r.rwAccess {
+		r.htErr("permission", fmt.Errorf("read only"))
+		return
+	}
 	data := promptPage{
 		chrome: r.chrome(""),
 		Action: action,
@@ -126,7 +130,11 @@ func (r *wfmRequest) prompt(action string, mul []string) {
 	case "delete":
 		data.Op = "rm"
 		data.FormAction = html.EscapeString(r.pathURLRaw(r.uDir, r.uFbn, nil))
-		fi, _ := r.fs.Stat(r.uDir + "/" + r.uFbn)
+		fi, err := r.fs.Stat(r.uDir + "/" + r.uFbn)
+		if err != nil {
+			r.htErr("delete", err)
+			return
+		}
 		if fi.IsDir() {
 			data.Detail = "directory - recursively"
 		} else {

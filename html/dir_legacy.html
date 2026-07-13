@@ -5,8 +5,8 @@
 			<FONT COLOR="#FFFFFF"><B>&nbsp;{{.SiteName}}&nbsp;:&nbsp;{{.Dir}}</B></FONT>
 		</TD>
 		<TD NOWRAP BGCOLOR="#0066CC" VALIGN="MIDDLE" ALIGN="RIGHT" STYLE="height:28px; color:#FFFFFF;">
-			<FONT COLOR="#FFFFFF">&nbsp;{{.RwIcon}}&nbsp;</FONT>
-			<A HREF="{{.LogoutHref}}"><FONT COLOR="#FFFFFF">{{.I.tid}}{{.User}}</FONT></A>&nbsp;
+			{{if .LockHref}}<A HREF="{{.LockHref}}"><FONT COLOR="#FFFFFF">&nbsp;{{.RwIcon}}&nbsp;</FONT></A>{{else}}<FONT COLOR="#FFFFFF">&nbsp;{{.RwIcon}}&nbsp;</FONT>{{end}}
+			{{if .LogoutHref}}<A HREF="{{.LogoutHref}}"><FONT COLOR="#FFFFFF">{{.I.tid}}{{.User}}</FONT></A>{{else}}<FONT COLOR="#FFFFFF">{{.I.tid}}{{.User}}</FONT>{{end}}&nbsp;
 			<A HREF="{{.AboutHref}}"><FONT COLOR="#FFFFFF">&nbsp;{{.I.tve}} v{{.Vers}}&nbsp;</FONT></A>
 		</TD>
 	</TR>

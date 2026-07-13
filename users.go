@@ -34,6 +34,11 @@ func loadUsers() {
 	if err != nil {
 		log.Fatal("unable to parse password file: ", err)
 	}
+	for _, u := range users {
+		if *anonRO && u.User == anonUser {
+			log.Fatalf("user %q in %q conflicts with the -anon_ro reserved name", anonUser, *passwdDb)
+		}
+	}
 	log.Printf("Loaded %q (%d users)", *passwdDb, len(users))
 }
 
@@ -81,6 +86,9 @@ func listUsers() {
 func addUser(usr string, rw bool, home string) {
 	if usr == "" {
 		log.Fatal("user add requires username and ro/rw\n")
+	}
+	if usr == anonUser {
+		log.Fatalf("username %q is reserved for -anon_ro", anonUser)
 	}
 	loadUsers()
 	pwd, err := term.ReadPassword(int(os.Stdin.Fd()))
