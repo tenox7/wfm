@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>{{.SiteName}} : {{.Dir}}</TITLE>
+</HEAD>
+<BODY>
+<H1>{{.SiteName}} : {{.Dir}}</H1>
+<PRE>{{.Header}}</PRE>
+<HR>
+<PRE>{{if .Up}}<A HREF="{{.UpHref}}">Parent Directory</A>{{.UpTail}}
+{{end}}{{range .Rows}}<A HREF="{{.Href}}">{{.Name}}</A>{{.Pad}}{{.Meta}}
+{{end}}</PRE>
+<HR>
+<PRE>{{.Count}} items, {{.Total}} total</PRE>
+</BODY>
+</HTML>

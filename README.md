@@ -23,6 +23,7 @@ or BYOC.
 WFM outputs validated HTML 4.01 without JavaScript. It works on both modern and legacy web
 browsers going back to Internet Explorer 1.x and Netscape 3.x. Modern browsers can optionally
 take advantage of a [Rich Text Editor](#text-editor). No images! All icons are unicode emojis (on modern browsers).
+curl, wget, Kodi, iPXE and other CLI clients get a minimal [bare index](#bare-mode).
 
 No config files. All configuration is entirely based on `--flags`, rc/init/Docker friendly.
 In fact no files other than the binary are required.
@@ -375,6 +376,22 @@ Explorer 1.x and Netscape 3.x.
 Modern browsers can optionally use [CodeMirror](https://codemirror.net/5/), a
 rich code editor, enabled with `-textedit=codemirror`. 
 
+## Bare mode
+
+CLI clients, detected by user-agent (curl, wget, Kodi, iPXE, lynx, crawlers, etc),
+get a minimal Apache-style index: plain entry links, no forms, no query links that
+would trap recursive mirrors. Files are served as raw bytes and errors return real
+http status codes. Range/resume, `?sort=`, `?filter=` and Basic auth work as usual.
+Extend detection with `-bare_agent=substring` or force any mode with
+`?ui=bare|legacy|modern`.
+
+```shell
+curl -O http://host/pub/file.iso
+wget -r -np -e robots=off http://host/pub/   # embedded robots.txt blocks mirrors
+curl -u u:p -F dir=/pub -F filename=@f.bin -F upload=UPL http://host/
+curl -u u:p -d fn=mkdir -d dir=/pub -d file=newdir http://host/
+```
+
 ## Flags
 
 ```text
@@ -393,6 +410,8 @@ Usage of wfm:
         allow to run as uid=0/root without setuid
   -anon_ro
         unauthenticated users get read-only access, log in via the lock icon (requires -passwd)
+  -bare_agent value
+        additional user-agent substring served the bare ui (multi)
   -cache_ctl string
         HTTP Header Cache Control (default "no-cache")
   -chroot string

@@ -51,7 +51,15 @@ func (r *wfmRequest) dispFile() {
 	ext := strings.ToLower(filepath.Ext(fp))
 	log.Printf("Disposition file=%v ext=%v", fp, ext)
 
-	if *convertPng != "" && !r.modern && ext == ".png" {
+	// scripted clients always get the raw bytes: no archive listings, no
+	// .url redirects, no image conversion, so wget/kodi/pxe fetches are
+	// byte-exact mirrors of the file
+	if r.ui == uiBare {
+		r.dispInline(fp)
+		return
+	}
+
+	if *convertPng != "" && r.ui == uiLegacy && ext == ".png" {
 		r.convPng(fp, *convertPng)
 		return
 	}
@@ -213,7 +221,7 @@ func (r *wfmRequest) convPng(uFilePath, format string) {
 
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	defer f.Close()
@@ -245,7 +253,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 
 func (r *wfmRequest) saveText(uData, crlf string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	if uData == "" {
@@ -288,7 +296,7 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 
 func (r *wfmRequest) mkdir() {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 
@@ -307,7 +315,7 @@ func (r *wfmRequest) mkdir() {
 
 func (r *wfmRequest) mkfile() {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 
@@ -326,7 +334,7 @@ func (r *wfmRequest) mkfile() {
 
 func (r *wfmRequest) mkurl(eUrl string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	if !validName(r.uFbn) {
@@ -349,7 +357,7 @@ func (r *wfmRequest) mkurl(eUrl string) {
 
 func (r *wfmRequest) renFile(uNewf string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 
@@ -371,7 +379,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 
 func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	uDst = filepath.Clean(uDst)
@@ -399,7 +407,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)

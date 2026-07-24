@@ -105,24 +105,16 @@ func rowColor(name, hi string, z int, modern bool) string {
 	}
 }
 
-func (r *wfmRequest) listFiles(hi string) {
-	i := icons(r.modern)
-	d, err := afero.ReadDir(r.fs, r.uDir)
-	if err != nil {
-		r.htErr("Unable to read directory", err)
-		return
-	}
-	sl := []string{}
-	sortFiles(d, &sl, r.eSort)
-
-	var dirs, files []dirEntry
+// splitEntries partitions a directory read into dirs and files, skipping dot
+// entries unless -show_dot and classifying symlinks by their target.
+func splitEntries(wfs afero.Fs, dir string, d []os.FileInfo) (dirs, files []dirEntry) {
 	for _, f := range d {
 		if !*showDot && strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
 		isDir, link := f.IsDir(), false
 		if f.Mode()&os.ModeSymlink == os.ModeSymlink {
-			ls, err := r.fs.Stat(r.uDir + "/" + f.Name())
+			ls, err := wfs.Stat(path.Join(dir, f.Name()))
 			if err != nil {
 				continue
 			}
@@ -134,7 +126,26 @@ func (r *wfmRequest) listFiles(hi string) {
 		}
 		files = append(files, dirEntry{f, link})
 	}
+	return dirs, files
+}
+
+func (r *wfmRequest) listFiles(hi string) {
+	d, err := afero.ReadDir(r.fs, r.uDir)
+	if err != nil {
+		r.htErr("Unable to read directory", err)
+		return
+	}
+	sl := []string{}
+	sortFiles(d, &sl, r.eSort)
+
+	dirs, files := splitEntries(r.fs, r.uDir, d)
 	dirs, files = filterEntries(dirs, files, r.uFilter)
+
+	if r.ui == uiBare {
+		r.listBare(dirs, files)
+		return
+	}
+	i := icons(r.ui == uiModern)
 
 	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
 	sortBase, err := url.JoinPath(r.pfx, qeDir)
@@ -201,7 +212,7 @@ func (r *wfmRequest) listFiles(hi string) {
 		q.Set("op", "rm")
 		del := wfmHref(nUrl, q)
 		page.Dirs = append(page.Dirs, dirRow{
-			BgColor: rowColor(f.Name(), hi, z, r.modern),
+			BgColor: rowColor(f.Name(), hi, z, r.ui == uiModern),
 			Name:    html.EscapeString(f.Name()),
 			Href:    html.EscapeString(href),
 			IsLink:  e.link,
@@ -235,10 +246,10 @@ func (r *wfmRequest) listFiles(hi string) {
 		q.Set("op", "rm")
 		del := wfmHref(nUrl, q)
 		page.Files = append(page.Files, fileRow{
-			BgColor: rowColor(f.Name(), hi, z, r.modern),
+			BgColor: rowColor(f.Name(), hi, z, r.ui == uiModern),
 			Name:    html.EscapeString(f.Name()),
 			Href:    html.EscapeString(nUrl),
-			Icon:    fileIcon(qeFile, r.modern),
+			Icon:    fileIcon(qeFile, r.ui == uiModern),
 			IsLink:  e.link,
 			Size:    humanize.Bytes(uint64(f.Size())),
 			Time:    "(" + humanize.Time(f.ModTime()) + ") " + f.ModTime().Format(time.Stamp),
@@ -253,6 +264,45 @@ func (r *wfmRequest) listFiles(hi string) {
 	}
 
 	page.Count = len(dirs) + len(files)
+	page.Total = humanize.Bytes(total)
+	r.render("dir", page)
+}
+
+// listBare renders the directory as a minimal Apache-style index for scripted
+// clients: absolute-path entry links only, no forms and no sort/op query links
+// that would trap crawlers and recursive mirrors. Explicit ?sort= and ?filter=
+// query params are still honored (applied by the caller), just never emitted.
+func (r *wfmRequest) listBare(dirs, files []dirEntry) {
+	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
+	_, hdrPad := webCol("Name")
+	page := webIndexPage{
+		SiteName: *siteName,
+		Dir:      html.EscapeString(path.Join(r.pfx, r.uDir)),
+		Header:   "Name" + hdrPad + webMeta("Last modified", "Size"),
+		Count:    len(dirs) + len(files),
+	}
+	if r.uDir != "/" {
+		_, upPad := webCol("Parent Directory")
+		page.Up = true
+		page.UpHref = html.EscapeString(r.pathURLRaw(path.Dir(r.uDir), "", nil))
+		page.UpTail = upPad + webMeta("", "-")
+	}
+	var total uint64
+	for _, e := range dirs {
+		nUrl, err := url.JoinPath(r.pfx, qeDir, url.PathEscape(e.fi.Name()))
+		if err != nil {
+			continue
+		}
+		page.Rows = append(page.Rows, indexRow(nUrl+"/", e.fi.Name()+"/", e.fi, true))
+	}
+	for _, e := range files {
+		nUrl, err := url.JoinPath(r.pfx, qeDir, url.PathEscape(e.fi.Name()))
+		if err != nil {
+			continue
+		}
+		page.Rows = append(page.Rows, indexRow(nUrl, e.fi.Name(), e.fi, false))
+		total += uint64(e.fi.Size())
+	}
 	page.Total = humanize.Bytes(total)
 	r.render("dir", page)
 }

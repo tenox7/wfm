@@ -20,7 +20,7 @@ type wfmRequest struct {
 	userName string
 	remAddr  string
 	rwAccess bool
-	modern   bool
+	ui       uiMode
 	eSort    string // escaped sort order
 	uDir     string // unescaped directory name
 	uFbn     string // unescaped file base name
@@ -64,7 +64,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		req:      r,
 		eSort:    r.FormValue("sort"),
 		uFilter:  strings.TrimSpace(r.FormValue("filter")),
-		modern:   isModern(r),
+		ui:       uiFor(r),
 		fs:       p.fs,
 		pfx:      p.uri,
 		uFbn:     filepath.Base(r.FormValue("file")),

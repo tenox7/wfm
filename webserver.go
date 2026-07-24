@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"sort"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -26,10 +25,29 @@ type webIndexRow struct {
 	Href, Name, Pad, Meta string
 }
 
+// SiteName, UpHref, Count and Total are only set (and rendered) by the bare
+// WFM dir listing; the webserver autoindex leaves them zero.
 type webIndexPage struct {
 	Dir, Header, UpTail, Vers string
+	SiteName, UpHref, Total   string
+	Count                     int
 	Up                        bool
 	Rows                      []webIndexRow
+}
+
+// indexRow builds one <pre> listing row; href must already be percent-escaped.
+func indexRow(href, name string, fi os.FileInfo, isDir bool) webIndexRow {
+	size := humanize.Bytes(uint64(fi.Size()))
+	if isDir {
+		size = "-"
+	}
+	escName, pad := webCol(name)
+	return webIndexRow{
+		Href: html.EscapeString(href),
+		Name: escName,
+		Pad:  pad,
+		Meta: webMeta(fi.ModTime().Format("2006-01-02 15:04"), size),
+	}
 }
 
 // webCol returns the html-escaped (possibly truncated) display name and the
@@ -111,49 +129,22 @@ func webAutoIndex(w http.ResponseWriter, r *http.Request, p wfmPrefix, upath str
 		return
 	}
 
-	var dirs, files []webIndexRow
-	for _, fi := range d {
-		if !*showDot && strings.HasPrefix(fi.Name(), ".") {
-			continue
-		}
-		isDir := fi.IsDir()
-		if fi.Mode()&os.ModeSymlink != 0 {
-			ls, err := p.fs.Stat(path.Join(upath, fi.Name()))
-			if err != nil {
-				continue
-			}
-			isDir = ls.IsDir()
-		}
-		name := fi.Name()
-		href := url.PathEscape(fi.Name())
-		size := humanize.Bytes(uint64(fi.Size()))
-		if isDir {
-			name += "/"
-			href += "/"
-			size = "-"
-		}
-		escName, pad := webCol(name)
-		row := webIndexRow{
-			Href: html.EscapeString(href),
-			Name: escName,
-			Pad:  pad,
-			Meta: webMeta(fi.ModTime().Format("2006-01-02 15:04"), size),
-		}
-		if isDir {
-			dirs = append(dirs, row)
-			continue
-		}
-		files = append(files, row)
+	// afero.ReadDir returns entries name-sorted; splitEntries keeps the order
+	dirs, files := splitEntries(p.fs, upath, d)
+	var rows []webIndexRow
+	for _, e := range dirs {
+		rows = append(rows, indexRow(url.PathEscape(e.fi.Name())+"/", e.fi.Name()+"/", e.fi, true))
 	}
-	sort.Slice(dirs, func(i, j int) bool { return dirs[i].Name < dirs[j].Name })
-	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
+	for _, e := range files {
+		rows = append(rows, indexRow(url.PathEscape(e.fi.Name()), e.fi.Name(), e.fi, false))
+	}
 
 	_, hdrPad := webCol("Name")
 	page := webIndexPage{
 		Dir:    html.EscapeString(r.URL.Path),
 		Header: "Name" + hdrPad + webMeta("Last modified", "Size"),
 		Vers:   vers,
-		Rows:   append(dirs, files...),
+		Rows:   rows,
 	}
 	if upath != "/" {
 		_, upPad := webCol("Parent Directory")

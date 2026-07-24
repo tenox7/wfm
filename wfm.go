@@ -61,6 +61,7 @@ var (
 	dumpHeader  = flag.Bool("dump_headers", false, "dump headers sent by client")
 	pfxList     multiString // this flag set in main
 	webList     multiString // this flag set in main
+	bareAgents  multiString // this flag set in main
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmFile     = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
 	acmBind     = flag.String("acm_addr", "", "autocert manager listen address, eg: :80")
@@ -148,6 +149,7 @@ func main() {
 	flag.Var(&acmWhlist, "acm_host", "autocert manager allowed hostname (multi)")
 	flag.Var(&pfxList, "prefix", "Prefix for WFM access /fsdir:/httppath eg.: /var/files:/myfiles (multi, default /:/)")
 	flag.Var(&webList, "webserver", "Plain static web server /fsdir:/httppath[:flags], flags i,ai eg.: /srv/www:/:i,ai (multi)")
+	flag.Var(&bareAgents, "bare_agent", "additional user-agent substring served the bare ui (multi)")
 	flag.Parse()
 	var err error
 

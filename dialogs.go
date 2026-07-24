@@ -106,7 +106,7 @@ func escapeAll(s []string) []string {
 
 func (r *wfmRequest) prompt(action string, mul []string) {
 	if !r.rwAccess {
-		r.htErr("permission", fmt.Errorf("read only"))
+		r.htErr("permission", errReadOnly)
 		return
 	}
 	data := promptPage{
@@ -172,9 +172,9 @@ func (r *wfmRequest) editText() {
 	}
 	// CodeMirror is opt-in (--textedit=codemirror) and modern-mode only; legacy
 	// browsers always get a plain textarea.
-	cm := r.modern && *textEdit == "codemirror"
+	cm := r.ui == uiModern && *textEdit == "codemirror"
 	css := ""
-	if r.modern {
+	if r.ui == uiModern {
 		// Make the textarea fill the viewport below the toolbar.
 		css = `html,body{height:100%;margin:0}form{height:100%;display:flex;flex-direction:column}form>textarea{flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;resize:none}`
 		if cm {
@@ -204,10 +204,6 @@ func (r *wfmRequest) editText() {
 }
 
 func (r *wfmRequest) about(ua string) {
-	htmlMode := "legacy"
-	if r.modern {
-		htmlMode = "modern"
-	}
 	r.render("about", aboutPage{
 		chrome: r.chrome(""),
 		Vers:   vers,
@@ -216,6 +212,6 @@ func (r *wfmRequest) about(ua string) {
 			runtime.GOARCH,
 			runtime.GOOS,
 			html.EscapeString(ua),
-			htmlMode),
+			r.ui),
 	})
 }

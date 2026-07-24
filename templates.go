@@ -91,13 +91,6 @@ func loadTemplates() {
 	}
 }
 
-func mode(m bool) string {
-	if m {
-		return "modern"
-	}
-	return "legacy"
-}
-
 type chrome struct {
 	Dir        string
 	Sort       string
@@ -119,20 +112,26 @@ func (r *wfmRequest) chrome(extraCSS string) chrome {
 }
 
 func (r *wfmRequest) render(name string, data any) {
-	renderStatus(r.w, r.modern, 0, name, data)
+	renderStatus(r.w, r.ui, 0, name, data)
 }
 
-// renderStatus renders template name for the given browser mode. A non-zero code
-// sets the HTTP status before the body (used by auth errors that must keep 401/403/429).
-func renderStatus(w http.ResponseWriter, modern bool, code int, name string, data any) {
-	w.Header().Set("Content-Type", "text/html; charset="+charset[modern])
+// renderStatus renders template name for the given ui mode. A non-zero code
+// sets the HTTP status before the body (used by auth errors that must keep
+// 401/403/429). Bare mode only defines the templates that differ (dir); any
+// other name falls back to the legacy variant.
+func renderStatus(w http.ResponseWriter, ui uiMode, code int, name string, data any) {
+	t := name + "_" + ui.String() + ".html"
+	if ui == uiBare && htmlTmpl.Lookup(t) == nil {
+		t = name + "_" + uiLegacy.String() + ".html"
+	}
+	w.Header().Set("Content-Type", "text/html; charset="+charset[ui])
 	w.Header().Set("Cache-Control", *cacheCtl)
 	if code != 0 {
 		w.WriteHeader(code)
 	}
 	bw := bufio.NewWriterSize(w, 1<<15)
 	defer bw.Flush()
-	if err := htmlTmpl.ExecuteTemplate(bw, name+"_"+mode(modern)+".html", data); err != nil {
+	if err := htmlTmpl.ExecuteTemplate(bw, t, data); err != nil {
 		log.Printf("template %q: %v", name, err)
 	}
 }
