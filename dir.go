@@ -3,6 +3,7 @@ package main
 import (
 	"html"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -269,11 +270,23 @@ func (r *wfmRequest) listFiles(hi string) {
 }
 
 // listBare renders the directory as a minimal Apache-style index for scripted
-// clients: absolute-path entry links only, no forms and no sort/op query links
-// that would trap crawlers and recursive mirrors. Explicit ?sort= and ?filter=
-// query params are still honored (applied by the caller), just never emitted.
+// clients: relative entry links only, no forms and no sort/op query links that
+// would trap crawlers and recursive mirrors. Links must be relative and equal
+// to the anchor text or Kodi's http directory parser drops the row; relative
+// links in turn require the directory url to end with a slash, hence the
+// redirect. Explicit ?sort= and ?filter= query params are still honored
+// (applied by the caller), just never emitted.
 func (r *wfmRequest) listBare(dirs, files []dirEntry) {
-	qeDir := strings.ReplaceAll(url.PathEscape(r.uDir), `%2F`, `/`)
+	if !strings.HasSuffix(r.req.URL.Path, "/") {
+		q := url.Values{}
+		for _, k := range []string{"sort", "filter", "ui"} {
+			if v := r.req.URL.Query().Get(k); v != "" {
+				q.Set(k, v)
+			}
+		}
+		http.Redirect(r.w, r.req, wfmURL(r.pathURLRaw(r.uDir, "", nil)+"/", q), http.StatusMovedPermanently)
+		return
+	}
 	_, hdrPad := webCol("Name")
 	page := webIndexPage{
 		SiteName: *siteName,
@@ -284,23 +297,15 @@ func (r *wfmRequest) listBare(dirs, files []dirEntry) {
 	if r.uDir != "/" {
 		_, upPad := webCol("Parent Directory")
 		page.Up = true
-		page.UpHref = html.EscapeString(r.pathURLRaw(path.Dir(r.uDir), "", nil))
+		page.UpHref = "../"
 		page.UpTail = upPad + webMeta("", "-")
 	}
 	var total uint64
 	for _, e := range dirs {
-		nUrl, err := url.JoinPath(r.pfx, qeDir, url.PathEscape(e.fi.Name()))
-		if err != nil {
-			continue
-		}
-		page.Rows = append(page.Rows, indexRow(nUrl+"/", e.fi.Name()+"/", e.fi, true))
+		page.Rows = append(page.Rows, indexRow(url.PathEscape(e.fi.Name())+"/", e.fi.Name()+"/", e.fi, true))
 	}
 	for _, e := range files {
-		nUrl, err := url.JoinPath(r.pfx, qeDir, url.PathEscape(e.fi.Name()))
-		if err != nil {
-			continue
-		}
-		page.Rows = append(page.Rows, indexRow(nUrl, e.fi.Name(), e.fi, false))
+		page.Rows = append(page.Rows, indexRow(url.PathEscape(e.fi.Name()), e.fi.Name(), e.fi, false))
 		total += uint64(e.fi.Size())
 	}
 	page.Total = humanize.Bytes(total)

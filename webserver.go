@@ -14,7 +14,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/dustin/go-humanize"
 	"github.com/spf13/afero"
 )
 
@@ -36,8 +35,10 @@ type webIndexPage struct {
 }
 
 // indexRow builds one <pre> listing row; href must already be percent-escaped.
+// Sizes are raw byte counts (nginx convention): Kodi's size regex only accepts
+// integers with an optional single-letter unit, humanized "2.6 GB" parses as 0.
 func indexRow(href, name string, fi os.FileInfo, isDir bool) webIndexRow {
-	size := humanize.Bytes(uint64(fi.Size()))
+	size := fmt.Sprint(fi.Size())
 	if isDir {
 		size = "-"
 	}
@@ -50,20 +51,21 @@ func indexRow(href, name string, fi os.FileInfo, isDir bool) webIndexRow {
 	}
 }
 
-// webCol returns the html-escaped (possibly truncated) display name and the
-// space padding that right-fills the name column. Padding is computed on the
-// rune length of the visible name, not the escaped bytes, so <pre> aligns.
+// webCol returns the html-escaped display name and the space padding that
+// right-fills the name column. Padding is computed on the rune length of the
+// visible name, not the escaped bytes, so <pre> aligns. Names are never
+// truncated: Kodi's http directory parser drops any row where the anchor text
+// does not equal the url-decoded href; long names just overflow the column.
 func webCol(disp string) (string, string) {
-	r := []rune(disp)
-	if len(r) > webNameCol-1 {
-		disp = string(r[:webNameCol-3]) + ".."
-		r = []rune(disp)
+	pad := webNameCol - len([]rune(disp))
+	if pad < 1 {
+		pad = 1
 	}
-	return html.EscapeString(disp), strings.Repeat(" ", webNameCol-len(r))
+	return html.EscapeString(disp), strings.Repeat(" ", pad)
 }
 
 func webMeta(modTime, size string) string {
-	return fmt.Sprintf("%-16s  %8s", modTime, size)
+	return fmt.Sprintf("%-16s  %12s", modTime, size)
 }
 
 func webMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
