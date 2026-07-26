@@ -207,7 +207,19 @@ wfm -passwd /etc/wfmpw.json -webserver /srv/www:/:i,ai -prefix /srv/www:/files
 
 `-webserver` prefixes are always public (read-only); a directory with neither an
 index nor `ai` returns `403`. Files are served with byte-range and conditional-request
-support. Note `-rate_limit` does not apply to `-webserver`.
+support.
+
+## WebDAV
+
+Every `-prefix` and per-user home is also a WebDAV mount at the same url as the web
+ui, so `http://host/files` both browses in a browser and mounts as a drive. Auth and
+permissions are the ui's. Locks expire after 30 minutes, infinite-depth `PROPFIND` is
+refused and `-rate_limit` does not apply. Disable with `-webdav=false`; `-webserver`
+prefixes are never served. Windows requires TLS to send Basic auth by default.
+
+```sh
+wfm -passwd /etc/wfmpw.json -prefix /srv/files:/files
+```
 
 ## FastCGI
 
@@ -456,6 +468,8 @@ Usage of wfm:
         TLS private key file (PEM), eg: /etc/ssl/wfm.key
   -txt_le string
         default line endings when editing text files (default "LF")
+  -webdav
+        serve prefixes over WebDAV in addition to the web ui (default true)
   -webserver value
         Plain static web server /fsdir:/httppath[:flags], flags i,ai eg.: /srv/www:/:i,ai (multi)
 ```

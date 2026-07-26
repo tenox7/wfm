@@ -107,10 +107,14 @@ var barePrefix = []string{
 
 // bareContains matches anywhere in the user-agent: crawlers and clients that
 // masquerade as Mozilla/5.0 (search engine bots, AI scrapers and fetchers,
-// link previewers, PowerShell).
+// link previewers, PowerShell), and webdav clients, which fetch files with a
+// plain GET and must get the bytes on disk rather than a .url redirect, an
+// archive listing or a converted image.
 var bareContains = []string{
 	"bot", "crawler", "spider", "slurp", "facebookexternal", "perplexity",
 	"powershell",
+	"webdav", "davfs", "neon/", "cadaver", "cyberduck", "gvfs", "davclnt",
+	"microsoft office", "msoffice",
 }
 
 // uiFor picks the ui mode for a request: ?ui= override first, then bare for
@@ -124,6 +128,11 @@ func uiFor(req *http.Request) uiMode {
 		return uiLegacy
 	case "modern":
 		return uiModern
+	}
+	// microsoft's "serve the resource as stored, do not process it" header,
+	// sent by the windows webdav redirector and office
+	if strings.EqualFold(req.Header.Get("Translate"), "f") {
+		return uiBare
 	}
 	ua := strings.ToLower(req.UserAgent())
 	if ua == "" {

@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/tenox7/tkvs"
 	"golang.org/x/crypto/acme/autocert"
+	"golang.org/x/net/webdav"
 )
 
 type multiString []string
@@ -30,10 +31,11 @@ type multiString []string
 type wfmPrefix struct {
 	uri       string
 	fs        afero.Fs
-	owner     string // if set, only this user may access the prefix
-	web       bool   // plain static web server mode (no WFM UI)
-	index     bool   // web: serve index.html/index.htm if present
-	autoIndex bool   // web: generate a directory listing
+	owner     string          // if set, only this user may access the prefix
+	web       bool            // plain static web server mode (no WFM UI)
+	index     bool            // web: serve index.html/index.htm if present
+	autoIndex bool            // web: generate a directory listing
+	dav       *webdav.Handler // if set, serve this prefix over WebDAV
 }
 
 var (
@@ -61,6 +63,7 @@ var (
 	dumpHeader  = flag.Bool("dump_headers", false, "dump headers sent by client")
 	pfxList     multiString // this flag set in main
 	webList     multiString // this flag set in main
+	davEnable   = flag.Bool("webdav", true, "serve prefixes over WebDAV in addition to the web ui")
 	bareAgents  multiString // this flag set in main
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmFile     = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
@@ -278,8 +281,8 @@ func main() {
 		if uri == "" {
 			uri = "/"
 		}
-		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs})
-		log.Printf("Prefix fs=%v uri=%v", s[0], uri)
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, dav: newDavHandler(uri, fs)})
+		log.Printf("Prefix fs=%v uri=%v webdav=%v", s[0], uri, *davEnable)
 	}
 	// plain static web server prefixes
 	for _, p := range webList {
@@ -297,8 +300,8 @@ func main() {
 		}
 		uri := "/" + u.User
 		fs := afero.NewBasePathFs(afero.NewOsFs(), u.Home)
-		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User})
-		log.Printf("Prefix (home) fs=%v uri=%v owner=%v", u.Home, uri, u.User)
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User, dav: newDavHandler(uri, fs)})
+		log.Printf("Prefix (home) fs=%v uri=%v owner=%v webdav=%v", u.Home, uri, u.User, *davEnable)
 	}
 	// reject overlapping prefixes: same uri would register twice on the mux
 	// and the length-desc sort below leaves the winner nondeterministic
@@ -314,7 +317,13 @@ func main() {
 		return len(prefixes[i].uri) > len(prefixes[j].uri)
 	})
 	for _, p := range prefixes {
+		// webdav shares the uri with the file manager, taking only the methods
+		// the ui never uses; browsers keep sending GET/POST to the ui
 		h := func(w http.ResponseWriter, r *http.Request) {
+			if p.dav != nil && davMethods[r.Method] {
+				davMain(w, r, p)
+				return
+			}
 			wfmMain(w, r, p)
 		}
 		if p.web {
@@ -335,7 +344,7 @@ func main() {
 	}
 
 	if *bindExtra != "" {
-		log.Printf("Listening (extra) on %q", *bindAddr)
+		log.Printf("Listening (extra) on %q", *bindExtra)
 		go http.ListenAndServe(*bindExtra, mux)
 	}
 	switch {
