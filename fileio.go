@@ -32,6 +32,15 @@ var (
 	rlBu *ratelimit.Bucket
 )
 
+// sniffed types browsers refuse to render inline, remapped to a playable
+// label from the same container family
+var ctypeRemap = map[string]string{
+	"video/x-matroska": "video/webm",
+	"video/x-m4v":      "video/mp4",
+	"video/quicktime":  "video/mp4",
+	"audio/x-m4a":      "audio/mp4",
+}
+
 // validName reports whether n names a single real entry inside the current
 // directory. It rejects components that filepath.Base collapses to the current
 // or parent directory or the bare root separator ("", ".", "..", "/"). Without
@@ -153,7 +162,11 @@ func (r *wfmRequest) dispInline(uFilePath string) {
 		return
 	}
 
-	r.w.Header().Set("Content-Type", mt.String())
+	ctype := mt.String()
+	if c, ok := ctypeRemap[ctype]; ok {
+		ctype = c
+	}
+	r.w.Header().Set("Content-Type", ctype)
 	r.w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
 	r.w.Header().Set("Cache-Control", *cacheCtl)
 	serveContent(r.w, r.req, f, fi)
