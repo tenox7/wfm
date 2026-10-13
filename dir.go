@@ -71,7 +71,10 @@ func filterEntries(dirs, files []dirEntry, pat string) ([]dirEntry, []dirEntry) 
 	contains := func(n string) bool {
 		return strings.Contains(strings.ToLower(n), lp)
 	}
-	match := func(n string) bool { m, _ := path.Match(lp, strings.ToLower(n)); return m }
+	match := func(n string) bool {
+		m, err := path.Match(lp, strings.ToLower(n))
+		return m || err != nil && contains(n)
+	}
 	isRe := strings.ContainsAny(pat, `\()|+{}^$`)
 	if isRe {
 		if re, err := regexp.Compile("(?i)" + pat); err == nil {

@@ -29,7 +29,7 @@ func entryNames(es []dirEntry) (ns []string) {
 
 func TestFilterEntries(t *testing.T) {
 	dNames := []string{"src", "Foobox", "docs"}
-	fNames := []string{"README.md", "main.go", "main_test.go", "foobar.txt", "Foo.jpg", "notes"}
+	fNames := []string{"README.md", "main.go", "main_test.go", "foobar.txt", "Foo.jpg", "notes", "track[1].mp3"}
 	dirs, files := mkEntries(dNames), mkEntries(fNames)
 	cases := []struct {
 		pat          string
@@ -37,7 +37,7 @@ func TestFilterEntries(t *testing.T) {
 	}{
 		{"", dNames, fNames},
 		{"*.go", nil, []string{"main.go", "main_test.go"}},
-		{"*.*", nil, []string{"README.md", "main.go", "main_test.go", "foobar.txt", "Foo.jpg"}},
+		{"*.*", nil, []string{"README.md", "main.go", "main_test.go", "foobar.txt", "Foo.jpg", "track[1].mp3"}},
 		{"main*", nil, []string{"main.go", "main_test.go"}},
 		{"*.JPG", nil, []string{"Foo.jpg"}},                            // glob, case-insensitive
 		{"notes", nil, []string{"notes"}},                              // exact match anywhere, no fallback
@@ -46,7 +46,8 @@ func TestFilterEntries(t *testing.T) {
 		{"readme", nil, []string{"README.md"}},
 		{`\.GO$`, nil, []string{"main.go", "main_test.go"}}, // regex, case-insensitive
 		{"^(foo|main)", []string{"Foobox"}, []string{"main.go", "main_test.go", "foobar.txt", "Foo.jpg"}},
-		{"c++", nil, nil}, // invalid regex falls back to substring
+		{"c++", nil, nil},                         // invalid regex falls back to substring
+		{"track[", nil, []string{"track[1].mp3"}}, // invalid glob falls back to substring
 		{"*.zzz", nil, nil},
 		{"zzz", nil, nil},
 	}
