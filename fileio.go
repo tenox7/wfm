@@ -252,8 +252,7 @@ func (r *wfmRequest) convPng(uFilePath, format string) {
 }
 
 func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 	defer f.Close()
@@ -284,8 +283,7 @@ func (r *wfmRequest) uploadFile(h *multipart.FileHeader, f multipart.File) {
 }
 
 func (r *wfmRequest) saveText(uData, crlf string) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 	if uData == "" {
@@ -327,8 +325,7 @@ func (r *wfmRequest) saveText(uData, crlf string) {
 }
 
 func (r *wfmRequest) mkdir() {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 
@@ -346,8 +343,7 @@ func (r *wfmRequest) mkdir() {
 }
 
 func (r *wfmRequest) mkfile() {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 
@@ -365,8 +361,7 @@ func (r *wfmRequest) mkfile() {
 }
 
 func (r *wfmRequest) mkurl(eUrl string) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 	if !validName(r.uFbn) {
@@ -388,8 +383,7 @@ func (r *wfmRequest) mkurl(eUrl string) {
 }
 
 func (r *wfmRequest) renFile(uNewf string) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 
@@ -410,8 +404,7 @@ func (r *wfmRequest) renFile(uNewf string) {
 }
 
 func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 	uDst = filepath.Clean("/" + uDst)
@@ -438,8 +431,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 }
 
 func (r *wfmRequest) deleteFiles(uFilePaths []string) {
-	if !r.rwAccess {
-		r.htErr("permission", errReadOnly)
+	if !r.mayWrite() {
 		return
 	}
 	log.Printf("delete dir=%v files=%+v user=%v@%v", r.uDir, uFilePaths, r.userName, r.remAddr)

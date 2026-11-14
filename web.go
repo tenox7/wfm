@@ -157,6 +157,38 @@ func uiFor(req *http.Request) uiMode {
 // errReadOnly wraps fs.ErrPermission so errCode maps it to 403 for bare clients.
 var errReadOnly = fmt.Errorf("read only: %w", fs.ErrPermission)
 
+// errNotPost is the error for a change requested with any method but POST.
+var errNotPost = fmt.Errorf("changes must be sent with POST: %w", fs.ErrPermission)
+
+// crossOrigin refuses POSTs that a browser marks as coming from another site.
+// Requests with neither a Sec-Fetch-Site nor an Origin header pass, which
+// keeps scripts and legacy browsers working.
+var crossOrigin = http.NewCrossOriginProtection()
+
+// mayWrite reports whether this request may change files, rendering the error
+// if not. Login is HTTP Basic auth, which a browser attaches to every request
+// it makes to this host, whichever page caused it. So a change has to be a
+// POST (a link or an image on any page can fire a GET) and has to come from
+// this origin (a form on any page can fire a POST).
+func (r *wfmRequest) mayWrite() bool {
+	var err error
+	switch {
+	case !r.rwAccess:
+		err = errReadOnly
+	case r.req.Method != http.MethodPost:
+		err = errNotPost
+	default:
+		if cerr := crossOrigin.Check(r.req); cerr != nil {
+			err = fmt.Errorf("%v: %w", cerr, fs.ErrPermission)
+		}
+	}
+	if err != nil {
+		r.htErr("permission", err)
+		return false
+	}
+	return true
+}
+
 // errCode maps a file operation error to the http status bare clients get.
 func errCode(err error) int {
 	switch {
