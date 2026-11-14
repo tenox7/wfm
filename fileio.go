@@ -395,7 +395,7 @@ func (r *wfmRequest) moveFiles(uFilePaths []string, uDst string) {
 		r.htErr("permission", errReadOnly)
 		return
 	}
-	uDst = filepath.Clean(uDst)
+	uDst = filepath.Clean("/" + uDst)
 	log.Printf("move dir=%v files=%+v dst=%v user=%v@%v", r.uDir, uFilePaths, uDst, r.userName, r.remAddr)
 
 	lF := ""

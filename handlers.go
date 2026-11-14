@@ -27,6 +27,19 @@ type wfmRequest struct {
 	uFilter  string // file filter pattern for dir view
 }
 
+// confineDir maps a user-supplied directory onto an absolute path rooted at the
+// served tree. afero BasePathFs confines paths with a plain string-prefix check,
+// so a leading ".." in the dir/dst form field would otherwise clean into a
+// sibling directory that shares the mount base path and escape the served tree.
+// Forcing a leading slash before Clean drops any such climb. Empty input is left
+// empty so the caller URL-path fallback still fires.
+func confineDir(d string) string {
+	if d == "" {
+		return ""
+	}
+	return filepath.Clean("/" + d)
+}
+
 func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	uName, uAccess := auth(w, r)
 	if uName == "" {
@@ -68,7 +81,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		fs:       p.fs,
 		pfx:      p.uri,
 		uFbn:     filepath.Base(r.FormValue("file")),
-		uDir:     filepath.Clean(r.FormValue("dir")),
+		uDir:     confineDir(r.FormValue("dir")),
 	}
 
 	// directory can come either from form value or URI Path
