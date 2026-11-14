@@ -209,6 +209,9 @@ wfm -passwd /etc/wfmpw.json -webserver /srv/www:/:i,ai -prefix /srv/www:/files
 index nor `ai` returns `403`. Files are served with byte-range and conditional-request
 support.
 
+The file manager shows html, svg and xml files with scripts disabled. `-webserver`
+serves them as live pages, so only let trusted users write to a directory it serves.
+
 ## WebDAV
 
 Every `-prefix` and per-user home is also a WebDAV mount at the same url as the web

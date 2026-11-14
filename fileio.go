@@ -41,6 +41,21 @@ var ctypeRemap = map[string]string{
 	"audio/x-m4a":      "audio/mp4",
 }
 
+// inertType reports whether browsers display ctype without running script
+// from the file. Anything else (html, svg, xml) is served sandboxed: a file one
+// user uploads would otherwise run script as whoever opens it, with that
+// viewer's access to this origin. Pdf stays out: its script cannot reach the
+// page, and a sandbox breaks the built-in pdf viewer of some browsers.
+func inertType(ctype string) bool {
+	switch {
+	case strings.HasPrefix(ctype, "image/svg"):
+		return false
+	case strings.HasPrefix(ctype, "image/"), strings.HasPrefix(ctype, "audio/"), strings.HasPrefix(ctype, "video/"):
+		return true
+	}
+	return ctype == "application/pdf"
+}
+
 // validName reports whether n names a single real entry inside the current
 // directory. It rejects components that filepath.Base collapses to the current
 // or parent directory or the bare root separator ("", ".", "..", "/"). Without
@@ -167,6 +182,10 @@ func (r *wfmRequest) dispInline(uFilePath string) {
 		ctype = c
 	}
 	r.w.Header().Set("Content-Type", ctype)
+	r.w.Header().Set("X-Content-Type-Options", "nosniff")
+	if !inertType(ctype) {
+		r.w.Header().Set("Content-Security-Policy", "sandbox")
+	}
 	r.w.Header().Set("Content-Disposition", dispoHeader("inline", filepath.Base(uFilePath)))
 	r.w.Header().Set("Cache-Control", *cacheCtl)
 	serveContent(r.w, r.req, f, fi)
