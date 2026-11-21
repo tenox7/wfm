@@ -451,6 +451,9 @@ func (r *wfmRequest) deleteFiles(uFilePaths []string) {
 }
 
 func (r *wfmRequest) dispOrDir(hi string) {
+	if r.htBlock(r.uDir) {
+		return
+	}
 	f, err := r.fs.Stat(r.uDir)
 	if err != nil {
 		switch r.uDir {

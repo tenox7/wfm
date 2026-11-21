@@ -36,6 +36,7 @@ type wfmPrefix struct {
 	index     bool            // web: serve index.html/index.htm if present
 	autoIndex bool            // web: generate a directory listing
 	dav       *webdav.Handler // if set, serve this prefix over WebDAV
+	htaccess  bool            // apply .htaccess rules (file manager: to users without rw)
 }
 
 var (
@@ -64,6 +65,8 @@ var (
 	pfxList     multiString // this flag set in main
 	webList     multiString // this flag set in main
 	davEnable   = flag.Bool("webdav", true, "serve prefixes over WebDAV in addition to the web ui")
+	htPrefix    = flag.Bool("htaccess", false, "apply .htaccess files in -prefix and home dirs to users without rw access")
+	htWeb       = flag.Bool("htaccess_web", true, "apply .htaccess files in -webserver dirs")
 	bareAgents  multiString // this flag set in main
 	cacheCtl    = flag.String("cache_ctl", "no-cache", "HTTP Header Cache Control")
 	acmFile     = flag.String("acm_file", "", "autocert cache, eg: /var/cache/wfm-acme.json")
@@ -281,8 +284,8 @@ func main() {
 		if uri == "" {
 			uri = "/"
 		}
-		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, dav: newDavHandler(uri, fs)})
-		log.Printf("Prefix fs=%v uri=%v webdav=%v", s[0], uri, *davEnable)
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, dav: newDavHandler(uri, fs), htaccess: *htPrefix})
+		log.Printf("Prefix fs=%v uri=%v webdav=%v htaccess=%v", s[0], uri, *davEnable, *htPrefix)
 	}
 	// plain static web server prefixes
 	for _, p := range webList {
@@ -290,8 +293,9 @@ func main() {
 		if err != nil {
 			log.Fatalf("--webserver %q %v", p, err)
 		}
+		wp.htaccess = *htWeb
 		prefixes = append(prefixes, wp)
-		log.Printf("Webserver uri=%v index=%v autoindex=%v", wp.uri, wp.index, wp.autoIndex)
+		log.Printf("Webserver uri=%v index=%v autoindex=%v htaccess=%v", wp.uri, wp.index, wp.autoIndex, wp.htaccess)
 	}
 	// per-user home directories become owner-restricted /username prefixes
 	for _, u := range users {
@@ -300,8 +304,8 @@ func main() {
 		}
 		uri := "/" + u.User
 		fs := afero.NewBasePathFs(afero.NewOsFs(), u.Home)
-		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User, dav: newDavHandler(uri, fs)})
-		log.Printf("Prefix (home) fs=%v uri=%v owner=%v webdav=%v", u.Home, uri, u.User, *davEnable)
+		prefixes = append(prefixes, wfmPrefix{uri: uri, fs: fs, owner: u.User, dav: newDavHandler(uri, fs), htaccess: *htPrefix})
+		log.Printf("Prefix (home) fs=%v uri=%v owner=%v webdav=%v htaccess=%v", u.Home, uri, u.User, *davEnable, *htPrefix)
 	}
 	// reject overlapping prefixes: same uri would register twice on the mux
 	// and the length-desc sort below leaves the winner nondeterministic

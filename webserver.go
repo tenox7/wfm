@@ -71,14 +71,24 @@ func webMeta(modTime, size string) string {
 func webMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	upath := path.Clean("/" + strings.TrimPrefix(r.URL.Path, p.uri))
 	fi, err := p.fs.Stat(upath)
-	if err != nil {
-		http.Error(w, "404 Not Found", http.StatusNotFound)
+	if err != nil || !fi.IsDir() {
+		switch {
+		case p.htaccess && htDenied(p.fs, upath):
+			http.Error(w, "403 Forbidden", http.StatusForbidden)
+		case err != nil:
+			http.Error(w, "404 Not Found", http.StatusNotFound)
+		default:
+			serveWebFile(w, r, p.fs, upath, fi)
+		}
 		return
 	}
 
-	if !fi.IsDir() {
-		serveWebFile(w, r, p.fs, upath, fi)
-		return
+	var ht htDir // no rules unless p.htaccess
+	if p.htaccess {
+		if ht = htLoad(p.fs, upath); ht.denied() {
+			http.Error(w, "403 Forbidden", http.StatusForbidden)
+			return
+		}
 	}
 
 	// directories need a trailing slash so relative links resolve
@@ -95,15 +105,15 @@ func webMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		for _, idx := range []string{"index.html", "index.htm"} {
 			ip := path.Join(upath, idx)
 			ifi, err := p.fs.Stat(ip)
-			if err == nil && !ifi.IsDir() {
+			if err == nil && !ifi.IsDir() && !ht.fileDenied(idx) {
 				serveWebFile(w, r, p.fs, ip, ifi)
 				return
 			}
 		}
 	}
 
-	if p.autoIndex {
-		webAutoIndex(w, r, p, upath)
+	if p.autoIndex && !ht.noIndex {
+		webAutoIndex(w, r, p, upath, ht)
 		return
 	}
 
@@ -124,7 +134,7 @@ func serveWebFile(w http.ResponseWriter, r *http.Request, wfs afero.Fs, upath st
 	serveContent(w, r, f, fi)
 }
 
-func webAutoIndex(w http.ResponseWriter, r *http.Request, p wfmPrefix, upath string) {
+func webAutoIndex(w http.ResponseWriter, r *http.Request, p wfmPrefix, upath string, ht htDir) {
 	d, err := afero.ReadDir(p.fs, upath)
 	if err != nil {
 		http.Error(w, "403 Forbidden", http.StatusForbidden)
@@ -133,6 +143,9 @@ func webAutoIndex(w http.ResponseWriter, r *http.Request, p wfmPrefix, upath str
 
 	// afero.ReadDir returns entries name-sorted; splitEntries keeps the order
 	dirs, files := splitEntries(p.fs, upath, d)
+	if p.htaccess {
+		dirs, files = ht.filter(p.fs, upath, dirs, files)
+	}
 	var rows []webIndexRow
 	for _, e := range dirs {
 		rows = append(rows, indexRow(url.PathEscape(e.fi.Name())+"/", e.fi.Name()+"/", e.fi, true))

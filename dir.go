@@ -134,6 +134,13 @@ func splitEntries(wfs afero.Fs, dir string, d []os.FileInfo) (dirs, files []dirE
 }
 
 func (r *wfmRequest) listFiles(hi string) {
+	var ht htDir
+	if r.ht {
+		if ht = htLoad(r.fs, r.uDir); ht.denied() || ht.noIndex {
+			r.htForbid()
+			return
+		}
+	}
 	d, err := afero.ReadDir(r.fs, r.uDir)
 	if err != nil {
 		r.htErr("Unable to read directory", err)
@@ -143,6 +150,9 @@ func (r *wfmRequest) listFiles(hi string) {
 	sortFiles(d, &sl, r.eSort)
 
 	dirs, files := splitEntries(r.fs, r.uDir, d)
+	if r.ht {
+		dirs, files = ht.filter(r.fs, r.uDir, dirs, files)
+	}
 	dirs, files = filterEntries(dirs, files, r.uFilter)
 
 	if r.ui == uiBare {

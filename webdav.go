@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -57,7 +58,10 @@ var davMethods = map[string]bool{
 
 type davCtxKey int
 
-const davMethod davCtxKey = 0
+const (
+	davMethod davCtxKey = iota
+	davHt               // .htaccess rules apply to this request
+)
 
 // davClean confines a name to the served tree. The url path is already cleaned
 // by the mux, but the COPY/MOVE Destination header is not: x/net/webdav hands
@@ -149,17 +153,19 @@ func (d davFS) Mkdir(_ context.Context, name string, perm os.FileMode) error {
 }
 
 func (d davFS) OpenFile(ctx context.Context, name string, flag int, perm os.FileMode) (webdav.File, error) {
-	f, err := d.fs.OpenFile(davClean(name), flag, perm)
+	name = davClean(name)
+	f, err := d.fs.OpenFile(name, flag, perm)
 	if err != nil {
 		return nil, err
 	}
-	// hide dot entries from listings only: webdav reads directories through
-	// this same handle when recursively copying, where filtering would
-	// silently drop them from the copy
-	if *showDot || ctx.Value(davMethod) != methodPropfind {
+	// filter listings only: webdav reads directories through this same
+	// handle when recursively copying, where filtering would silently drop
+	// entries from the copy
+	ht, _ := ctx.Value(davHt).(bool)
+	if ctx.Value(davMethod) != methodPropfind || *showDot && !ht {
 		return f, nil
 	}
-	return noDotFile{f}, nil
+	return davListing{f, d.fs, name, ht}, nil
 }
 
 func (d davFS) RemoveAll(_ context.Context, name string) error {
@@ -186,18 +192,53 @@ func (d davFS) Stat(_ context.Context, name string) (os.FileInfo, error) {
 	return d.fs.Stat(davClean(name))
 }
 
-type noDotFile struct{ afero.File }
+// davListing leaves dot entries out of listings unless -show_dot, and with
+// ht also the entries .htaccess rules deny.
+type davListing struct {
+	afero.File
+	fs  afero.Fs
+	dir string
+	ht  bool
+}
 
-func (f noDotFile) Readdir(count int) ([]os.FileInfo, error) {
+func (f davListing) Readdir(count int) ([]os.FileInfo, error) {
 	fis, err := f.File.Readdir(count)
-	out := fis[:0]
-	for _, fi := range fis {
-		if strings.HasPrefix(fi.Name(), ".") {
-			continue
-		}
-		out = append(out, fi)
+	var h htDir
+	if f.ht {
+		h = htLoad(f.fs, f.dir)
 	}
-	return out, err
+	return slices.DeleteFunc(fis, func(fi os.FileInfo) bool {
+		if !*showDot && strings.HasPrefix(fi.Name(), ".") {
+			return true
+		}
+		if !f.ht {
+			return false
+		}
+		isDir := fi.IsDir()
+		if fi.Mode()&os.ModeSymlink != 0 {
+			st, err := f.fs.Stat(path.Join(f.dir, fi.Name()))
+			isDir = err == nil && st.IsDir()
+		}
+		return h.hides(f.fs, f.dir, fi.Name(), isDir)
+	}), err
+}
+
+// davHtaccess refuses a path .htaccess rules deny, and a PROPFIND listing of
+// a directory with Options -Indexes.
+func davHtaccess(w http.ResponseWriter, r *http.Request, p wfmPrefix) bool {
+	name, ok := davStrip(p.dav.Prefix, r.URL.Path)
+	if !ok {
+		return true // not under this mount, webdav will 404
+	}
+	deny := htDenied(p.fs, name)
+	if !deny && r.Method == methodPropfind && r.Header.Get("Depth") != "0" {
+		fi, err := p.fs.Stat(name)
+		deny = err == nil && fi.IsDir() && htLoad(p.fs, name).noIndex
+	}
+	if deny {
+		http.Error(w, "403 Forbidden", http.StatusForbidden)
+	}
+	return !deny
 }
 
 // davLS enforces davMaxLock on stored locks. davTimeout already clamps the
@@ -335,6 +376,13 @@ func davMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	if !davDepth(w, r) || !davDest(w, r, p.dav.Prefix) {
 		return
 	}
+	ctx := context.WithValue(r.Context(), davMethod, r.Method)
+	if p.htaccess && !uAccess {
+		if !davHtaccess(w, r, p) {
+			return
+		}
+		ctx = context.WithValue(ctx, davHt, true)
+	}
 	davTimeout(r)
-	p.dav.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), davMethod, r.Method)))
+	p.dav.ServeHTTP(w, r.WithContext(ctx))
 }

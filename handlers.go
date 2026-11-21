@@ -20,6 +20,7 @@ type wfmRequest struct {
 	userName string
 	remAddr  string
 	rwAccess bool
+	ht       bool // .htaccess rules apply to this request
 	ui       uiMode
 	eSort    string // escaped sort order
 	uDir     string // unescaped directory name
@@ -72,6 +73,7 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 	wfm := &wfmRequest{
 		userName: uName,
 		rwAccess: uAccess,
+		ht:       p.htaccess && !uAccess,
 		remAddr:  r.RemoteAddr,
 		w:        w,
 		req:      r,
@@ -164,6 +166,9 @@ func wfmMain(w http.ResponseWriter, r *http.Request, p wfmPrefix) {
 		wfm.uFbn = filepath.Base(urlPath)
 		if !validName(wfm.uFbn) {
 			wfm.htErr("operation", fmt.Errorf("no file specified"))
+			return
+		}
+		if wfm.htBlock(urlPath) {
 			return
 		}
 		post := r.Method == http.MethodPost

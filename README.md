@@ -224,6 +224,22 @@ prefixes are never served. Windows requires TLS to send Basic auth by default.
 wfm -passwd /etc/wfmpw.json -prefix /srv/files:/files
 ```
 
+## .htaccess
+
+Apache style `.htaccess` files apply on `-webserver` paths, unless `-htaccess_web=false`.
+With `-htaccess` they also apply on `-prefix` and home paths, to users without rw access.
+WFM reads `Options -Indexes`, `Require all denied|granted` and `Deny|Allow from all`,
+also inside `<Files>` and `<FilesMatch>`. Denied items are hidden from listings and
+return `403`, as do `.ht*` files. Other directives are ignored. Access rules WFM can not
+check, such as `Require ip`, deny everyone.
+
+```apache
+Options -Indexes
+<FilesMatch "\.(bak|log)$">
+    Require all denied
+</FilesMatch>
+```
+
 ## FastCGI
 
 Run WFM with `-fastcgi` behind nginx. The http path in `-prefix` must match the
@@ -441,6 +457,10 @@ Usage of wfm:
         enable f2b dump at this prefix, eg. /f2bdump (default no)
   -form_maxmem int
         maximum memory used for form parsing, increase for large uploads (default 10485760)
+  -htaccess
+        apply .htaccess files in -prefix and home dirs to users without rw access
+  -htaccess_web
+        apply .htaccess files in -webserver dirs (default true)
   -html-templates string
         directory of html templates overriding the built-in ones
   -list_archive_contents
